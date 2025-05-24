@@ -334,10 +334,14 @@ static void load_static_surfaces(TerrainData **data, TerrainData *vertexData, s3
     s32 i;
     struct Surface *surface;
     RoomData room = 0;
+
+    s32 type = surfaceType & SURFACE_MASK_TYPE;
+    s32 material = (surfaceType >> 12);
+
 #ifndef ALL_SURFACES_HAVE_FORCE
-    s16 hasForce = surface_has_force(surfaceType);
+    s16 hasForce = surface_has_force(type);
 #endif
-    s32 flags = surf_has_no_cam_collision(surfaceType);
+    s32 flags = surf_has_no_cam_collision(type);
 
     s32 numSurfaces = *(*data)++;
 
@@ -349,7 +353,8 @@ static void load_static_surfaces(TerrainData **data, TerrainData *vertexData, s3
         surface = read_surface_data(vertexData, data, FALSE);
         if (surface != NULL) {
             surface->room = room;
-            surface->type = surfaceType;
+            surface->type = type;
+            surface->material = material;
             surface->flags = flags;
 
 #ifdef ALL_SURFACES_HAVE_FORCE
@@ -505,7 +510,7 @@ void load_area_terrain(s32 index, TerrainData *data, RoomData *surfaceRooms, s16
         terrainLoadType = *data++;
 
         if (TERRAIN_LOAD_IS_SURFACE_TYPE_LOW(terrainLoadType)) {
-            load_static_surfaces(&data, vertexData, terrainLoadType, &surfaceRooms);
+            load_static_surfaces(&data, vertexData, SURFACE_MASK_TYPE, &surfaceRooms);
         } else if (terrainLoadType == TERRAIN_LOAD_VERTICES) {
             vertexData = read_vertex_data(&data);
         } else if (terrainLoadType == TERRAIN_LOAD_OBJECTS) {

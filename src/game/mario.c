@@ -514,6 +514,8 @@ u32 mario_get_terrain_sound_addend(struct MarioState *m) {
             }
 
             ret = sTerrainSounds[terrainType][floorSoundType] << 16;
+
+            ret = surfaceMaterialList[m->floor->material]->sound << 16;
         }
     }
 

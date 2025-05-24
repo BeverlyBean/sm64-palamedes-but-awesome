@@ -5,7 +5,7 @@ include util.mk
 # Default target
 default: all
 
-TARGET_STRING := sm64-60threaded
+TARGET_STRING := sm64pv2
 
 # Preprocessor definitions
 DEFINES :=

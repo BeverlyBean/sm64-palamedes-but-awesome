@@ -2,6 +2,7 @@
 #define SURFACE_TERRAINS_H
 
 #include "config.h"
+#include "src/game/surface_material.h"
 
 // Surface Types
 enum SurfaceTypes {
@@ -322,5 +323,8 @@ enum TerrainType {
 
 // Water Box
 #define COL_WATER_BOX(id, x1, z1, x2, z2, y) id, x1, z1, x2, z2, y
+
+#define SURFACE_MASK_TYPE 0x0FFF
+#define SURFACE_MASK_MATERIAL 0xF000
 
 #endif // SURFACE_TERRAINS_H
