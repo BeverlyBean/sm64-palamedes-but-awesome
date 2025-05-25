@@ -30,6 +30,7 @@
 #include "game/puppycam2.h"
 #include "game/puppyprint.h"
 #include "game/emutest.h"
+#include "game/cubic_volume.h"
 
 #include "config.h"
 
@@ -871,6 +872,26 @@ static void level_cmd_set_echo(void) {
     sCurrentCmd = CMD_NEXT;
 }
 
+static void level_cmd_cubic_volume(void) {
+
+    testVolume.pos[0] = CMD_GET(f32,4*1) * 100.0f;
+    testVolume.pos[1] = CMD_GET(f32,4*2) * 100.0f;
+    testVolume.pos[2] = CMD_GET(f32,4*3) * 100.0f;
+
+    testVolume.scale[0] = CMD_GET(f32,4*4);
+    testVolume.scale[1] = CMD_GET(f32,4*5);
+    testVolume.scale[2] = CMD_GET(f32,4*6);
+
+    testVolume.rot[3] = CMD_GET(f32,4*7);
+    testVolume.rot[0] = CMD_GET(f32,4*8);
+    testVolume.rot[1] = CMD_GET(f32,4*9);
+    testVolume.rot[2] = CMD_GET(f32,4*10);
+
+    quat_normalize(testVolume.rot);
+
+    sCurrentCmd = CMD_NEXT;
+}
+
 static void (*LevelScriptJumpTable[])(void) = {
     /*LEVEL_CMD_LOAD_AND_EXECUTE            */ level_cmd_load_and_execute,
     /*LEVEL_CMD_EXIT_AND_EXECUTE            */ level_cmd_exit_and_execute,
@@ -936,6 +957,7 @@ static void (*LevelScriptJumpTable[])(void) = {
     /*LEVEL_CMD_PUPPYVOLUME                 */ level_cmd_puppyvolume,
     /*LEVEL_CMD_CHANGE_AREA_SKYBOX          */ level_cmd_change_area_skybox,
     /*LEVEL_CMD_SET_ECHO                    */ level_cmd_set_echo,
+    /*LEVEL_CMD_CUBIC_VOLUME*/                 level_cmd_cubic_volume,
 };
 
 struct LevelCommand *level_script_execute(struct LevelCommand *cmd) {

@@ -83,7 +83,10 @@ typedef Vec4f Quat;
 
 // -- Scripts --
 typedef uintptr_t GeoLayout;
-typedef uintptr_t LevelScript;
+typedef union {
+    uintptr_t i;
+    float f;
+} LevelScript;
 typedef uintptr_t BehaviorScript;
 
 // -- Mario/Objects --

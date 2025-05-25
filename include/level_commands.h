@@ -71,6 +71,7 @@ enum LevelCommands {
     /*0x3D*/ LEVEL_CMD_PUPPYVOLUME,
     /*0x3E*/ LEVEL_CMD_CHANGE_AREA_SKYBOX,
     /*0x3F*/ LEVEL_CMD_SET_ECHO,
+             LEVEL_CMD_CUBIC_VOLUME,
 };
 
 enum LevelActs {
@@ -448,6 +449,19 @@ enum GoddardScene {
 
 #define SET_ECHO(console, emulator) \
     CMD_BBBB(LEVEL_CMD_SET_ECHO, 0x04, console, emulator)
+
+#define CUBIC_VOLUME(px, py, pz, sx, sy, sz, rw, rx, ry, rz) \
+    CMD_BBBB(LEVEL_CMD_CUBIC_VOLUME, 4*11, 0, 0), \
+    CMD_F(px), \
+    CMD_F(py), \
+    CMD_F(pz), \
+    CMD_F(sx), \
+    CMD_F(sy), \
+    CMD_F(sz), \
+    CMD_F(rw), \
+    CMD_F(rx), \
+    CMD_F(ry), \
+    CMD_F(rz)
 
 #define MACRO_OBJECTS(objList) \
     CMD_BBH(LEVEL_CMD_SET_MACRO_OBJECTS, 0x08, 0x0000), \

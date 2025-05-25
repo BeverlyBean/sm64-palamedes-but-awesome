@@ -32,6 +32,7 @@
 #include "save_file.h"
 #include "sound_init.h"
 #include "rumble_init.h"
+#include "cubic_volume.h"
 
 
 /**************************************************
@@ -1712,6 +1713,10 @@ void queue_rumble_particles(struct MarioState *m) {
  */
 s32 execute_mario_action(UNUSED struct Object *obj) {
     s32 inLoop = TRUE;
+
+    //if (point_inside_volume(gMarioState->pos, &testVolume)) {
+        print_text_fmt_int(210, 100, "%d", point_inside_volume(gMarioState->pos, &testVolume));
+    //};
 
     // Updates once per frame:
     vec3f_get_dist_and_angle(gMarioState->prevPos, gMarioState->pos, &gMarioState->moveSpeed, &gMarioState->movePitch, &gMarioState->moveYaw);

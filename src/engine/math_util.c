@@ -1129,8 +1129,7 @@ void quat_inverse(Quat dest, Quat q) {
         dest[3] =  q[3] * invNormSq;
     } else {
         // If the quaternion has zero norm, return identity quaternion as a fallback.
-        dest[0] = dest[1] = dest[2] = 0.0f;
-        dest[3] = 1.0f;
+        quat_identity(dest);
     }
 }
 

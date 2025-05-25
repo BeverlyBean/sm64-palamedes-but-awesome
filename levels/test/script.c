@@ -27,7 +27,11 @@ const LevelScript level_test_entry[] = {
 	/* Fast64 end persistent block [level commands] */
 
 	AREA(1, test_area_1),
-		MARIO_POS(0x01, 0, -785, 103, 224),
+		MARIO_POS(0x01, 0, -314, 471, 280),
+		CUBIC_VOLUME(35.33827590942383, 11.177587509155273, -37.235572814941406,
+			11.472766876220703, 9.167973518371582, 5.4097981452941895,
+			0.9283496141433716, -0.25146886706352234, 0.2694424092769623, 0.04828116297721863),
+		OBJECT(MODEL_STAR, -1689, -1884, -1439, 0, 0, 0, 0x00000000, bhvStar),
 		TERRAIN(test_area_1_collision),
 		MACRO_OBJECTS(test_area_1_macro_objs),
 		STOP_MUSIC(0),
@@ -36,7 +40,7 @@ const LevelScript level_test_entry[] = {
 		/* Fast64 end persistent block [area commands] */
 	END_AREA(),
 	FREE_LEVEL_POOL(),
-	MARIO_POS(0x01, 0, -785, 103, 224),
+	MARIO_POS(0x01, 0, -314, 471, 280),
 	CALL(0, lvl_init_or_update),
 	CALL_LOOP(1, lvl_init_or_update),
 	CLEAR_LEVEL(),

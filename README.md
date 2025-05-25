@@ -1,3 +1,10 @@
+# SM64 Palamedes v2
+
+Features:
+- Multithreaded 60 FPS [HackerSM64-60threaded](https://github.com/rovertronic/HackerSM64-60threaded)
+- Cubic Volumes in levels (cubic_volume.h)
+- Collision surface materials (surface_material.h)
+
 # ![](https://i.imgur.com/CeOukzk.gif) HackerSM64 ![](https://i.imgur.com/s0LUbTo.gif)
 
 **AFTER CLONING THE REPO, CHECK OUT THE `include/config` FOLDER BEFORE ANYTHING ELSE! THERE'S A LOT OF STUFF IN THIS REPO THAT CAN BE TOGGLED THERE.**
