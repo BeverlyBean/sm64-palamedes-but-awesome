@@ -874,9 +874,9 @@ static void level_cmd_set_echo(void) {
 
 static void level_cmd_cubic_volume(void) {
 
-    testVolume.pos[0] = CMD_GET(f32,4*1) * 100.0f;
-    testVolume.pos[1] = CMD_GET(f32,4*2) * 100.0f;
-    testVolume.pos[2] = CMD_GET(f32,4*3) * 100.0f;
+    testVolume.pos[0] = CMD_GET(f32,4*1);
+    testVolume.pos[1] = CMD_GET(f32,4*2);
+    testVolume.pos[2] = CMD_GET(f32,4*3);
 
     testVolume.scale[0] = CMD_GET(f32,4*4);
     testVolume.scale[1] = CMD_GET(f32,4*5);
@@ -887,7 +887,10 @@ static void level_cmd_cubic_volume(void) {
     testVolume.rot[1] = CMD_GET(f32,4*9);
     testVolume.rot[2] = CMD_GET(f32,4*10);
 
-    quat_normalize(testVolume.rot);
+    Quat inversed;
+    quat_copy(inversed,testVolume.rot);
+
+    quat_inverse(testVolume.rot,inversed);
 
     sCurrentCmd = CMD_NEXT;
 }
