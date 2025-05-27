@@ -966,7 +966,7 @@ void geo_process_shadow(struct GraphNodeShadow *node) {
                        || gCurrAnimType == ANIM_TYPE_LATERAL_TRANSLATION)
         );
 
-        if (shifted) {
+        if (FALSE) {
             struct GraphNode *geo = node->node.children;
             f32 objScale = 1.0f;
             if (geo != NULL && geo->type == GRAPH_NODE_TYPE_SCALE) {
@@ -994,7 +994,7 @@ void geo_process_shadow(struct GraphNodeShadow *node) {
 
         if (shadowList != NULL) {
             mtxf_shadow(gMatStack[gMatStackIndex + 1],
-                gCurrShadow.floorNormal, shadowPos, gCurrShadow.scale, gCurGraphNodeObject->angle[1]);
+                gCurrShadow.floorNormal, shadowPos, gCurrShadow.scale, 0);
 
             inc_mat_stack();
             geo_append_display_list(

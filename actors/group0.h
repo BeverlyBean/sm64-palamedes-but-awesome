@@ -333,4 +333,16 @@ extern const Gfx white_particle_small_unused_dl[];
 
 #include "testcube/geo_header.h"
 
+#include "shadow_head/header.h"
+
+#include "shadow_foot/header.h"
+
+#include "shadow_hand/header.h"
+
+#include "shadow_foot_2/header.h"
+
+#include "shadow_limb/header.h"
+
+#include "shadow_torso/header.h"
+
 #endif

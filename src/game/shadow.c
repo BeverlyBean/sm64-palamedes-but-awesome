@@ -13,6 +13,7 @@
 #include "segment2.h"
 #include "shadow.h"
 #include "sm64.h"
+#include "special_shadow.h"
 
 /**
  * @file shadow.c
@@ -176,6 +177,13 @@ static void add_shadow_to_display_list(Gfx *displayListHead, s8 shadowType) {
     }
     gDPSetEnvColor(displayListHead++, 255, 255, 255, s->solidity);
     gSPDisplayList(displayListHead++, dl_shadow_end);
+    gSPEndDisplayList(displayListHead);
+}
+
+void add_special_shadow_to_display_list(Gfx *displayListHead) {
+    gSPDisplayList(displayListHead++, dl_shadow_special);
+    gDPSetEnvColor(displayListHead++, 255, 255, 255, s->solidity);
+    gSPDisplayList(displayListHead++, dl_shadow_special_tri);
     gSPEndDisplayList(displayListHead);
 }
 
@@ -360,7 +368,11 @@ Gfx *create_shadow_below_xyz(Vec3f pos, s16 shadowScale, u8 shadowSolidity, s8 s
     }
 
     // Generate the shadow display list with type and solidity.
-    add_shadow_to_display_list(displayList, shadowType);
+    if (isPlayer) {
+        add_special_shadow_to_display_list(displayList);
+    } else {
+        add_shadow_to_display_list(displayList, shadowType);
+    }
 
     // Move the shadow position to the floor height.
     pos[1] = floorHeight;

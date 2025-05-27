@@ -2,8 +2,9 @@
 
 Features:
 - Multithreaded 60 FPS [HackerSM64-60threaded](https://github.com/rovertronic/HackerSM64-60threaded)
-- Cubic Volumes in levels (cubic_volume.h)
-- Collision surface materials (surface_material.h)
+- Shadow mapping for important actors (`special_shadow.h`)
+- Cubic Volumes in levels (`cubic_volume.h`)
+- Collision surface materials (`surface_material.h`) (currently being serviced, broken)
 
 # ![](https://i.imgur.com/CeOukzk.gif) HackerSM64 ![](https://i.imgur.com/s0LUbTo.gif)
 

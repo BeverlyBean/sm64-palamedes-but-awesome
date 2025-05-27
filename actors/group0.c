@@ -32,3 +32,9 @@
 #endif
 
 #include "testcube/model.inc.c"
+#include "shadow_head/model.inc.c"
+#include "shadow_foot/model.inc.c"
+#include "shadow_hand/model.inc.c"
+#include "shadow_foot_2/model.inc.c"
+#include "shadow_limb/model.inc.c"
+#include "shadow_torso/model.inc.c"

@@ -516,7 +516,7 @@ u32 mario_get_terrain_sound_addend(struct MarioState *m) {
 
             ret = sTerrainSounds[terrainType][floorSoundType] << 16;
 
-            ret = surfaceMaterialList[m->floor->material]->sound << 16;
+            //ret = surfaceMaterialList[m->floor->material]->sound << 16;
         }
     }
 
@@ -1714,9 +1714,9 @@ void queue_rumble_particles(struct MarioState *m) {
 s32 execute_mario_action(UNUSED struct Object *obj) {
     s32 inLoop = TRUE;
 
-    //if (point_inside_volume(gMarioState->pos, &testVolume)) {
+    if (point_inside_volume(gMarioState->pos, &testVolume)) {
         print_text_fmt_int(210, 100, "%d", point_inside_volume(gMarioState->pos, &testVolume));
-    //};
+    };
 
     // Updates once per frame:
     vec3f_get_dist_and_angle(gMarioState->prevPos, gMarioState->pos, &gMarioState->moveSpeed, &gMarioState->movePitch, &gMarioState->moveYaw);

@@ -335,8 +335,8 @@ static void load_static_surfaces(TerrainData **data, TerrainData *vertexData, s3
     struct Surface *surface;
     RoomData room = 0;
 
-    s32 type = surfaceType & SURFACE_MASK_TYPE;
-    s32 material = (surfaceType >> 12);
+    s32 type = surfaceType;// & SURFACE_MASK_TYPE;
+    //s32 material = (surfaceType >> 12);
 
 #ifndef ALL_SURFACES_HAVE_FORCE
     s16 hasForce = surface_has_force(type);
@@ -354,7 +354,7 @@ static void load_static_surfaces(TerrainData **data, TerrainData *vertexData, s3
         if (surface != NULL) {
             surface->room = room;
             surface->type = type;
-            surface->material = material;
+            //surface->material = material;
             surface->flags = flags;
 
 #ifdef ALL_SURFACES_HAVE_FORCE
@@ -510,7 +510,7 @@ void load_area_terrain(s32 index, TerrainData *data, RoomData *surfaceRooms, s16
         terrainLoadType = *data++;
 
         if (TERRAIN_LOAD_IS_SURFACE_TYPE_LOW(terrainLoadType)) {
-            load_static_surfaces(&data, vertexData, SURFACE_MASK_TYPE, &surfaceRooms);
+            load_static_surfaces(&data, vertexData, terrainLoadType, &surfaceRooms);
         } else if (terrainLoadType == TERRAIN_LOAD_VERTICES) {
             vertexData = read_vertex_data(&data);
         } else if (terrainLoadType == TERRAIN_LOAD_OBJECTS) {

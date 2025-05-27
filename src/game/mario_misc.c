@@ -25,6 +25,7 @@
 #include "skybox.h"
 #include "sound_init.h"
 #include "puppycam2.h"
+#include "special_shadow.h"
 
 #include "config.h"
 
@@ -480,6 +481,15 @@ Gfx *geo_mario_hand_foot_scaler(s32 callContext, struct GraphNode *node, UNUSED 
                 gMarioAttackScaleAnimation[asGenerated->parameter * 6 + (bodyState->punchState & PUNCH_STATE_TIMER_MASK)]
                 / 10.0f;
         }
+    }
+    return NULL;
+}
+
+Gfx *geo_mario_special_shadow_part(s32 callContext, struct GraphNode *node, Mat4 *mtx) {
+    struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
+
+    if (callContext == GEO_CONTEXT_RENDER) {
+        special_shadow_update_part(asGenerated->parameter,*mtx);
     }
     return NULL;
 }
