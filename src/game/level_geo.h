@@ -4,6 +4,8 @@
 #include <PR/ultratypes.h>
 #include <PR/gbi.h>
 
+#include "bridge.h"
+
 enum EnvFxMode {
     /* 0*/ ENVFX_MODE_NONE,         // no effects
     /* 1*/ ENVFX_SNOW_NORMAL,       // CCM, SL

@@ -72,6 +72,8 @@ enum LevelCommands {
     /*0x3E*/ LEVEL_CMD_CHANGE_AREA_SKYBOX,
     /*0x3F*/ LEVEL_CMD_SET_ECHO,
              LEVEL_CMD_CUBIC_VOLUME,
+             LEVEL_CMD_BRIDGE_START,
+             LEVEL_CMD_BRIDGE_END,
 };
 
 enum LevelActs {
@@ -462,6 +464,13 @@ enum GoddardScene {
     CMD_F(rx), \
     CMD_F(ry), \
     CMD_F(rz)
+
+#define BRIDGE_START(collision) \
+    CMD_BBBB(LEVEL_CMD_BRIDGE_START, 4*2, 0, 0), \
+    CMD_PTR(collision)
+
+#define BRIDGE_END() \
+    CMD_BBBB(LEVEL_CMD_BRIDGE_END, 4*1, 0, 0),
 
 #define MACRO_OBJECTS(objList) \
     CMD_BBH(LEVEL_CMD_SET_MACRO_OBJECTS, 0x08, 0x0000), \

@@ -27,6 +27,7 @@ const LevelScript level_test_entry[] = {
 	/* Fast64 end persistent block [level commands] */
 
 	AREA(1, test_area_1),
+		BRIDGE_START(testbridge_collision),
 		MARIO_POS(0x01, 0, -314, 471, 280),
 		CUBIC_VOLUME(6393.318359375, 49.11333465576172, -3944.277099609375,
 			7.695290565490723, 0.8631196022033691, 0.7068579792976379,

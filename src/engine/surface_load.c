@@ -763,3 +763,68 @@ void load_object_static_model(void) {
 
     __osRestoreInt(mask);
 }
+
+void transform_dynamic_vertices_custom(TerrainData **data, TerrainData *vertexData, void (*func)(Vec3s,Vec3s)) {
+    register s32 numVertices = *(*data)++;
+    register TerrainData *vertices = *data;
+
+    while (numVertices--) {
+        func(vertexData,vertices);
+
+        vertices += 3;
+        vertexData += 3;
+    }
+
+    *data = vertices;
+}
+
+void load_dynamic_surfaces_custom(TerrainData **data, TerrainData *vertexData, u32 dynamic) {
+    s32 i;
+
+    s32 surfaceType = *(*data)++;
+    s32 numSurfaces = *(*data)++;
+
+#ifndef ALL_SURFACES_HAVE_FORCE
+    TerrainData hasForce = surface_has_force(surfaceType);
+#endif
+
+    for (i = 0; i < numSurfaces; i++) {
+        struct Surface *surface = read_surface_data(vertexData, data, dynamic);
+
+        if (surface != NULL) {
+            surface->type = surfaceType;
+
+#ifdef ALL_SURFACES_HAVE_FORCE
+            surface->force = *(*data + 3);
+#else
+            if (hasForce) {
+                surface->force = *(*data + 3);
+            } else {
+                surface->force = 0;
+            }
+#endif
+
+            add_surface(surface, dynamic);
+        }
+
+#ifdef ALL_SURFACES_HAVE_FORCE
+        *data += 4;
+#else
+        if (hasForce) {
+            *data += 4;
+        } else {
+            *data += 3;
+        }
+#endif
+    }
+}
+
+void load_collision_custom_transform(Collision * col, void (*func)(Vec3s,Vec3s)) {
+    TerrainData *collisionData = col;
+
+    collisionData++;
+    transform_dynamic_vertices_custom(&collisionData, sVertexData, func);
+    while (*collisionData != TERRAIN_LOAD_CONTINUE) {
+        load_dynamic_surfaces_custom(&collisionData, sVertexData, TRUE);
+    }
+}

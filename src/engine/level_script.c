@@ -31,6 +31,7 @@
 #include "game/puppyprint.h"
 #include "game/emutest.h"
 #include "game/cubic_volume.h"
+#include "game/bridge.h"
 
 #include "config.h"
 
@@ -895,6 +896,15 @@ static void level_cmd_cubic_volume(void) {
     sCurrentCmd = CMD_NEXT;
 }
 
+static void level_cmd_bridge_start(void) {
+    create_bridge( segmented_to_virtual( CMD_GET(void *, 4*1) ));
+    sCurrentCmd = CMD_NEXT;
+}
+
+static void level_cmd_bridge_end(void) {
+    sCurrentCmd = CMD_NEXT;
+}
+
 static void (*LevelScriptJumpTable[])(void) = {
     /*LEVEL_CMD_LOAD_AND_EXECUTE            */ level_cmd_load_and_execute,
     /*LEVEL_CMD_EXIT_AND_EXECUTE            */ level_cmd_exit_and_execute,
@@ -961,6 +971,8 @@ static void (*LevelScriptJumpTable[])(void) = {
     /*LEVEL_CMD_CHANGE_AREA_SKYBOX          */ level_cmd_change_area_skybox,
     /*LEVEL_CMD_SET_ECHO                    */ level_cmd_set_echo,
     /*LEVEL_CMD_CUBIC_VOLUME*/                 level_cmd_cubic_volume,
+    /*LEVEL_CMD_BRIDGE_START*/                 level_cmd_bridge_start,
+    /*LEVEL_CMD_BRIDGE_END*/                   level_cmd_bridge_end
 };
 
 struct LevelCommand *level_script_execute(struct LevelCommand *cmd) {
