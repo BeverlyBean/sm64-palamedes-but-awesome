@@ -4,6 +4,8 @@ const GeoLayout test_area_1_geo[] = {
 	GEO_NODE_START(),
 	GEO_OPEN_NODE(),
 		GEO_ASM(0, geo_vxit_bridge),
+		GEO_DISPLAY_LIST(LAYER_OPAQUE, test_dl_testbridge2_gfx_mesh_layer_1),
+		GEO_ASM(0, geo_vxit_bridge),
 		GEO_DISPLAY_LIST(LAYER_OPAQUE, test_dl_testbridge_gfx_mesh_layer_1),
 		GEO_DISPLAY_LIST(LAYER_OPAQUE, test_dl_Z2_KAIZOKU_room_00DL_00AED0_mesh_mesh_layer_1),
 	GEO_CLOSE_NODE(),

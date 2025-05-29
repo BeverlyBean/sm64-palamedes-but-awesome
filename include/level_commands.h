@@ -465,12 +465,18 @@ enum GoddardScene {
     CMD_F(ry), \
     CMD_F(rz)
 
-#define BRIDGE_START(collision) \
-    CMD_BBBB(LEVEL_CMD_BRIDGE_START, 4*2, 0, 0), \
-    CMD_PTR(collision)
+#define BRIDGE_START(size, collision, x, y, z) \
+    CMD_BBBB(LEVEL_CMD_BRIDGE_START, 4*5, size, 0), \
+    CMD_PTR(collision), \
+    CMD_F(x), \
+    CMD_F(y), \
+    CMD_F(z)
 
-#define BRIDGE_END() \
-    CMD_BBBB(LEVEL_CMD_BRIDGE_END, 4*1, 0, 0),
+#define BRIDGE_END(x, y, z) \
+    CMD_BBBB(LEVEL_CMD_BRIDGE_END, 4*4, 0, 0), \
+    CMD_F(x), \
+    CMD_F(y), \
+    CMD_F(z)
 
 #define MACRO_OBJECTS(objList) \
     CMD_BBH(LEVEL_CMD_SET_MACRO_OBJECTS, 0x08, 0x0000), \

@@ -4,6 +4,9 @@ Features:
 - Multithreaded 60 FPS [HackerSM64-60threaded](https://github.com/rovertronic/HackerSM64-60threaded)
 - Shadow mapping for important actors (`special_shadow.h`)
 - Cubic Volumes in levels (`cubic_volume.h`)
+- Suspension bridge system (`bridge.h`)
+- Vertex iterator for vertex animation (`vertex_iterator.h`) (needs double buffering to look good)
+- Custom collision transformation for deformable collision (`surface_load.h` extended)
 - Collision surface materials (`surface_material.h`) (currently being serviced, broken)
 
 # ![](https://i.imgur.com/CeOukzk.gif) HackerSM64 ![](https://i.imgur.com/s0LUbTo.gif)

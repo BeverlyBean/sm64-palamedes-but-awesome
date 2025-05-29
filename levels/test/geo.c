@@ -16,3 +16,4 @@
 
 #include "levels/test/geo.inc.c"
 #include "levels/test/testbridge/geo.inc.c"
+#include "levels/test/testbridge2/geo.inc.c"

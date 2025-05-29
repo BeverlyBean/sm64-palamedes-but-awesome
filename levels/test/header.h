@@ -12,4 +12,8 @@ extern const LevelScript level_test_entry[];
 
 #include "levels/test/testbridge/geo_header.h"
 
+#include "levels/test/testbridge2/collision_header.h"
+
+#include "levels/test/testbridge2/geo_header.h"
+
 #endif

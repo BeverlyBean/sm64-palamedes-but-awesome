@@ -896,12 +896,25 @@ static void level_cmd_cubic_volume(void) {
     sCurrentCmd = CMD_NEXT;
 }
 
+Vec3f bridgeCmdStart;
+Collision * bridgeCmdCollision;
+u8 bridgeCmdSize;
+
 static void level_cmd_bridge_start(void) {
-    create_bridge( segmented_to_virtual( CMD_GET(void *, 4*1) ));
+    bridgeCmdCollision = segmented_to_virtual( CMD_GET(void *, 4*1) );
+    bridgeCmdSize = CMD_GET(u8,2);
+    bridgeCmdStart[0] = CMD_GET(f32,4*2);
+    bridgeCmdStart[1] = CMD_GET(f32,4*3);
+    bridgeCmdStart[2] = CMD_GET(f32,4*4);
     sCurrentCmd = CMD_NEXT;
 }
 
 static void level_cmd_bridge_end(void) {
+    Vec3f bridgeCmdEnd;
+    bridgeCmdEnd[0] = CMD_GET(f32,4*1);
+    bridgeCmdEnd[1] = CMD_GET(f32,4*2);
+    bridgeCmdEnd[2] = CMD_GET(f32,4*3);
+    create_bridge(bridgeCmdCollision,bridgeCmdStart,bridgeCmdEnd,bridgeCmdSize);
     sCurrentCmd = CMD_NEXT;
 }
 

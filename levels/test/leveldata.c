@@ -14,3 +14,5 @@
 #include "levels/test/leveldata.inc.c"
 #include "levels/test/testbridge/collision.inc.c"
 #include "levels/test/testbridge/model.inc.c"
+#include "levels/test/testbridge2/collision.inc.c"
+#include "levels/test/testbridge2/model.inc.c"
