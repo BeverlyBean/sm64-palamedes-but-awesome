@@ -27,6 +27,7 @@
 #include "engine/colors.h"
 #include "profiling.h"
 #include "special_shadow.h"
+#include "bridge.h"
 #ifdef S2DEX_TEXT_ENGINE
 #include "s2d_engine/init.h"
 #endif
@@ -394,6 +395,7 @@ void render_game(void) {
     if (gCurrentArea != NULL && !gWarpTransition.pauseRendering) {
         if (gCurrentArea->graphNode) {
             geo_process_root(gCurrentArea->graphNode, gViewportOverride, gViewportClip, gFBSetColor);
+            bridge_update_joint_gfx_positions();
         }
 #ifdef PUPPYPRINT
         bzero(gCurrEnvCol, sizeof(ColorRGBA));

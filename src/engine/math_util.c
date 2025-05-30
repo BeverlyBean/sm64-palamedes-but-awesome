@@ -924,6 +924,35 @@ f32 find_surface_on_ray(Vec3f orig, Vec3f dir, struct Surface **hit_surface, Vec
     return max_length;
 }
 
+// Returns a float between 0.0f and 1.0f that represents what section of the line was projected to. (0.0 = at point1, 1.0 = at point2, 0.5 = middle)
+f32 vec3f_project_to_line(Vec3f dest, Vec3f point, Vec3f point1, Vec3f point2) {
+    //project mario's position to the line segment between p1 and p2
+    Vec3f AB;
+    Vec3f AP;
+
+    vec3f_diff(AB,point2,point1);
+    vec3f_diff(AP,point,point1);
+
+    f32 AB_length_squared = vec3f_dot(AB,AB);
+
+    f32 t = vec3f_dot(AP,AB) / AB_length_squared;
+    if (t > 1.0f) {
+        t = 1.0f;
+    }
+    if (t < 0.0f) {
+        t = 0.0f;
+    }
+
+    Vec3f closestPoint;
+    vec3f_copy(closestPoint,AB);
+    vec3_scale(closestPoint,t);
+    vec3f_sum(closestPoint,point1,closestPoint);
+
+    vec3f_copy(dest,closestPoint);
+
+    return t;
+}
+
 // Constructs a float in registers, which can be faster than gcc's default of loading a float from rodata.
 // Especially fast for halfword floats, which get loaded with a `lui` + `mtc1`.
 static ALWAYS_INLINE float construct_float(const float f)

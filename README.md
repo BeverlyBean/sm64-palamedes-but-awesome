@@ -5,7 +5,7 @@ Features:
 - Shadow mapping for important actors (`special_shadow.h`)
 - Cubic Volumes in levels (`cubic_volume.h`)
 - Suspension bridge system (`bridge.h`)
-- Vertex iterator for vertex animation (`vertex_iterator.h`) (needs double buffering to look good)
+- Vertex iterator for vertex animation (`vertex_iterator.h`)
 - Custom collision transformation for deformable collision (`surface_load.h` extended)
 - Collision surface materials (`surface_material.h`) (currently being serviced, broken)
 
