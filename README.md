@@ -2,6 +2,7 @@
 
 Features:
 - Multithreaded 60 FPS [HackerSM64-60threaded](https://github.com/rovertronic/HackerSM64-60threaded)
+- UTF8 printing with rich text, emoji, and multilang (`utf8.h`)
 - Shadow mapping for important actors (`special_shadow.h`)
 - Cubic Volumes in levels (`cubic_volume.h`)
 - Suspension bridge system (`bridge.h`)

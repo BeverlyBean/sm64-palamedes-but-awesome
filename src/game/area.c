@@ -28,6 +28,7 @@
 #include "profiling.h"
 #include "special_shadow.h"
 #include "bridge.h"
+#include "utf8.h"
 #ifdef S2DEX_TEXT_ENGINE
 #include "s2d_engine/init.h"
 #endif
@@ -420,6 +421,8 @@ void render_game(void) {
         gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, gBorderHeight, SCREEN_WIDTH,
                       SCREEN_HEIGHT - gBorderHeight);
         render_menus_and_dialogs();
+
+        ui_render();
 
         if (gViewportClip != NULL) {
             make_viewport_clip_rect(gViewportClip);
