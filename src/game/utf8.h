@@ -83,6 +83,10 @@ typedef struct {
     u8 sizeSecondary;
 } fontChar;
 
+void utf8_initialize_table(void);
+void print_utf8(char * str, int x, int y);
+void utf8_print_reset(void);
+
 void ui_render(void);
 
 #endif

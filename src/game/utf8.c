@@ -9,6 +9,11 @@
 #include "game_init.h"
 #include "special_shadow.h"
 
+//0-2 top, 3-5 bottom
+u8 print_textcolor[6];
+u8 print_italics = 0;
+Texture * print_texture = NULL;
+
 // Will initialize size based on difference between last element's xUv and this, if size = 0. Otherwise, can be manually set
 // xUv 
 fontChar utf8Table[] = {
@@ -325,7 +330,7 @@ fontChar utf8Table[] = {
     },
 };
 
-void ui_initialize_utf8_table(void) {
+void utf8_initialize_table(void) {
     for (int i = 0; i < UTF8_COUNT; i++) {
         fontChar * curChar = &utf8Table[i];
         fontChar * nextChar = &utf8Table[i+1];
@@ -334,6 +339,25 @@ void ui_initialize_utf8_table(void) {
             curChar->size = nextChar->xUv-curChar->xUv;
         }
     }
+}
+
+void utf8_set_texture(Texture * tex) {
+    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
+    gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
+    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
+    gDPSetCombineMode(gDisplayListHead++, G_CC_UI_TEXT, G_CC_UI_TEXT);
+    gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+
+	gSPTexture(gDisplayListHead++,65535, 65535, 0, 0, 1);
+	gDPSetTextureImage(gDisplayListHead++,G_IM_FMT_IA, G_IM_SIZ_16b, 1, tex);
+	gDPSetTile(gDisplayListHead++,G_IM_FMT_IA, G_IM_SIZ_16b, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0);
+	gDPLoadBlock(gDisplayListHead++,7, 0, 0, 2047, 64);
+	gDPSetTile(gDisplayListHead++,G_IM_FMT_IA, G_IM_SIZ_4b, 32, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 9, 0);
+	gDPSetTileSize(gDisplayListHead++,0, 0, 0, 2044, 60);
+
+    gDPPipeSync(gDisplayListHead++);
+
+    print_texture = tex;
 }
 
 fontChar * get_fontchar_from_utf8_codepoint(u32 codepoint) {
@@ -358,15 +382,15 @@ fontChar * get_fontchar_from_utf8_codepoint(u32 codepoint) {
     return NULL;
 }
 
-//0-2 top, 3-5 bottom
-u8 print_textcolor[6];
-u8 print_italics = 0;
-
 void render_fontchar(fontChar * fc ,int x, int y) {
+    if (fc->tex != print_texture) {
+        utf8_set_texture(fc->tex);
+    }
+
     Vtx * charVerts = alloc_display_list(4 * sizeof(Vtx));
 
-    u16 xUv = fc->xUv*32+4;
-    u16 size = fc->size*32-4;
+    u16 xUv = fc->xUv*32+2;
+    u16 size = fc->size*32-2;
 
     make_vertex(charVerts, 0, x,          y,    0, xUv,      16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
     make_vertex(charVerts, 1, x+fc->size, y,    0, xUv+size, 16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
@@ -378,8 +402,8 @@ void render_fontchar(fontChar * fc ,int x, int y) {
 
     if (fc->xUvSecondary > 0) {
         charVerts = alloc_display_list(4 * sizeof(Vtx));
-        xUv = fc->xUvSecondary*32+4;
-        size = fc->sizeSecondary*32-4;
+        xUv = fc->xUvSecondary*32+2;
+        size = fc->sizeSecondary*32-2;
 
         make_vertex(charVerts, 0, x,          y,    0, xUv,      16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
         make_vertex(charVerts, 1, x+fc->size, y,    0, xUv+size, 16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
@@ -411,7 +435,7 @@ s8 utf8_to_codepoint(const char *s, uint32_t *codepoint) {
     return -1;
 }
 
-void print_ui(char * str, int UNUSED x, int UNUSED y) {
+void print_utf8(char * str, int x, int y) {
     for (int i = 0; i < 6; i++) {
         print_textcolor[i] = 255;
     }
@@ -467,7 +491,7 @@ void print_ui(char * str, int UNUSED x, int UNUSED y) {
                         print_textcolor[5] = 0;
                         break;
                     case 'I':
-                        print_italics = 4;
+                        //print_italics = 4;
                         break;
                 }
                 printHead = &str[++charIndex];
@@ -490,26 +514,13 @@ void print_ui(char * str, int UNUSED x, int UNUSED y) {
     }
 }
 
+void utf8_print_reset(void) {
+    print_texture = NULL;
+}
+
 void ui_render(void) {
     create_dl_ortho_matrix();
-    ui_initialize_utf8_table();
-
-    gDPPipeSync(gDisplayListHead++);
-    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
-    gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
-    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
-    gDPSetCombineMode(gDisplayListHead++, G_CC_UI_TEXT, G_CC_UI_TEXT);
-    gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-
-	gSPTexture(gDisplayListHead++,65535, 65535, 0, 0, 1);
-	gDPSetTextureImage(gDisplayListHead++,G_IM_FMT_IA, G_IM_SIZ_16b, 1, sm64DS_latin_i4);
-	gDPSetTile(gDisplayListHead++,G_IM_FMT_IA, G_IM_SIZ_16b, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0);
-	gDPLoadBlock(gDisplayListHead++,7, 0, 0, 2047, 64);
-	gDPSetTile(gDisplayListHead++,G_IM_FMT_IA, G_IM_SIZ_4b, 32, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 9, 0);
-	gDPSetTileSize(gDisplayListHead++,0, 0, 0, 2044, 60);
-
-    gDPPipeSync(gDisplayListHead++);
-
-    print_ui("THE @I@QUICK@@ BROWN FOX @Y@😊@@ JUMPS OVER @GI@ARTHURTILLY@@ ALOT @Y@😊😊@@\n😡@R@ DAS WAR EIN BEFEHL 😡@@ wow 😊\nthe quick brown fox jumps over the lazy dog",-20,50);
-    print_ui("falsches üben von xylophonmusik quält jeden größeren zwerg",10,150);
+    utf8_print_reset();
+    print_utf8("THE @I@QUICK@@ BROWN FOX @Y@😊@@ JUMPS OVER @GI@ARTHURTILLY@@ ALOT @Y@😊😊@@\n😡@R@ DAS WAR EIN BEFEHL 😡@@ wow 😊\nthe quick brown fox jumps over the lazy dog",-20,50);
+    print_utf8("falsches üben von xylophonmusik quält jeden größeren zwerg",10,150);
 }

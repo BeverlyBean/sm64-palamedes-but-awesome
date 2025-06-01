@@ -41,13 +41,9 @@ void create_bridge(Collision * col, Vec3f start, Vec3f end, int size) {
     sBridgeCount++;
 }
 
-int spawnedcounter = 0;
-
 BridgeJoint * bridge_nearest_joint(Vec3f checkPos) {
     BridgeJoint * nearestJoint = NULL;
     f32 sd = 99999999999.0f;
-
-    spawnedcounter++;
 
     for (int i = 0; i < sBridgeJointCount; i++) {
         BridgeJoint * joint = &bridgeJointPool[i];
@@ -144,6 +140,11 @@ void bridge_update(void) {
 
         load_collision_custom_transform(b->collision,&generate_bridge_vertex);
     }
+}
+
+void bridge_reset(void) {
+    sBridgeCount = 0;
+    sBridgeJointCount = 0;
 }
 
 void vxit_update_vtx_list_bridge(Vtx * vertices, int size) {

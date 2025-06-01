@@ -28,5 +28,6 @@ void create_bridge(Collision * col, Vec3f start, Vec3f end, int size);
 void bridge_update(void);
 Gfx *geo_vxit_bridge(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx);
 void bridge_update_joint_gfx_positions(void);
+void bridge_reset(void);
 
 #endif
