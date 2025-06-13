@@ -9,6 +9,7 @@
 #include "types.h"
 #include "memory.h"
 #include "config.h"
+#include "worldspace_visual_debug.h"
 
 #define MARIO_ANIMS_POOL_SIZE 0x4000
 #define DEMO_INPUTS_POOL_SIZE 0x800

@@ -48,6 +48,17 @@ s32 point_inside_volume(Vec3f p, CubicVolume * v) {
     Vec3f rpr;
     linear_mtxf_mul_vec3(rotMat, rpr, rp);
 
+    // Debug Visualization
+
+    /*
+    Mat4 debugMat;
+    mtxf_from_quat(v->rot,debugMat);
+    vec3f_copy(debugMat[3],v->pos);
+    mtxf_scale_vec3f(debugMat, debugMat, v->scale);
+    debugTransform * dt = debug_mtxf(debugMat);
+    dt->flags |= WSVD_CUBE;
+    */
+
     for (int i = 0; i < 3; i++) {
         if (rpr[i] > (v->scale[i]*100.0f)) {return FALSE;}
         if (rpr[i] < (v->scale[i]*-100.0f)) {return FALSE;}

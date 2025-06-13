@@ -20,6 +20,7 @@
 #include "emutest.h"
 #include "level_geo.h"
 #include "mario.h"
+#include "worldspace_visual_debug.h"
 
 #include "config.h"
 #include "config/config_world.h"
@@ -1215,6 +1216,8 @@ void geo_process_object(struct Object *node) {
  * actual children are be processed. (in practice they are null though)
  */
 void geo_process_object_parent(struct GraphNodeObjectParent *node) {
+    render_worldspace_visual_debug();
+
     if (node->sharedChild != NULL) {
         node->sharedChild->parent = (struct GraphNode *) node;
         geo_process_node_and_siblings(node->sharedChild);
