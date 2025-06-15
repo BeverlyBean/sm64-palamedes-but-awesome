@@ -22,6 +22,97 @@ fontChar utf8Table[] = {
         .size = 6,
         .tex = NULL,
     },
+
+    [UTF8_EXCLAMATION] = {
+        .utf8code = '!',
+        .xUv = 318,
+        .tex = sm64DS_latin_i4,
+        .size = 4,
+    },
+    [UTF8_PERCENTAGE] = {
+        .utf8code = '*',
+        .xUv = 312,
+        .tex = sm64DS_latin_i4,
+        .size = 6,
+    },
+    [UTF8_COMMA] = {
+        .utf8code = ',',
+        .xUv = 304,
+        .tex = sm64DS_latin_i4,
+        .size = 2,
+    },
+    [UTF8_PERIOD] = {
+        .utf8code = '.',
+        .xUv = 300,
+        .tex = sm64DS_latin_i4,
+        .size = 2,
+    },
+
+    [UTF8_0] = {
+        .utf8code = '0',
+        .xUv = 243,
+        .tex = sm64DS_latin_i4,
+    },
+    [UTF8_1] = {
+        .utf8code = '1',
+        .xUv = 252,
+        .tex = sm64DS_latin_i4,
+    },
+    [UTF8_2] = {
+        .utf8code = '2',
+        .xUv = 258,
+        .tex = sm64DS_latin_i4,
+    },
+    [UTF8_3] = {
+        .utf8code = '3',
+        .xUv = 265,
+        .tex = sm64DS_latin_i4,
+    },
+    [UTF8_4] = {
+        .utf8code = '4',
+        .xUv = 270,
+        .tex = sm64DS_latin_i4,
+    },
+    [UTF8_5] = {
+        .utf8code = '5',
+        .xUv = 276,
+        .tex = sm64DS_latin_i4,
+    },
+    [UTF8_6] = {
+        .utf8code = '6',
+        .xUv = 282,
+        .tex = sm64DS_latin_i4,
+    },
+    [UTF8_7] = {
+        .utf8code = '7',
+        .xUv = 288,
+        .tex = sm64DS_latin_i4,
+    },
+    [UTF8_8] = {
+        .utf8code = '8',
+        .xUv = 294,
+        .tex = sm64DS_latin_i4,
+    },
+    [UTF8_9] = {
+        .utf8code = '9',
+        .xUv = 300,
+        .tex = sm64DS_latin_i4,
+        .size = 6
+    },
+
+    [UTF8_COLON] = {
+        .utf8code = ':',
+        .xUv = 302,
+        .tex = sm64DS_latin_i4,
+        .size = 2
+    },
+    [UTF8_QUESTION] = {
+        .utf8code = '?',
+        .xUv = 306,
+        .tex = sm64DS_latin_i4,
+        .size = 6
+    },
+
     [UTF8_UPPERCASE_A] = {
         .utf8code = 'A',
         .xUv = 0,
@@ -490,6 +581,14 @@ void print_utf8(char * str, int x, int y) {
                         print_textcolor[4] = 255;
                         print_textcolor[5] = 0;
                         break;
+                    case 'B':
+                        print_textcolor[0] = 100;
+                        print_textcolor[1] = 100;
+                        print_textcolor[2] = 255;
+                        print_textcolor[3] = 10;
+                        print_textcolor[4] = 10;
+                        print_textcolor[5] = 255;
+                        break;
                     case 'I':
                         //print_italics = 4;
                         break;
@@ -514,13 +613,129 @@ void print_utf8(char * str, int x, int y) {
     }
 }
 
+char sAutoNewlineBuffer[512];
+char * utf8_autonewline(char * str, int maxX, int * ySize) {
+    int charIndex = 0;
+    int printX = 0;
+    int printY = 0;
+    char * printHead = &str[charIndex];
+
+    int lastSpaceIndex = 0;
+
+    sprintf(sAutoNewlineBuffer,"%s",str); // copy string into autonewline buffer
+    str = sAutoNewlineBuffer;
+
+    while((*printHead) != '\0') {
+        if ((*printHead) == '\n') {
+            printX = 0;
+            printY -= 16;
+
+            lastSpaceIndex = charIndex;
+
+            charIndex++;
+            printHead = &str[charIndex];
+            continue;
+        }
+
+        if ((*printHead) == '@') {
+            print_italics = 0;
+
+            printHead = &str[++charIndex];
+            while ((*printHead) != '@') {
+                printHead = &str[++charIndex];
+            }
+            printHead = &str[++charIndex];
+            continue;
+        }
+
+        u32 codepoint;
+        u8 size = utf8_to_codepoint(printHead,&codepoint);
+        fontChar * fc = get_fontchar_from_utf8_codepoint(codepoint);
+
+        printX += fc->size+1;
+        
+        charIndex += size;
+        printHead = &str[charIndex];
+
+        if ((*printHead) == ' ' || (*printHead) == '\0' || (*printHead) == '\n') {
+            if (printX >= maxX) {
+                str[lastSpaceIndex] = '\n';
+                charIndex=lastSpaceIndex;
+                printHead = &str[charIndex];
+            }
+            lastSpaceIndex = charIndex;
+        }
+    }
+    *ySize = -printY;
+    return str;
+}
+
 void utf8_print_reset(void) {
     print_texture = NULL;
+}
+
+typedef struct {
+
+} nineSliceParams;
+
+void render_9slice(int x1, int y1, int x2, int y2) {
+    Vtx * boxVerts = alloc_display_list(16 * sizeof(Vtx));
+    int cSiz = 16; // Corner size
+
+    make_vertex(boxVerts, 0,  x1,      y1, 0,       0,       0,                   255, 255, 255, 255);
+    make_vertex(boxVerts, 1,  x1+cSiz, y1, 0,       32*cSiz, 0,                   255, 255, 255, 255);
+    make_vertex(boxVerts, 2,  x2-cSiz, y1, 0,       32*cSiz, 0,                   255, 255, 255, 255);
+    make_vertex(boxVerts, 3,  x2,      y1, 0,       64*cSiz, 0,                   255, 255, 255, 255);
+       
+    make_vertex(boxVerts, 4,  x1,      y1-cSiz, 0,  0,       32*cSiz,             255, 255, 255, 255);
+    make_vertex(boxVerts, 5,  x1+cSiz, y1-cSiz, 0,  32*cSiz, 32*cSiz,             255, 255, 255, 255);
+    make_vertex(boxVerts, 6,  x2-cSiz, y1-cSiz, 0,  32*cSiz, 32*cSiz,             255, 255, 255, 255);
+    make_vertex(boxVerts, 7,  x2,      y1-cSiz, 0,  64*cSiz, 32*cSiz,             255, 255, 255, 255);
+ 
+    make_vertex(boxVerts, 8,  x1,      y2+cSiz, 0,  0,       32*cSiz,             255, 255, 255, 255);
+    make_vertex(boxVerts, 9,  x1+cSiz, y2+cSiz, 0,  32*cSiz, 32*cSiz,             255, 255, 255, 255);
+    make_vertex(boxVerts, 10, x2-cSiz, y2+cSiz, 0,  32*cSiz, 32*cSiz,             255, 255, 255, 255);
+    make_vertex(boxVerts, 11, x2,      y2+cSiz, 0,  64*cSiz, 32*cSiz,             255, 255, 255, 255);
+
+    make_vertex(boxVerts, 12, x1,      y2, 0,       0,       64*cSiz,             255, 255, 255, 255);
+    make_vertex(boxVerts, 13, x1+cSiz, y2, 0,       32*cSiz, 64*cSiz,             255, 255, 255, 255);
+    make_vertex(boxVerts, 14, x2-cSiz, y2, 0,       32*cSiz, 64*cSiz,             255, 255, 255, 255);
+    make_vertex(boxVerts, 15, x2,      y2, 0,       64*cSiz, 64*cSiz,             255, 255, 255, 255);
+
+    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
+    gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
+    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
+    gDPSetCombineMode(gDisplayListHead++, G_CC_UI_TEXT, G_CC_UI_TEXT);
+    gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+
+	gSPTexture(gDisplayListHead++,65535, 65535, 0, 0, 1);
+    gDPPipeSync(gDisplayListHead++);
+    gDPLoadTextureBlock(gDisplayListHead++, nine_slice_sample_rgba16, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0,
+        G_TX_WRAP | G_TX_MIRROR, G_TX_WRAP | G_TX_MIRROR, 0, 0, G_TX_NOLOD, G_TX_NOLOD);
+    
+    gDPPipeSync(gDisplayListHead++);
+
+    gSPVertex(gDisplayListHead++,boxVerts,16,0);
+    for (int i = 0; i < 3; i++) {
+        int o = i*4;
+        gSP2Triangles(gDisplayListHead++, 5+o, 1+o, 0+o, 0, 5+o, 0+o, 4+o, 0);
+        gSP2Triangles(gDisplayListHead++, 5+o, 6+o, 2+o, 0, 2+o, 1+o, 5+o, 0);
+        gSP2Triangles(gDisplayListHead++, 7+o, 3+o, 2+o, 0, 2+o, 6+o, 7+o, 0);
+    }
 }
 
 void ui_render(void) {
     create_dl_ortho_matrix();
     utf8_print_reset();
-    print_utf8("THE @I@QUICK@@ BROWN FOX @Y@😊@@ JUMPS OVER @GI@ARTHURTILLY@@ ALOT @Y@😊😊@@\n😡@R@ DAS WAR EIN BEFEHL 😡@@ wow 😊\nthe quick brown fox jumps over the lazy dog",-20,50);
-    print_utf8("falsches üben von xylophonmusik quält jeden größeren zwerg",10,150);
+
+    int xToCut = 180 + (int)(sinf(gGlobalTimer*.1f)*50.0f);
+
+    int ySize;
+    //char * str = utf8_autonewline("THE @I@QUICK,@@ BROWN, FOX @Y@😊@@ JUMPS OVER: @GI@ARTHURTILLY@@ ALOT.\n@Y@😊😊@@ 😡@R@ DAS WAR EIN BEFEHL 😡@@ \nwow... 😊 the quick brown fox jumps over the lazy dog",xToCut,&ySize);
+    char * str = utf8_autonewline("Falsches üben von xylophonmusik quält jeden größeren zwerg.\n@R@😡 DAS WAR EIN BEFEHL 😡@@ \nwow... @Y@😊@@\nThe quick brown fox jumps over the lazy dog.\nOh, @R@Ryan,@@ my beautiful @G@shrine bachelor@@, who hates @R@cardio@@ and @R@women@@!@@ Guide me the way with your @B@blue boxes@@.",xToCut,&ySize);
+
+    render_9slice(10,220,20+xToCut,180-ySize);
+
+    print_utf8(str,20,200);
+    //print_utf8("falsches üben von xylophonmusik quält jeden größeren zwerg",10,150);
 }

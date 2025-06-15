@@ -6,6 +6,25 @@
 enum {
     UTF8_SPACE,
 
+    UTF8_EXCLAMATION,
+    UTF8_PERCENTAGE,
+    UTF8_COMMA,
+    UTF8_PERIOD,
+
+    UTF8_0,
+    UTF8_1,
+    UTF8_2,
+    UTF8_3,
+    UTF8_4,
+    UTF8_5,
+    UTF8_6,
+    UTF8_7,
+    UTF8_8,
+    UTF8_9,
+
+    UTF8_COLON,
+    UTF8_QUESTION,
+
     UTF8_UPPERCASE_A,
     UTF8_UPPERCASE_B,
     UTF8_UPPERCASE_C,

@@ -79,5 +79,6 @@ extern Gfx dl_billboard_num_F[];
 #endif
 
 extern Texture sm64DS_latin_i4[];
+extern Texture nine_slice_sample_rgba16[];
 
 #endif // SEGMENT2_H
