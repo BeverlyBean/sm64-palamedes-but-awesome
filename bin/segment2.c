@@ -3625,3 +3625,11 @@ Texture sm64DS_latin_i4[] = {
 Texture nine_slice_sample_rgba16[] = {
     #include "textures/segment2/nine_slice_sample.rgba16.inc.c"
 };
+
+Texture nine_slice_stickynote_rgba16[] = {
+    #include "textures/segment2/nine_slice_stickynote.rgba16.inc.c"
+};
+
+Texture nine_slice_notepad_rgba16[] = {
+    #include "textures/segment2/notepadSlice.rgba16.inc.c"
+};

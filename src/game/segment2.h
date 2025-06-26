@@ -80,5 +80,7 @@ extern Gfx dl_billboard_num_F[];
 
 extern Texture sm64DS_latin_i4[];
 extern Texture nine_slice_sample_rgba16[];
+extern Texture nine_slice_stickynote_rgba16[];
+extern Texture nine_slice_notepad_rgba16[];
 
 #endif // SEGMENT2_H

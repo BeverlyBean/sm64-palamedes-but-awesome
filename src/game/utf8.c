@@ -55,47 +55,47 @@ fontChar utf8Table[] = {
     },
     [UTF8_1] = {
         .utf8code = '1',
-        .xUv = 252,
+        .xUv = 249,
         .tex = sm64DS_latin_i4,
     },
     [UTF8_2] = {
         .utf8code = '2',
-        .xUv = 258,
+        .xUv = 252,
         .tex = sm64DS_latin_i4,
     },
     [UTF8_3] = {
         .utf8code = '3',
-        .xUv = 265,
+        .xUv = 258,
         .tex = sm64DS_latin_i4,
     },
     [UTF8_4] = {
         .utf8code = '4',
-        .xUv = 270,
+        .xUv = 264,
         .tex = sm64DS_latin_i4,
     },
     [UTF8_5] = {
         .utf8code = '5',
-        .xUv = 276,
+        .xUv = 270,
         .tex = sm64DS_latin_i4,
     },
     [UTF8_6] = {
         .utf8code = '6',
-        .xUv = 282,
+        .xUv = 276,
         .tex = sm64DS_latin_i4,
     },
     [UTF8_7] = {
         .utf8code = '7',
-        .xUv = 288,
+        .xUv = 282,
         .tex = sm64DS_latin_i4,
     },
     [UTF8_8] = {
         .utf8code = '8',
-        .xUv = 294,
+        .xUv = 288,
         .tex = sm64DS_latin_i4,
     },
     [UTF8_9] = {
         .utf8code = '9',
-        .xUv = 300,
+        .xUv = 394,
         .tex = sm64DS_latin_i4,
         .size = 6
     },
@@ -589,6 +589,14 @@ void print_utf8(char * str, int x, int y) {
                         print_textcolor[4] = 10;
                         print_textcolor[5] = 255;
                         break;
+                    case '0':
+                        print_textcolor[0] = 0;
+                        print_textcolor[1] = 0;
+                        print_textcolor[2] = 0;
+                        print_textcolor[3] = 0;
+                        print_textcolor[4] = 0;
+                        print_textcolor[5] = 0;
+                        break;
                     case 'I':
                         //print_italics = 4;
                         break;
@@ -614,7 +622,7 @@ void print_utf8(char * str, int x, int y) {
 }
 
 char sAutoNewlineBuffer[512];
-char * utf8_autonewline(char * str, int maxX, int * ySize) {
+char * utf8_autonewline(char * str, int maxX) {
     int charIndex = 0;
     int printX = 0;
     int printY = 0;
@@ -666,8 +674,48 @@ char * utf8_autonewline(char * str, int maxX, int * ySize) {
             lastSpaceIndex = charIndex;
         }
     }
-    *ySize = -printY;
     return str;
+}
+
+void utf8_size(char * str, int * x, int * y) {
+    int charIndex = 0;
+    int printX = 0;
+    int printXmax = 0;
+    int printY = 0;
+    char * printHead = &str[charIndex];
+
+    while((*printHead) != '\0') {
+
+        if ((*printHead) == '\n') {
+            printX = 0;
+            printY -= 16;
+
+            charIndex++;
+            printHead = &str[charIndex];
+            continue;
+        }
+
+        if ((*printHead) == '@') {
+            printHead = &str[++charIndex];
+            while ((*printHead) != '@') {
+                printHead = &str[++charIndex];
+            }
+            printHead = &str[++charIndex];
+            continue;
+        }
+
+        u32 codepoint;
+        u8 size = utf8_to_codepoint(printHead,&codepoint);
+        fontChar * fc = get_fontchar_from_utf8_codepoint(codepoint);
+
+        printX += fc->size+1;
+        printXmax = MAX(printX,printXmax);
+        
+        charIndex += size;
+        printHead = &str[charIndex];
+    }
+    *x = printXmax;
+    *y = printY;
 }
 
 void utf8_print_reset(void) {
@@ -675,47 +723,65 @@ void utf8_print_reset(void) {
 }
 
 typedef struct {
-
+    Texture * texture;
+    Texture * centerTexture;
+    u8 xDivide1;
+    u8 xDivide2;
 } nineSliceParams;
 
-void render_9slice(int x1, int y1, int x2, int y2) {
-    Vtx * boxVerts = alloc_display_list(16 * sizeof(Vtx));
-    int cSiz = 16; // Corner size
+nineSliceParams testSliceParams = {
+    .texture = nine_slice_sample_rgba16,
+    .centerTexture = NULL,
+    .xDivide1 = 16,
+};
 
-    make_vertex(boxVerts, 0,  x1,      y1, 0,       0,       0,                   255, 255, 255, 255);
-    make_vertex(boxVerts, 1,  x1+cSiz, y1, 0,       32*cSiz, 0,                   255, 255, 255, 255);
-    make_vertex(boxVerts, 2,  x2-cSiz, y1, 0,       32*cSiz, 0,                   255, 255, 255, 255);
-    make_vertex(boxVerts, 3,  x2,      y1, 0,       64*cSiz, 0,                   255, 255, 255, 255);
+nineSliceParams stickyNoteParams = {
+    .texture = nine_slice_stickynote_rgba16,
+    .centerTexture = NULL,
+    .xDivide1 = 19,
+};
+
+nineSliceParams notepadParams = {
+    .texture = nine_slice_notepad_rgba16,
+    .centerTexture = NULL,
+    .xDivide1 = 8,
+    .xDivide2 = 24
+};
+
+nineSliceParams * sCur9sliceParams = NULL;
+
+void render_4slice(int x1, int y1, int x2, int y2) {
+    Vtx * v = alloc_display_list(16 * sizeof(Vtx));
+    u8 cSizL = sCur9sliceParams->xDivide1;
+    u8 cSizR = 32-sCur9sliceParams->xDivide1;
+
+    u8 cSizT = cSizL;
+    u8 cSizB = cSizR;
+
+    s16 rUv = 32*32;
+
+    make_vertex(v, 0,  x1,       y1,       0,       0,            0,                   255, 255, 255, 255);
+    make_vertex(v, 1,  x1+cSizL, y1,       0,       32*cSizL,     0,                   255, 255, 255, 255);
+    make_vertex(v, 2,  x2-cSizR, y1,       0,       32*cSizL,     0,                   255, 255, 255, 255);
+    make_vertex(v, 3,  x2,       y1,       0,       rUv,          0,                   255, 255, 255, 255);
        
-    make_vertex(boxVerts, 4,  x1,      y1-cSiz, 0,  0,       32*cSiz,             255, 255, 255, 255);
-    make_vertex(boxVerts, 5,  x1+cSiz, y1-cSiz, 0,  32*cSiz, 32*cSiz,             255, 255, 255, 255);
-    make_vertex(boxVerts, 6,  x2-cSiz, y1-cSiz, 0,  32*cSiz, 32*cSiz,             255, 255, 255, 255);
-    make_vertex(boxVerts, 7,  x2,      y1-cSiz, 0,  64*cSiz, 32*cSiz,             255, 255, 255, 255);
+    make_vertex(v, 4,  x1,       y1-cSizT, 0,       0,            cSizL*32,            255, 255, 255, 255);
+    make_vertex(v, 5,  x1+cSizL, y1-cSizT, 0,       32*cSizL,     cSizL*32,            255, 255, 255, 255);
+    make_vertex(v, 6,  x2-cSizR, y1-cSizT, 0,       32*cSizL,     cSizL*32,            255, 255, 255, 255);
+    make_vertex(v, 7,  x2,       y1-cSizT, 0,       rUv,          cSizL*32,            255, 255, 255, 255);
  
-    make_vertex(boxVerts, 8,  x1,      y2+cSiz, 0,  0,       32*cSiz,             255, 255, 255, 255);
-    make_vertex(boxVerts, 9,  x1+cSiz, y2+cSiz, 0,  32*cSiz, 32*cSiz,             255, 255, 255, 255);
-    make_vertex(boxVerts, 10, x2-cSiz, y2+cSiz, 0,  32*cSiz, 32*cSiz,             255, 255, 255, 255);
-    make_vertex(boxVerts, 11, x2,      y2+cSiz, 0,  64*cSiz, 32*cSiz,             255, 255, 255, 255);
+    make_vertex(v, 8,  x1,       y2+cSizB, 0,       0,            cSizL*32,            255, 255, 255, 255);
+    make_vertex(v, 9,  x1+cSizL, y2+cSizB, 0,       32*cSizL,     cSizL*32,            255, 255, 255, 255);
+    make_vertex(v, 10, x2-cSizR, y2+cSizB, 0,       32*cSizL,     cSizL*32,            255, 255, 255, 255);
+    make_vertex(v, 11, x2,       y2+cSizB, 0,       rUv,          cSizL*32,            255, 255, 255, 255);
 
-    make_vertex(boxVerts, 12, x1,      y2, 0,       0,       64*cSiz,             255, 255, 255, 255);
-    make_vertex(boxVerts, 13, x1+cSiz, y2, 0,       32*cSiz, 64*cSiz,             255, 255, 255, 255);
-    make_vertex(boxVerts, 14, x2-cSiz, y2, 0,       32*cSiz, 64*cSiz,             255, 255, 255, 255);
-    make_vertex(boxVerts, 15, x2,      y2, 0,       64*cSiz, 64*cSiz,             255, 255, 255, 255);
+    make_vertex(v, 12, x1,       y2,       0,       0,            rUv,                 255, 255, 255, 255);
+    make_vertex(v, 13, x1+cSizL, y2,       0,       32*cSizL,     rUv,                 255, 255, 255, 255);
+    make_vertex(v, 14, x2-cSizR, y2,       0,       32*cSizL,     rUv,                 255, 255, 255, 255);
+    make_vertex(v, 15, x2,       y2,       0,       rUv,          rUv,                 255, 255, 255, 255);
 
-    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
-    gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
-    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
-    gDPSetCombineMode(gDisplayListHead++, G_CC_UI_TEXT, G_CC_UI_TEXT);
-    gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-
-	gSPTexture(gDisplayListHead++,65535, 65535, 0, 0, 1);
-    gDPPipeSync(gDisplayListHead++);
-    gDPLoadTextureBlock(gDisplayListHead++, nine_slice_sample_rgba16, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0,
-        G_TX_WRAP | G_TX_MIRROR, G_TX_WRAP | G_TX_MIRROR, 0, 0, G_TX_NOLOD, G_TX_NOLOD);
+    gSPVertex(gDisplayListHead++,v,16,0);
     
-    gDPPipeSync(gDisplayListHead++);
-
-    gSPVertex(gDisplayListHead++,boxVerts,16,0);
     for (int i = 0; i < 3; i++) {
         int o = i*4;
         gSP2Triangles(gDisplayListHead++, 5+o, 1+o, 0+o, 0, 5+o, 0+o, 4+o, 0);
@@ -724,18 +790,175 @@ void render_9slice(int x1, int y1, int x2, int y2) {
     }
 }
 
+void render_9slice(int x1, int y1, int x2, int y2) {
+    u8 cSizL = 8;
+    u8 cSizR = 8;
+
+    u8 cSizT = cSizL;
+    u8 cSizB = cSizR;
+
+    s16 rUv = 32*32;
+
+    u16 uvX = (x2-x1)*32;
+    u16 uvY = (y1-y2)*32;
+
+    // CORNERS
+    Vtx * v = alloc_display_list(16 * sizeof(Vtx));
+
+    make_vertex(v, 0,  x1,       y1,       0,       0,            0,                   255, 255, 255, 255);
+    make_vertex(v, 1,  x1+cSizL, y1,       0,       32*cSizL,     0,                   255, 255, 255, 255);
+    make_vertex(v, 2,  x2-cSizR, y1,       0,       rUv-32*cSizR, 0,                   255, 255, 255, 255);
+    make_vertex(v, 3,  x2,       y1,       0,       rUv,          0,                   255, 255, 255, 255);
+       
+    make_vertex(v, 4,  x1,       y1-cSizT, 0,       0,            cSizL*32,            255, 255, 255, 255);
+    make_vertex(v, 5,  x1+cSizL, y1-cSizT, 0,       32*cSizL,     cSizL*32,            255, 255, 255, 255);
+    make_vertex(v, 6,  x2-cSizR, y1-cSizT, 0,       rUv-32*cSizR, cSizL*32,            255, 255, 255, 255);
+    make_vertex(v, 7,  x2,       y1-cSizT, 0,       rUv,          cSizL*32,            255, 255, 255, 255);
+ 
+    make_vertex(v, 8,  x1,       y2+cSizB, 0,       0,            rUv-cSizL*32,        255, 255, 255, 255);
+    make_vertex(v, 9,  x1+cSizL, y2+cSizB, 0,       32*cSizL,     rUv-cSizL*32,        255, 255, 255, 255);
+    make_vertex(v, 10, x2-cSizR, y2+cSizB, 0,       rUv-32*cSizR, rUv-cSizL*32,        255, 255, 255, 255);
+    make_vertex(v, 11, x2,       y2+cSizB, 0,       rUv,          rUv-cSizL*32,        255, 255, 255, 255);
+
+    make_vertex(v, 12, x1,       y2,       0,       0,            rUv,                 255, 255, 255, 255);
+    make_vertex(v, 13, x1+cSizL, y2,       0,       32*cSizL,     rUv,                 255, 255, 255, 255);
+    make_vertex(v, 14, x2-cSizR, y2,       0,       rUv-32*cSizR, rUv,                 255, 255, 255, 255);
+    make_vertex(v, 15, x2,       y2,       0,       rUv,          rUv,                 255, 255, 255, 255);
+
+    gSPVertex(gDisplayListHead++,v,16,0);
+    
+    gSP2Triangles(gDisplayListHead++, 5, 1, 0, 0, 5, 0, 4, 0);
+    gSP2Triangles(gDisplayListHead++, 7, 3, 2, 0, 2, 6, 7, 0);
+    gSP2Triangles(gDisplayListHead++, 5+8, 1+8, 0+8, 0, 5+8, 0+8, 4+8, 0);
+    gSP2Triangles(gDisplayListHead++, 7+8, 3+8, 2+8, 0, 2+8, 6+8, 7+8, 0);
+
+    // TOP
+    v = alloc_display_list(4 * sizeof(Vtx));
+
+    make_vertex(v, 0,  x1+cSizL, y1,       0,       0,             0,                   255, 255, 255, 255);
+    make_vertex(v, 1,  x2-cSizR, y1,       0,       uvX,           0,                   255, 255, 255, 255);
+    make_vertex(v, 2,  x1+cSizL, y1-cSizT, 0,       0,             cSizT*32,            255, 255, 255, 255);
+    make_vertex(v, 3,  x2-cSizR, y1-cSizT, 0,       uvX,           cSizT*32,            255, 255, 255, 255);
+
+    gSPVertex(gDisplayListHead++,v,4,0);
+	gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 2, G_TX_RENDERTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 3, 0);
+    gDPPipeSync(gDisplayListHead++);
+    gSP2Triangles(gDisplayListHead++, 0, 2, 1, 0, 2, 3, 1, 0);
+
+    // BOTTOM
+    v = alloc_display_list(4 * sizeof(Vtx));
+
+    make_vertex(v, 0,  x1+cSizL, y2+cSizB, 0,       0,             0,                   255, 255, 255, 255);
+    make_vertex(v, 1,  x2-cSizR, y2+cSizB, 0,       uvX,           0,                   255, 255, 255, 255);
+    make_vertex(v, 2,  x1+cSizL, y2,       0,       0,             cSizT*32,            255, 255, 255, 255);
+    make_vertex(v, 3,  x2-cSizR, y2,       0,       uvX,           cSizT*32,            255, 255, 255, 255);
+
+    gSPVertex(gDisplayListHead++,v,4,0);
+    gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 194, G_TX_RENDERTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 3, 0);
+    gDPPipeSync(gDisplayListHead++);
+    gSP2Triangles(gDisplayListHead++, 0, 2, 1, 0, 2, 3, 1, 0);
+
+    // LEFT
+    v = alloc_display_list(4 * sizeof(Vtx));
+
+    make_vertex(v, 0,  x1,       y1-cSizT, 0,       0,            0,            255, 255, 255, 255);
+    make_vertex(v, 1,  x1+cSizL, y1-cSizT, 0,       32*cSizL,     0,            255, 255, 255, 255);
+    make_vertex(v, 2,  x1,       y2+cSizB, 0,       0,            uvY,          255, 255, 255, 255);
+    make_vertex(v, 3,  x1+cSizL, y2+cSizB, 0,       32*cSizL,     uvY,          255, 255, 255, 255);
+
+    gSPVertex(gDisplayListHead++,v,4,0);
+    gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 64, G_TX_RENDERTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 3, 0);
+    gDPPipeSync(gDisplayListHead++);
+    gSP2Triangles(gDisplayListHead++, 0, 2, 1, 0, 2, 3, 1, 0);
+
+    // RIGHT
+    v = alloc_display_list(4 * sizeof(Vtx));
+
+    make_vertex(v, 0,  x2-cSizR, y1-cSizT, 0,       0,            0,            255, 255, 255, 255);
+    make_vertex(v, 1,  x2,       y1-cSizT, 0,       32*cSizL,     0,            255, 255, 255, 255);
+    make_vertex(v, 2,  x2-cSizR, y2+cSizB, 0,       0,            uvY,          255, 255, 255, 255);
+    make_vertex(v, 3,  x2,       y2+cSizB, 0,       32*cSizL,     uvY,          255, 255, 255, 255);
+
+    gSPVertex(gDisplayListHead++,v,4,0);
+    gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 70, G_TX_RENDERTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 3, 0);
+    gDPPipeSync(gDisplayListHead++);
+    gSP2Triangles(gDisplayListHead++, 0, 2, 1, 0, 2, 3, 1, 0);
+
+    // CENTER
+    v = alloc_display_list(4 * sizeof(Vtx));
+
+    make_vertex(v, 0,  x1+cSizL, y1-cSizT, 0,       0,            0,            255, 255, 255, 255);
+    make_vertex(v, 1,  x2-cSizL, y1-cSizT, 0,       uvX,          0,            255, 255, 255, 255);
+    make_vertex(v, 2,  x1+cSizL, y2+cSizB, 0,       0,            uvY,          255, 255, 255, 255);
+    make_vertex(v, 3,  x2-cSizR, y2+cSizB, 0,       uvX,          uvY,          255, 255, 255, 255);
+
+    gSPVertex(gDisplayListHead++,v,4,0);
+    gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 66, G_TX_RENDERTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0);
+    gDPPipeSync(gDisplayListHead++);
+    gSP2Triangles(gDisplayListHead++, 0, 2, 1, 0, 2, 3, 1, 0);
+}
+
+void init_4slice_render(nineSliceParams * params) {
+    sCur9sliceParams = params;
+
+    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
+    gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
+    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
+    gDPSetCombineMode(gDisplayListHead++, G_CC_FADEA, G_CC_FADEA);
+    gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+
+	gSPTexture(gDisplayListHead++,65535, 65535, 0, 0, 1);
+    gDPPipeSync(gDisplayListHead++);
+    gDPLoadTextureBlock(gDisplayListHead++, params->texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0,
+        G_TX_WRAP, G_TX_WRAP, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
+    
+    gDPPipeSync(gDisplayListHead++);
+}
+
 void ui_render(void) {
     create_dl_ortho_matrix();
     utf8_print_reset();
 
     int xToCut = 180 + (int)(sinf(gGlobalTimer*.1f)*50.0f);
 
-    int ySize;
     //char * str = utf8_autonewline("THE @I@QUICK,@@ BROWN, FOX @Y@😊@@ JUMPS OVER: @GI@ARTHURTILLY@@ ALOT.\n@Y@😊😊@@ 😡@R@ DAS WAR EIN BEFEHL 😡@@ \nwow... 😊 the quick brown fox jumps over the lazy dog",xToCut,&ySize);
-    char * str = utf8_autonewline("Falsches üben von xylophonmusik quält jeden größeren zwerg.\n@R@😡 DAS WAR EIN BEFEHL 😡@@ \nwow... @Y@😊@@\nThe quick brown fox jumps over the lazy dog.\nOh, @R@Ryan,@@ my beautiful @G@shrine bachelor@@, who hates @R@cardio@@ and @R@women@@!@@ Guide me the way with your @B@blue boxes@@.",xToCut,&ySize);
+    char * str = utf8_autonewline("Falsches üben von xylophonmusik quält jeden größeren zwerg.\n@R@😡 DAS WAR EIN BEFEHL 😡@@ \nwow... @Y@😊@@\nThe quick brown fox jumps over the lazy dog.\nOh, @R@Ryan,@@ my beautiful @G@shrine bachelor@@, who hates @R@cardio@@ and @R@women@@!@@ Guide me the way with your @B@blue boxes@@.",xToCut);
 
-    render_9slice(10,220,20+xToCut,180-ySize);
+    int x;
+    int y;
+    utf8_size(str,&x,&y);
 
-    print_utf8(str,20,200);
+    //init_9slice_render(&stickyNoteParams);
+    //gDPSetEnvColor(gDisplayListHead++, 255, 100, 100, 255);
+    //render_9slice(10,220,20+x,180+y);
+
+    //print_utf8(str,20,200);
     //print_utf8("falsches üben von xylophonmusik quält jeden größeren zwerg",10,150);
+
+    init_4slice_render(&notepadParams);
+
+    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
+    render_9slice(10,162,120,10);
+
+    init_4slice_render(&notepadParams);
+    render_9slice(200,100,250,50);
+
+    init_4slice_render(&notepadParams);
+    render_9slice(155,175,250,150);
+
+    init_4slice_render(&stickyNoteParams);
+
+    gDPSetEnvColor(gDisplayListHead++, 255, 100, 120, 255);
+    render_4slice(30,132,100,100);
+
+    gDPSetEnvColor(gDisplayListHead++, 255, 255, 100, 255);
+    render_4slice(30,132-40,100,100-40);
+
+    gDPSetEnvColor(gDisplayListHead++, 100, 100, 255, 255);
+    render_4slice(30,132-80,100,100-80);
+
+    utf8_print_reset();
+    print_utf8("Option 1",40,108);
+    print_utf8("W FAPS",40,108-40);
+    print_utf8("Option 3",40,108-80);
 }
