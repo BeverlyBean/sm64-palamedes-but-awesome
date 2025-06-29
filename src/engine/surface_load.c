@@ -553,6 +553,7 @@ void load_area_terrain(s32 index, TerrainData *data, RoomData *surfaceRooms, s16
  * If not in time stop, clear the surface partitions.
  */
 void clear_dynamic_surfaces(void) {
+    u32 mask = __osDisableInt();
     PUPPYPRINT_GET_SNAPSHOT();
     if (!(gTimeStopState & TIME_STOP_ACTIVE)) {
         clear_dynamic_surface_references();
@@ -571,6 +572,7 @@ void clear_dynamic_surfaces(void) {
         sClearAllCells = FALSE;
     }
     profiler_collision_update(first);
+    __osRestoreInt(mask);
 }
 
 /**
@@ -602,6 +604,8 @@ void transform_object_vertices(TerrainData **data, TerrainData *vertexData) {
  * Load in the surfaces for the o. This includes setting the flags, exertion, and room.
  */
 void load_object_surfaces(TerrainData **data, TerrainData *vertexData, u32 dynamic) {
+    u32 mask = __osDisableInt();
+
     s32 i;
 
     s32 surfaceType = *(*data)++;
@@ -649,6 +653,7 @@ void load_object_surfaces(TerrainData **data, TerrainData *vertexData, u32 dynam
         }
 #endif
     }
+    __osRestoreInt(mask);
 }
 
 #ifdef AUTO_COLLISION_DISTANCE
