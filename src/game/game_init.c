@@ -33,7 +33,7 @@
 #include "emutest.h"
 #include "frame_lerp.h"
 #include "level_update.h"
-#include "utf8.h"
+#include "utf8_print.h"
 #include <PR/os_internal_reg.h>
 
 // Emulators that the Instant Input patch should not be applied to

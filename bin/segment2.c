@@ -3619,7 +3619,7 @@ const s16 seg2_painting_mesh_neighbor_tris[] = {
 };
 
 Texture sm64DS_latin_i4[] = {
-    #include "textures/segment2/sm64ds_latin_alt.ia4.inc.c"
+    #include "textures/segment2/sm64ds_latin.ia4.inc.c"
 };
 
 Texture nine_slice_sample_rgba16[] = {

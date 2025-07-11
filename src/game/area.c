@@ -28,7 +28,7 @@
 #include "profiling.h"
 #include "special_shadow.h"
 #include "bridge.h"
-#include "utf8.h"
+#include "utf8_print.h"
 #ifdef S2DEX_TEXT_ENGINE
 #include "s2d_engine/init.h"
 #endif

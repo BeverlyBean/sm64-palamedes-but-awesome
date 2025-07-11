@@ -1,7 +1,7 @@
 #include <PR/ultratypes.h>
 #include <PR/gbi.h>
 
-#include "utf8.h"
+#include "utf8_print.h"
 #include "types.h"
 #include "segment2.h"
 #include "ingame_menu.h"
@@ -29,17 +29,41 @@ fontChar utf8Table[] = {
         .tex = sm64DS_latin_i4,
         .size = 4,
     },
+    [UTF8_OPEN_BRACKET] = {
+        .utf8code = '(',
+        .xUv = 326,
+        .tex = sm64DS_latin_i4,
+        .size = 3,
+    },
+    [UTF8_CLOSE_BRACKET] = {
+        .utf8code = ')',
+        .xUv = 329,
+        .tex = sm64DS_latin_i4,
+        .size = 3,
+    },
     [UTF8_PERCENTAGE] = {
         .utf8code = '*',
         .xUv = 312,
         .tex = sm64DS_latin_i4,
         .size = 6,
     },
+    [UTF8_PLUS] = {
+        .utf8code = '+',
+        .xUv = 333,
+        .tex = sm64DS_latin_i4,
+        .size = 8,
+    },
     [UTF8_COMMA] = {
-        .utf8code = ',',
+        .utf8code = 0x2C,
         .xUv = 304,
         .tex = sm64DS_latin_i4,
         .size = 2,
+    },
+    [UTF8_DASH] = {
+        .utf8code = 0x2D,
+        .xUv = 332,
+        .tex = sm64DS_latin_i4,
+        .size = 4,
     },
     [UTF8_PERIOD] = {
         .utf8code = '.',
@@ -407,6 +431,32 @@ fontChar utf8Table[] = {
         .sizeSecondary = LOWERCASE_UMLAUT_SIZE,
     },
 
+    [UTF8_LEFT] = {
+        .utf8code = 0x2190, /*←*/
+        .xUv = 352,
+        .size = 4,
+        .tex = sm64DS_latin_i4,
+    },
+    [UTF8_RIGHT] = {
+        .utf8code = 0x2192, /*→*/
+        .xUv = 355,
+        .size = 4,
+        .tex = sm64DS_latin_i4,
+    },
+
+    [UTF8_L_BUTTON] = {
+        .utf8code = 0x1D40B, /*𝐋*/
+        .xUv = 347,
+        .size = 5,
+        .tex = sm64DS_latin_i4,
+    },
+    [UTF8_R_BUTTON] = {
+        .utf8code = 0x1D411, /*𝐑*/
+        .xUv = 341,
+        .size = 6,
+        .tex = sm64DS_latin_i4,
+    },
+
     [UTF8_SMILE] = {
         .utf8code = 0x1F60A,
         .xUv = 496,
@@ -611,10 +661,12 @@ void print_utf8(char * str, int x, int y) {
         u8 size = utf8_to_codepoint(printHead,&codepoint);
         fontChar * fc = get_fontchar_from_utf8_codepoint(codepoint);
 
-        if (fc->tex != NULL) {
-            render_fontchar(fc,x+printX,y+printY);
+        if (fc != NULL) {
+            if (fc->tex != NULL) {
+                render_fontchar(fc,x+printX,y+printY);
+            }
+            printX += fc->size+1;
         }
-        printX += fc->size+1;
         
         charIndex += size;
         printHead = &str[charIndex];
@@ -660,7 +712,9 @@ char * utf8_autonewline(char * str, int maxX) {
         u8 size = utf8_to_codepoint(printHead,&codepoint);
         fontChar * fc = get_fontchar_from_utf8_codepoint(codepoint);
 
-        printX += fc->size+1;
+        if (fc != NULL) {
+            printX += fc->size+1;
+        }
         
         charIndex += size;
         printHead = &str[charIndex];
@@ -708,7 +762,9 @@ void utf8_size(char * str, int * x, int * y) {
         u8 size = utf8_to_codepoint(printHead,&codepoint);
         fontChar * fc = get_fontchar_from_utf8_codepoint(codepoint);
 
-        printX += fc->size+1;
+        if (fc != NULL) {
+            printX += fc->size+1;
+        }
         printXmax = MAX(printX,printXmax);
         
         charIndex += size;
@@ -922,7 +978,7 @@ void ui_render(void) {
     int xToCut = 180 + (int)(sinf(gGlobalTimer*.1f)*50.0f);
 
     //char * str = utf8_autonewline("THE @I@QUICK,@@ BROWN, FOX @Y@😊@@ JUMPS OVER: @GI@ARTHURTILLY@@ ALOT.\n@Y@😊😊@@ 😡@R@ DAS WAR EIN BEFEHL 😡@@ \nwow... 😊 the quick brown fox jumps over the lazy dog",xToCut,&ySize);
-    char * str = utf8_autonewline("Falsches üben von xylophonmusik quält jeden größeren zwerg.\n@R@😡 DAS WAR EIN BEFEHL 😡@@ \nwow... @Y@😊@@\nThe quick brown fox jumps over the lazy dog.\nOh, @R@Ryan,@@ my beautiful @G@shrine bachelor@@, who hates @R@cardio@@ and @R@women@@!@@ Guide me the way with your @B@blue boxes@@.",xToCut);
+    char * str = utf8_autonewline("+-/()𝐋𝐑→← Falsches üben von xylophonmusik quält jeden größeren zwerg.\n@R@😡 DAS WAR EIN BEFEHL 😡@@ \nwow... @Y@😊@@\nThe quick brown fox jumps over the lazy dog.\nOh, @R@Ryan,@@ my beautiful @G@shrine bachelor@@, who hates @R@cardio@@ and @R@women@@!@@ Guide me the way with your @B@blue boxes@@.",xToCut);
 
     int x;
     int y;
@@ -932,33 +988,33 @@ void ui_render(void) {
     //gDPSetEnvColor(gDisplayListHead++, 255, 100, 100, 255);
     //render_9slice(10,220,20+x,180+y);
 
-    //print_utf8(str,20,200);
+    print_utf8(str,20,200);
     //print_utf8("falsches üben von xylophonmusik quält jeden größeren zwerg",10,150);
 
-    init_4slice_render(&notepadParams);
-
-    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
-    render_9slice(10,162,120,10);
-
-    init_4slice_render(&notepadParams);
-    render_9slice(200,100,250,50);
-
-    init_4slice_render(&notepadParams);
-    render_9slice(155,175,250,150);
-
-    init_4slice_render(&stickyNoteParams);
-
-    gDPSetEnvColor(gDisplayListHead++, 255, 100, 120, 255);
-    render_4slice(30,132,100,100);
-
-    gDPSetEnvColor(gDisplayListHead++, 255, 255, 100, 255);
-    render_4slice(30,132-40,100,100-40);
-
-    gDPSetEnvColor(gDisplayListHead++, 100, 100, 255, 255);
-    render_4slice(30,132-80,100,100-80);
-
-    utf8_print_reset();
-    print_utf8("Option 1",40,108);
-    print_utf8("W FAPS",40,108-40);
-    print_utf8("Option 3",40,108-80);
+    //init_4slice_render(&notepadParams);
+//
+    //gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
+    //render_9slice(10,162,120,10);
+//
+    //init_4slice_render(&notepadParams);
+    //render_9slice(200,100,250,50);
+//
+    //init_4slice_render(&notepadParams);
+    //render_9slice(155,175,250,150);
+//
+    //init_4slice_render(&stickyNoteParams);
+//
+    //gDPSetEnvColor(gDisplayListHead++, 255, 100, 120, 255);
+    //render_4slice(30,132,100,100);
+//
+    //gDPSetEnvColor(gDisplayListHead++, 255, 255, 100, 255);
+    //render_4slice(30,132-40,100,100-40);
+//
+    //gDPSetEnvColor(gDisplayListHead++, 100, 100, 255, 255);
+    //render_4slice(30,132-80,100,100-80);
+//
+    //utf8_print_reset();
+    //print_utf8("Option 1",40,108);
+    //print_utf8("W FAPS",40,108-40);
+    //print_utf8("Option 3",40,108-80);
 }
