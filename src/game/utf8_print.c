@@ -71,6 +71,12 @@ fontChar utf8Table[] = {
         .tex = sm64DS_latin_i4,
         .size = 2,
     },
+    [UTF8_SLASH] = {
+        .utf8code = '/',
+        .xUv = 373,
+        .tex = sm64DS_latin_i4,
+        .size = 5,
+    },
 
     [UTF8_0] = {
         .utf8code = '0',
@@ -978,7 +984,7 @@ void ui_render(void) {
     int xToCut = 180 + (int)(sinf(gGlobalTimer*.1f)*50.0f);
 
     //char * str = utf8_autonewline("THE @I@QUICK,@@ BROWN, FOX @Y@😊@@ JUMPS OVER: @GI@ARTHURTILLY@@ ALOT.\n@Y@😊😊@@ 😡@R@ DAS WAR EIN BEFEHL 😡@@ \nwow... 😊 the quick brown fox jumps over the lazy dog",xToCut,&ySize);
-    char * str = utf8_autonewline("+-/()𝐋𝐑→← Falsches üben von xylophonmusik quält jeden größeren zwerg.\n@R@😡 DAS WAR EIN BEFEHL 😡@@ \nwow... @Y@😊@@\nThe quick brown fox jumps over the lazy dog.\nOh, @R@Ryan,@@ my beautiful @G@shrine bachelor@@, who hates @R@cardio@@ and @R@women@@!@@ Guide me the way with your @B@blue boxes@@.",xToCut);
+    char * str = utf8_autonewline("+-/()𝐋𝐑→← they/them 23/100 Falsches üben von xylophonmusik quält jeden größeren zwerg.\n@R@😡 DAS WAR EIN BEFEHL 😡@@ \nwow... @Y@😊@@\nThe quick brown fox jumps over the lazy dog.\nOh, @R@Ryan,@@ my beautiful @G@shrine bachelor@@, who hates @R@cardio@@ and @R@women@@!@@ Guide me the way with your @B@blue boxes@@.",xToCut);
 
     int x;
     int y;

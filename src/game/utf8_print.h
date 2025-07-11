@@ -14,6 +14,7 @@ enum {
     UTF8_COMMA,
     UTF8_DASH,
     UTF8_PERIOD,
+    UTF8_SLASH,
 
     UTF8_0,
     UTF8_1,
