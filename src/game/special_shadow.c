@@ -40,6 +40,8 @@ const Gfx dl_shadow_special_tri[] = {
 #include "ingame_menu.h"
 #include "actors/group0.h"
 #include "level_update.h"
+#include "config.h"
+#include "config/config_world.h"
 
 SpecialShadowPart gSpecialShadowPartList[SSP_COUNT]={
     [SSP_HEAD].dl = shadow_head_shadow_head_mesh,
@@ -73,7 +75,7 @@ void special_shadow_generate(void) {
         return;
     }
     create_dl_identity_matrix();
-    guOrtho(matrix, -100.0f, 100.0f, -100.0f, 100.0f, -100.0f, 100.0f, 1.0f);
+    guOrtho(matrix, -50.0f*WORLD_SCALE, 50.0f*WORLD_SCALE, -50.0f*WORLD_SCALE, 50.0f*WORLD_SCALE, -50.0f*WORLD_SCALE, 50.0f*WORLD_SCALE, 1.0f);
     // Should produce G_RDPHALF_1 in Fast3D
     gSPPerspNormalize(gDisplayListHead++, 0xFFFF);
     gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(matrix), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);

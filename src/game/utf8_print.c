@@ -7,7 +7,7 @@
 #include "ingame_menu.h"
 #include "geo_misc.h"
 #include "game_init.h"
-#include "special_shadow.h"
+#include "text_load.h"
 
 //0-2 top, 3-5 bottom
 u8 print_textcolor[6];
@@ -984,7 +984,7 @@ void ui_render(void) {
     int xToCut = 180 + (int)(sinf(gGlobalTimer*.1f)*50.0f);
 
     //char * str = utf8_autonewline("THE @I@QUICK,@@ BROWN, FOX @Y@😊@@ JUMPS OVER: @GI@ARTHURTILLY@@ ALOT.\n@Y@😊😊@@ 😡@R@ DAS WAR EIN BEFEHL 😡@@ \nwow... 😊 the quick brown fox jumps over the lazy dog",xToCut,&ySize);
-    char * str = utf8_autonewline("+-/()𝐋𝐑→← they/them 23/100 Falsches üben von xylophonmusik quält jeden größeren zwerg.\n@R@😡 DAS WAR EIN BEFEHL 😡@@ \nwow... @Y@😊@@\nThe quick brown fox jumps over the lazy dog.\nOh, @R@Ryan,@@ my beautiful @G@shrine bachelor@@, who hates @R@cardio@@ and @R@women@@!@@ Guide me the way with your @B@blue boxes@@.",xToCut);
+    char * str = utf8_autonewline(get_text(TEXT_TEST),xToCut);
 
     int x;
     int y;
