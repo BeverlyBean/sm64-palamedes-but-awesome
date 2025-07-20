@@ -49,7 +49,7 @@ s32 check_common_idle_cancels(struct MarioState *m) {
     }
 
     if (m->input & INPUT_B_PRESSED) {
-        return set_mario_action(m, ACT_PUNCHING, 0);
+        return set_mario_b_action(m, ACT_PUNCHING);
     }
 
     if (m->input & INPUT_Z_DOWN) {
@@ -603,7 +603,7 @@ s32 act_braking_stop(struct MarioState *m) {
     }
 
     if (m->input & INPUT_B_PRESSED) {
-        return set_mario_action(m, ACT_PUNCHING, 0);
+        return set_mario_b_action(m, ACT_PUNCHING);
     }
 
     if (!(m->input & INPUT_FIRST_PERSON)
@@ -831,7 +831,7 @@ s32 check_common_landing_cancels(struct MarioState *m, u32 action) {
     }
 
     if (m->input & INPUT_B_PRESSED) {
-        return set_mario_action(m, ACT_PUNCHING, 0);
+        return set_mario_b_action(m, ACT_PUNCHING);
     }
 
     return FALSE;

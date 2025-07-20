@@ -735,4 +735,8 @@ ALWAYS_INLINE f32 smoothstep(f32 from, f32 to, f32 amount) {
     return lerpf(from, to, amount);
 }
 
+ALWAYS_INLINE f32 smoothstep2(f32 t) {
+     return t * t * (3.0f - 2.0f * t);
+}
+
 #endif // MATH_UTIL_H

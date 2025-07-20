@@ -38,3 +38,4 @@
 #include "shadow_foot_2/model.inc.c"
 #include "shadow_limb/model.inc.c"
 #include "shadow_torso/model.inc.c"
+#include "placeholderNPC/model.inc.c"

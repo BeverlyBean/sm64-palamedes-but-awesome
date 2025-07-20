@@ -104,6 +104,8 @@ enum {
 #define LOWERCASE_UMLAUT_X 236
 #define LOWERCASE_UMLAUT_SIZE 3
 
+#define PRINT_Y_OFFSET 16
+
 typedef struct {
     u32 utf8code;
     Texture * tex;
@@ -114,8 +116,22 @@ typedef struct {
 } fontChar;
 
 void utf8_initialize_table(void);
-void print_utf8(char * str, int x, int y);
-void utf8_print_reset(void);
+void utf8_print(char * str, int x, int y);
+void utf8_init_print(void);
+char * utf8_autonewline(char * str, int maxX);
+void utf8_size(char * str, int * x, int * y);
+
+typedef struct {
+    Texture * texture;
+    Texture * centerTexture;
+    u8 xDivide1;
+    u8 xDivide2;
+} nineSliceParams;
+
+extern nineSliceParams gNotepadSliceParams;
+
+void init_slice_render(nineSliceParams * params);
+void render_9slice(int x1, int y1, int x2, int y2);
 
 void ui_render(void);
 

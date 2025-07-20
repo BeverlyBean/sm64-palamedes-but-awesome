@@ -3,7 +3,36 @@
 #ifndef EVENT_DIALOG_H
 #define EVENT_DIALOG_H
 
+typedef union {
+    void (* func)(int callContext);
+    int i;
+    f32 f;
+    void * v;
+} EventData;
 
+enum {
+    EVENT_CALL_CONTEXT_EXECUTE,
+    EVENT_CALL_CONTEXT_HALTED,
+};
 
+void event_start(EventData * event);
+void event_start_npc(EventData * event, struct Object * npcObj);
+
+void event_system_logic_loop(void);
+void event_system_render_loop(void);
+
+void event_camera_set_target_pointer(Vec3f pos, Vec3f foc);
+void event_camera_set_target(Vec3f pos, Vec3f foc);
+
+void event_set_dialog(int callContext);
+void event_end(int callContext);
+
+#define E_DIALOG(TEXT)       {.func = event_set_dialog}, { .i = TEXT }
+#define E_END()              {.func = event_end}
+
+extern Vec3f gEventCameraPos;
+extern Vec3f gEventCameraFoc;
+
+extern EventData * gEventHead;
 
 #endif

@@ -28,6 +28,7 @@
 #include "config.h"
 #include "puppyprint.h"
 #include "profiling.h"
+#include "event_dialog.h"
 
 #define CBUTTON_MASK (U_CBUTTONS | D_CBUTTONS | L_CBUTTONS | R_CBUTTONS)
 
@@ -2864,6 +2865,11 @@ void update_lakitu(struct Camera *c) {
     clamp_pitch(gLakituState.pos, gLakituState.focus, 0x3E00, -0x3E00);
     gLakituState.mode = c->mode;
     gLakituState.defMode = c->defMode;
+
+    if (gEventHead) {
+        vec3f_copy(gLakituState.pos,gEventCameraPos);
+        vec3f_copy(gLakituState.focus,gEventCameraFoc);
+    }
 }
 
 /**

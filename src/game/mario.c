@@ -33,7 +33,7 @@
 #include "sound_init.h"
 #include "rumble_init.h"
 #include "cubic_volume.h"
-
+#include "src/game/event_dialog.h"
 
 /**************************************************
  *                    ANIMATIONS                  *
@@ -953,6 +953,26 @@ u32 set_mario_action_cutscene(struct MarioState *m, u32 action, UNUSED u32 actio
     return action;
 }
 
+void set_mario_interest(void) {
+    gMarioState->objInterest = NULL;
+    struct Object * nearestNPC = cur_obj_nearest_object_with_behavior(bhvNPC);
+    if (nearestNPC && dist_between_objects(gMarioObject,nearestNPC) < 500.f) {
+        gMarioState->objInterest = nearestNPC;
+    }
+}
+
+u32 set_mario_b_action(struct MarioState *m, u32 defaultState) {
+    if (m->objInterest) {
+        extern EventData testNPC[];
+        if (o->oBehParams2ndByte == 0 && (gMarioState->controller->buttonPressed & B_BUTTON)) {
+            event_start_npc(testNPC,m->objInterest);
+        }
+        return FALSE;
+    }
+
+    return set_mario_action(m,defaultState,0);
+}
+
 /**
  * Puts Mario into a given action, putting Mario through the appropriate
  * specific function if needed.
@@ -1714,6 +1734,8 @@ void queue_rumble_particles(struct MarioState *m) {
 s32 execute_mario_action(UNUSED struct Object *obj) {
     s32 inLoop = TRUE;
 
+    set_mario_interest();
+
     if (point_inside_volume(gMarioState->pos, &testVolume)) {
         print_text_fmt_int(210, 100, "%d", point_inside_volume(gMarioState->pos, &testVolume));
     };
@@ -1883,6 +1905,8 @@ void init_mario(void) {
         capObject->oForwardVel = 0;
         capObject->oMoveAngleYaw = 0;
     }
+
+    gMarioState->objInterest = NULL;
 }
 
 void init_mario_from_save_file(void) {

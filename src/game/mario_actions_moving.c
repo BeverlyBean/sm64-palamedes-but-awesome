@@ -481,7 +481,7 @@ s32 check_ground_dive_or_punch(struct MarioState *m) {
             return set_mario_action(m, ACT_DIVE, 1);
         }
 
-        return set_mario_action(m, ACT_MOVE_PUNCHING, 0);
+        return set_mario_b_action(m, ACT_MOVE_PUNCHING);
     }
 
     return FALSE;
@@ -1036,7 +1036,7 @@ s32 act_braking(struct MarioState *m) {
     }
 
     if (m->input & INPUT_B_PRESSED) {
-        return set_mario_action(m, ACT_MOVE_PUNCHING, 0);
+        return set_mario_b_action(m, ACT_MOVE_PUNCHING);
     }
 
     switch (perform_ground_step(m)) {

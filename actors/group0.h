@@ -345,4 +345,6 @@ extern const Gfx white_particle_small_unused_dl[];
 
 #include "shadow_torso/header.h"
 
+#include "placeholderNPC/geo_header.h"
+
 #endif

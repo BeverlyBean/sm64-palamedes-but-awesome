@@ -472,6 +472,7 @@ struct MarioState {
              s16 moveYaw;
              s16 ceilYaw;
              s16 wallYaw;
+             struct Object * objInterest;
 
              struct Animation * queueTargetAnim;
              s32 queueTargetAnimID;

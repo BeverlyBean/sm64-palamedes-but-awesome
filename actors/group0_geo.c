@@ -19,3 +19,4 @@
 #include "mario/geo.inc.c"
 
 #include "testcube/geo.inc.c"
+#include "placeholderNPC/geo.inc.c"

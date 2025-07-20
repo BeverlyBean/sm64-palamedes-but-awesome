@@ -8,6 +8,7 @@
 #include "geo_misc.h"
 #include "game_init.h"
 #include "text_load.h"
+#include "event_dialog.h"
 
 //0-2 top, 3-5 bottom
 u8 print_textcolor[6];
@@ -477,6 +478,25 @@ fontChar utf8Table[] = {
     },
 };
 
+nineSliceParams testSliceParams = {
+    .texture = nine_slice_sample_rgba16,
+    .centerTexture = NULL,
+    .xDivide1 = 16,
+};
+
+nineSliceParams stickyNoteParams = {
+    .texture = nine_slice_stickynote_rgba16,
+    .centerTexture = NULL,
+    .xDivide1 = 19,
+};
+
+nineSliceParams gNotepadSliceParams = {
+    .texture = nine_slice_notepad_rgba16,
+    .centerTexture = NULL,
+    .xDivide1 = 8,
+    .xDivide2 = 24
+};
+
 void utf8_initialize_table(void) {
     for (int i = 0; i < UTF8_COUNT; i++) {
         fontChar * curChar = &utf8Table[i];
@@ -582,7 +602,7 @@ s8 utf8_to_codepoint(const char *s, uint32_t *codepoint) {
     return -1;
 }
 
-void print_utf8(char * str, int x, int y) {
+void utf8_print(char * str, int x, int y) {
     for (int i = 0; i < 6; i++) {
         print_textcolor[i] = 255;
     }
@@ -597,7 +617,7 @@ void print_utf8(char * str, int x, int y) {
 
         if ((*printHead) == '\n') {
             printX = 0;
-            printY -= 16;
+            printY -= PRINT_Y_OFFSET;
 
             charIndex++;
             printHead = &str[charIndex];
@@ -694,7 +714,7 @@ char * utf8_autonewline(char * str, int maxX) {
     while((*printHead) != '\0') {
         if ((*printHead) == '\n') {
             printX = 0;
-            printY -= 16;
+            printY -= PRINT_Y_OFFSET;
 
             lastSpaceIndex = charIndex;
 
@@ -748,7 +768,7 @@ void utf8_size(char * str, int * x, int * y) {
 
         if ((*printHead) == '\n') {
             printX = 0;
-            printY -= 16;
+            printY -= PRINT_Y_OFFSET;
 
             charIndex++;
             printHead = &str[charIndex];
@@ -780,35 +800,9 @@ void utf8_size(char * str, int * x, int * y) {
     *y = printY;
 }
 
-void utf8_print_reset(void) {
+void utf8_init_print(void) {
     print_texture = NULL;
 }
-
-typedef struct {
-    Texture * texture;
-    Texture * centerTexture;
-    u8 xDivide1;
-    u8 xDivide2;
-} nineSliceParams;
-
-nineSliceParams testSliceParams = {
-    .texture = nine_slice_sample_rgba16,
-    .centerTexture = NULL,
-    .xDivide1 = 16,
-};
-
-nineSliceParams stickyNoteParams = {
-    .texture = nine_slice_stickynote_rgba16,
-    .centerTexture = NULL,
-    .xDivide1 = 19,
-};
-
-nineSliceParams notepadParams = {
-    .texture = nine_slice_notepad_rgba16,
-    .centerTexture = NULL,
-    .xDivide1 = 8,
-    .xDivide2 = 24
-};
 
 nineSliceParams * sCur9sliceParams = NULL;
 
@@ -861,8 +855,8 @@ void render_9slice(int x1, int y1, int x2, int y2) {
 
     s16 rUv = 32*32;
 
-    u16 uvX = (x2-x1)*32;
-    u16 uvY = (y1-y2)*32;
+    u16 uvX = ((x2-x1)*32)-(16*32);
+    u16 uvY = ((y1-y2)*32)-(16*32);
 
     // CORNERS
     Vtx * v = alloc_display_list(16 * sizeof(Vtx));
@@ -960,7 +954,7 @@ void render_9slice(int x1, int y1, int x2, int y2) {
     gSP2Triangles(gDisplayListHead++, 0, 2, 1, 0, 2, 3, 1, 0);
 }
 
-void init_4slice_render(nineSliceParams * params) {
+void init_slice_render(nineSliceParams * params) {
     sCur9sliceParams = params;
 
     gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
@@ -979,25 +973,21 @@ void init_4slice_render(nineSliceParams * params) {
 
 void ui_render(void) {
     create_dl_ortho_matrix();
-    utf8_print_reset();
+    event_system_render_loop();
+    return;
 
     int xToCut = 180 + (int)(sinf(gGlobalTimer*.1f)*50.0f);
-
-    //char * str = utf8_autonewline("THE @I@QUICK,@@ BROWN, FOX @Y@😊@@ JUMPS OVER: @GI@ARTHURTILLY@@ ALOT.\n@Y@😊😊@@ 😡@R@ DAS WAR EIN BEFEHL 😡@@ \nwow... 😊 the quick brown fox jumps over the lazy dog",xToCut,&ySize);
     char * str = utf8_autonewline(get_text(TEXT_TEST),xToCut);
 
     int x;
     int y;
     utf8_size(str,&x,&y);
 
-    //init_9slice_render(&stickyNoteParams);
-    //gDPSetEnvColor(gDisplayListHead++, 255, 100, 100, 255);
-    //render_9slice(10,220,20+x,180+y);
+    init_slice_render(&gNotepadSliceParams);
+    render_9slice(10,220,20+x,180+y);
 
-    print_utf8(str,20,200);
-    //print_utf8("falsches üben von xylophonmusik quält jeden größeren zwerg",10,150);
-
-    //init_4slice_render(&notepadParams);
+    utf8_init_print();
+    utf8_print(str,20,200);
 //
     //gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
     //render_9slice(10,162,120,10);
@@ -1019,8 +1009,8 @@ void ui_render(void) {
     //gDPSetEnvColor(gDisplayListHead++, 100, 100, 255, 255);
     //render_4slice(30,132-80,100,100-80);
 //
-    //utf8_print_reset();
-    //print_utf8("Option 1",40,108);
-    //print_utf8("W FAPS",40,108-40);
-    //print_utf8("Option 3",40,108-80);
+    //utf8_init_print();
+    //utf8_print("Option 1",40,108);
+    //utf8_print("W FAPS",40,108-40);
+    //utf8_print("Option 3",40,108-80);
 }

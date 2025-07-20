@@ -4,6 +4,7 @@
 enum {
     TEXT_TEST,
     TEXT_TEST_2,
+    TEXT_TEST_3,
     TEXT_COUNT,
 };
 

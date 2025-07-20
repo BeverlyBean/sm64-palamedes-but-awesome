@@ -32,6 +32,7 @@
 #include "puppyprint.h"
 #include "level_commands.h"
 #include "debug.h"
+#include "event_dialog.h"
 
 #include "config.h"
 
@@ -1057,6 +1058,8 @@ s32 play_mode_normal(void) {
 
     initiate_painting_warp();
     initiate_delayed_warp();
+
+    event_system_logic_loop();
 
     // If either initiate_painting_warp or initiate_delayed_warp initiated a
     // warp, change play mode accordingly.
