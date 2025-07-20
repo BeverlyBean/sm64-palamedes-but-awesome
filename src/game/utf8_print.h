@@ -7,6 +7,7 @@ enum {
     UTF8_SPACE,
 
     UTF8_EXCLAMATION,
+    UTF8_APOSTROPHE,
     UTF8_OPEN_BRACKET,
     UTF8_CLOSE_BRACKET,
     UTF8_PERCENTAGE,
@@ -129,9 +130,13 @@ typedef struct {
 } nineSliceParams;
 
 extern nineSliceParams gNotepadSliceParams;
+extern nineSliceParams gStickySliceParams;
 
 void init_slice_render(nineSliceParams * params);
 void render_9slice(int x1, int y1, int x2, int y2);
+void render_4slice(int x1, int y1, int x2, int y2);
+
+void render_rgba16_texture(int x, int y, Texture * tex);
 
 void ui_render(void);
 

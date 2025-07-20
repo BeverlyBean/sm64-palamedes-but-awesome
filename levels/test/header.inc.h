@@ -2,6 +2,10 @@ extern const GeoLayout test_area_1_geo[];
 extern const GeoLayout test_area_1[];
 extern const Collision test_area_1_collision[];
 extern const MacroObject test_area_1_macro_objs[];
+#include "src/game/camera.h"
+
+extern struct CutsceneSplinePoint test_area_1_spline_testFoc[];
+extern struct CutsceneSplinePoint test_area_1_spline_testPos[];
 extern u8 test_dl_Z2_KAIZOKUTex_0110C0_ci8_png_001_ci8[];
 extern u8 test_dl_Z2_KAIZOKUTex_0110C0_ci8_png_001_pal_rgba16[];
 extern u8 test_dl_Z2_KAIZOKUTex_00E4C0_ci4_png_001_ci4[];

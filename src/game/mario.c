@@ -966,6 +966,7 @@ u32 set_mario_b_action(struct MarioState *m, u32 defaultState) {
         extern EventData testNPC[];
         if (o->oBehParams2ndByte == 0 && (gMarioState->controller->buttonPressed & B_BUTTON)) {
             event_start_npc(testNPC,m->objInterest);
+            return set_mario_action(m,ACT_READING_NPC_DIALOG,0);
         }
         return FALSE;
     }

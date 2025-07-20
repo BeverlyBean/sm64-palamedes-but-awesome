@@ -30,6 +30,12 @@ fontChar utf8Table[] = {
         .tex = sm64DS_latin_i4,
         .size = 4,
     },
+    [UTF8_APOSTROPHE] = {
+        .utf8code = 0x27,
+        .xUv = 321,
+        .tex = sm64DS_latin_i4,
+        .size = 2,
+    },
     [UTF8_OPEN_BRACKET] = {
         .utf8code = '(',
         .xUv = 326,
@@ -126,7 +132,7 @@ fontChar utf8Table[] = {
     },
     [UTF8_9] = {
         .utf8code = '9',
-        .xUv = 394,
+        .xUv = 294,
         .tex = sm64DS_latin_i4,
         .size = 6
     },
@@ -484,7 +490,7 @@ nineSliceParams testSliceParams = {
     .xDivide1 = 16,
 };
 
-nineSliceParams stickyNoteParams = {
+nineSliceParams gStickySliceParams = {
     .texture = nine_slice_stickynote_rgba16,
     .centerTexture = NULL,
     .xDivide1 = 19,
@@ -971,9 +977,40 @@ void init_slice_render(nineSliceParams * params) {
     gDPPipeSync(gDisplayListHead++);
 }
 
+void render_rgba16_texture(int x, int y, Texture * tex) {
+    Vtx * v = alloc_display_list(4 * sizeof(Vtx));
+
+    s16 eUv = 32*32;
+
+    make_vertex(v, 0,   x,   y,    0,       0,   eUv,        255, 255, 255, 255);
+    make_vertex(v, 1,   x+32,y,    0,       eUv, eUv,        255, 255, 255, 255);
+    make_vertex(v, 2,   x,   y+32, 0,       0,   0,      255, 255, 255, 255);
+    make_vertex(v, 3,   x+32,y+32, 0,       eUv, 0,      255, 255, 255, 255);
+
+    // Load RGBA16
+	gDPPipeSync(gDisplayListHead++);
+	gSPTexture(gDisplayListHead++,65535, 65535, 0, 0, 1);
+	gDPSetTextureImage(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 1, tex);
+	gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0);
+	gDPLoadBlock(gDisplayListHead++,7, 0, 0, 1023, 256);
+	gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0);
+	gDPSetTileSize(gDisplayListHead++,0, 0, 0, 124, 124);
+
+    gSPVertex(gDisplayListHead++,v,16,0);
+    gSP2Triangles(gDisplayListHead++, 0, 1, 2, 0, 1, 3, 2, 0);
+}
+
 void ui_render(void) {
     create_dl_ortho_matrix();
     event_system_render_loop();
+
+    #ifdef ENABLE_DEBUG_FREE_MOVE
+        utf8_init_print();
+        char debugBuffer[100];
+        sprintf(debugBuffer,"RAM Remaining: %d*", main_pool_available()/80000);
+        utf8_print(debugBuffer,10,220);
+    #endif
+
     return;
 
     int xToCut = 180 + (int)(sinf(gGlobalTimer*.1f)*50.0f);
