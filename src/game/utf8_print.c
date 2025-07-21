@@ -13,476 +13,27 @@
 //0-2 top, 3-5 bottom
 u8 print_textcolor[6];
 u8 print_italics = 0;
-Texture * print_texture = NULL;
 
-// Will initialize size based on difference between last element's xUv and this, if size = 0. Otherwise, can be manually set
-// xUv 
-fontChar utf8Table[] = {
-    [UTF8_SPACE] = {
-        .utf8code = ' ',
-        .size = 6,
-        .tex = NULL,
-    },
+fontInfo * sPrintFont = NULL;
+Texture * sCurrPrintTexture = NULL;
 
-    [UTF8_EXCLAMATION] = {
-        .utf8code = '!',
-        .xUv = 318,
-        .tex = sm64DS_latin_i4,
-        .size = 4,
-    },
-    [UTF8_APOSTROPHE] = {
-        .utf8code = 0x27,
-        .xUv = 321,
-        .tex = sm64DS_latin_i4,
-        .size = 2,
-    },
-    [UTF8_OPEN_BRACKET] = {
-        .utf8code = '(',
-        .xUv = 326,
-        .tex = sm64DS_latin_i4,
-        .size = 3,
-    },
-    [UTF8_CLOSE_BRACKET] = {
-        .utf8code = ')',
-        .xUv = 329,
-        .tex = sm64DS_latin_i4,
-        .size = 3,
-    },
-    [UTF8_PERCENTAGE] = {
-        .utf8code = '*',
-        .xUv = 312,
-        .tex = sm64DS_latin_i4,
-        .size = 6,
-    },
-    [UTF8_PLUS] = {
-        .utf8code = '+',
-        .xUv = 333,
-        .tex = sm64DS_latin_i4,
-        .size = 8,
-    },
-    [UTF8_COMMA] = {
-        .utf8code = 0x2C,
-        .xUv = 304,
-        .tex = sm64DS_latin_i4,
-        .size = 2,
-    },
-    [UTF8_DASH] = {
-        .utf8code = 0x2D,
-        .xUv = 332,
-        .tex = sm64DS_latin_i4,
-        .size = 4,
-    },
-    [UTF8_PERIOD] = {
-        .utf8code = '.',
-        .xUv = 300,
-        .tex = sm64DS_latin_i4,
-        .size = 2,
-    },
-    [UTF8_SLASH] = {
-        .utf8code = '/',
-        .xUv = 373,
-        .tex = sm64DS_latin_i4,
-        .size = 5,
-    },
+#include "utf8_font.inc.c"
 
-    [UTF8_0] = {
-        .utf8code = '0',
-        .xUv = 243,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_1] = {
-        .utf8code = '1',
-        .xUv = 249,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_2] = {
-        .utf8code = '2',
-        .xUv = 252,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_3] = {
-        .utf8code = '3',
-        .xUv = 258,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_4] = {
-        .utf8code = '4',
-        .xUv = 264,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_5] = {
-        .utf8code = '5',
-        .xUv = 270,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_6] = {
-        .utf8code = '6',
-        .xUv = 276,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_7] = {
-        .utf8code = '7',
-        .xUv = 282,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_8] = {
-        .utf8code = '8',
-        .xUv = 288,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_9] = {
-        .utf8code = '9',
-        .xUv = 294,
-        .tex = sm64DS_latin_i4,
-        .size = 6
-    },
-
-    [UTF8_COLON] = {
-        .utf8code = ':',
-        .xUv = 302,
-        .tex = sm64DS_latin_i4,
-        .size = 2
-    },
-    [UTF8_QUESTION] = {
-        .utf8code = '?',
-        .xUv = 306,
-        .tex = sm64DS_latin_i4,
-        .size = 6
-    },
-
-    [UTF8_UPPERCASE_A] = {
-        .utf8code = 'A',
-        .xUv = 0,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_B] = {
-        .utf8code = 'B',
-        .xUv = 5,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_C] = {
-        .utf8code = 'C',
-        .xUv = 10,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_D] = {
-        .utf8code = 'D',
-        .xUv = 15,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_E] = {
-        .utf8code = 'E',
-        .xUv = 20,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_F] = {
-        .utf8code = 'F',
-        .xUv = 25,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_G] = {
-        .utf8code = 'G',
-        .xUv = 30,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_H] = {
-        .utf8code = 'H',
-        .xUv = 35,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_I] = {
-        .utf8code = 'I',
-        .xUv = 41,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_J] = {
-        .utf8code = 'J',
-        .xUv = 44,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_K] = {
-        .utf8code = 'K',
-        .xUv = 49,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_L] = {
-        .utf8code = 'L',
-        .xUv = 54,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_M] = {
-        .utf8code = 'M',
-        .xUv = 58,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_N] = {
-        .utf8code = 'N',
-        .xUv = 63,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_O] = {
-        .utf8code = 'O',
-        .xUv = 68,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_P] = {
-        .utf8code = 'P',
-        .xUv = 73,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_Q] = {
-        .utf8code = 'Q',
-        .xUv = 78,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_R] = {
-        .utf8code = 'R',
-        .xUv = 84,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_S] = {
-        .utf8code = 'S',
-        .xUv = 89,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_T] = {
-        .utf8code = 'T',
-        .xUv = 94,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_U] = {
-        .utf8code = 'U',
-        .xUv = 99,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_V] = {
-        .utf8code = 'V',
-        .xUv = 104,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_W] = {
-        .utf8code = 'W',
-        .xUv = 109,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_X] = {
-        .utf8code = 'X',
-        .xUv = 114,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_Y] = {
-        .utf8code = 'Y',
-        .xUv = 119,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_UPPERCASE_Z] = {
-        .utf8code = 'Z',
-        .xUv = 124,
-        .tex = sm64DS_latin_i4,
-    },
-
-    [UTF8_LOWERCASE_A] = {
-        .utf8code = 'a',
-        .xUv = 129,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_B] = {
-        .utf8code = 'b',
-        .xUv = 133,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_C] = {
-        .utf8code = 'c',
-        .xUv = 137,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_D] = {
-        .utf8code = 'd',
-        .xUv = 141,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_E] = {
-        .utf8code = 'e',
-        .xUv = 145,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_F] = {
-        .utf8code = 'f',
-        .xUv = 149,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_G] = {
-        .utf8code = 'g',
-        .xUv = 154,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_H] = {
-        .utf8code = 'h',
-        .xUv = 159,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_I] = {
-        .utf8code = 'i',
-        .xUv = 163,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_J] = {
-        .utf8code = 'j',
-        .xUv = 164,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_K] = {
-        .utf8code = 'k',
-        .xUv = 168,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_L] = {
-        .utf8code = 'l',
-        .xUv = 172,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_M] = {
-        .utf8code = 'm',
-        .xUv = 175,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_N] = {
-        .utf8code = 'n',
-        .xUv = 180,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_O] = {
-        .utf8code = 'o',
-        .xUv = 184,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_P] = {
-        .utf8code = 'p',
-        .xUv = 188,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_Q] = {
-        .utf8code = 'q',
-        .xUv = 192,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_R] = {
-        .utf8code = 'r',
-        .xUv = 196,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_S] = {
-        .utf8code = 's',
-        .xUv = 200,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_T] = {
-        .utf8code = 't',
-        .xUv = 204,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_U] = {
-        .utf8code = 'u',
-        .xUv = 208,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_V] = {
-        .utf8code = 'v',
-        .xUv = 212,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_W] = {
-        .utf8code = 'w',
-        .xUv = 217,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_X] = {
-        .utf8code = 'x',
-        .xUv = 222,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_Y] = {
-        .utf8code = 'y',
-        .xUv = 227,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_LOWERCASE_Z] = {
-        .utf8code = 'z',
-        .xUv = 232,
-        .tex = sm64DS_latin_i4,
-        .size = 4,
-    },
-
-    [UTF8_ESZETT] = {
-        .utf8code = 0x00DF,
-        .xUv = 239,
-        .tex = sm64DS_latin_i4,
-        .size = 4,
-    },
-    [UTF8_LOWERCASE_UMLAUT_A] = {
-        .utf8code = 0x00E4,
-        .xUv = 129,
-        .tex = sm64DS_latin_i4,
-        .size = 4,
-        .xUvSecondary = LOWERCASE_UMLAUT_X,
-        .sizeSecondary = LOWERCASE_UMLAUT_SIZE,
-    },
-    [UTF8_LOWERCASE_UMLAUT_O] = {
-        .utf8code = 0x00F6,
-        .xUv = 184,
-        .tex = sm64DS_latin_i4,
-        .size = 4,
-        .xUvSecondary = LOWERCASE_UMLAUT_X,
-        .sizeSecondary = LOWERCASE_UMLAUT_SIZE,
-    },
-    [UTF8_LOWERCASE_UMLAUT_U] = {
-        .utf8code = 0x00FC,
-        .xUv = 208,
-        .tex = sm64DS_latin_i4,
-        .size = 4,
-        .xUvSecondary = LOWERCASE_UMLAUT_X,
-        .sizeSecondary = LOWERCASE_UMLAUT_SIZE,
-    },
-
-    [UTF8_LEFT] = {
-        .utf8code = 0x2190, /*←*/
-        .xUv = 352,
-        .size = 4,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_RIGHT] = {
-        .utf8code = 0x2192, /*→*/
-        .xUv = 355,
-        .size = 4,
-        .tex = sm64DS_latin_i4,
-    },
-
-    [UTF8_L_BUTTON] = {
-        .utf8code = 0x1D40B, /*𝐋*/
-        .xUv = 347,
-        .size = 5,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_R_BUTTON] = {
-        .utf8code = 0x1D411, /*𝐑*/
-        .xUv = 341,
-        .size = 6,
-        .tex = sm64DS_latin_i4,
-    },
-
-    [UTF8_SMILE] = {
-        .utf8code = 0x1F60A,
-        .xUv = 496,
-        .size = 16,
-        .tex = sm64DS_latin_i4,
-    },
-    [UTF8_ANGER] = {
-        .utf8code = 0x1F621,
-        .xUv = 480,
-        .size = 16,
-        .tex = sm64DS_latin_i4,
+fontInfo sFontInfoArray[] = {
+    [FONT_SM64DS] = {
+        .charCount = sizeof(sCharListSM64DS) / sizeof(fontChar),
+        .spacing = 1,
+        .printParam = PRINT_IA4_512x16,
+        .charArray = sCharListSM64DS,
+    },
+    [FONT_PINBALL] = {
+        .charCount = sizeof(sCharListPinball) / sizeof(fontChar),
+        .spacing = -2,
+        .printParam = PRINT_RGBA16_128x16,
+        .charArray = sCharListPinball,
     },
 };
+
 
 nineSliceParams testSliceParams = {
     .texture = nine_slice_sample_rgba16,
@@ -504,46 +55,66 @@ nineSliceParams gNotepadSliceParams = {
 };
 
 void utf8_initialize_table(void) {
-    for (int i = 0; i < UTF8_COUNT; i++) {
-        fontChar * curChar = &utf8Table[i];
-        fontChar * nextChar = &utf8Table[i+1];
+    for (int j = 0; j < 2; j++){
+        sPrintFont = &sFontInfoArray[j];
+        for (int i = 0; i < UTF8_COUNT; i++) {
+            fontChar * curChar = &sPrintFont->charArray[i];
+            fontChar * nextChar = &sPrintFont->charArray[i+1];
 
-        if (curChar->size == 0) {
-            curChar->size = nextChar->xUv-curChar->xUv;
+            if (curChar->size == 0) {
+                curChar->size = nextChar->xUv-curChar->xUv;
+            }
         }
     }
 }
 
-void utf8_set_texture(Texture * tex) {
+void set_print_texture(int printTextureParam, Texture * tex) {
+    sCurrPrintTexture = tex;
+
     gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
     gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
     gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
     gDPSetCombineMode(gDisplayListHead++, G_CC_UI_TEXT, G_CC_UI_TEXT);
     gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
 
-	gSPTexture(gDisplayListHead++,65535, 65535, 0, 0, 1);
-	gDPSetTextureImage(gDisplayListHead++,G_IM_FMT_IA, G_IM_SIZ_16b, 1, tex);
-	gDPSetTile(gDisplayListHead++,G_IM_FMT_IA, G_IM_SIZ_16b, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0);
-	gDPLoadBlock(gDisplayListHead++,7, 0, 0, 2047, 64);
-	gDPSetTile(gDisplayListHead++,G_IM_FMT_IA, G_IM_SIZ_4b, 32, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 9, 0);
-	gDPSetTileSize(gDisplayListHead++,0, 0, 0, 2044, 60);
-
     gDPPipeSync(gDisplayListHead++);
-
-    print_texture = tex;
+    gSPTexture(gDisplayListHead++,65535, 65535, 0, 0, 1);
+    switch(printTextureParam) {
+        case PRINT_RGBA16_32x32:
+            gDPSetTextureImage(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 1, tex);
+            gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0);
+            gDPLoadBlock(gDisplayListHead++,7, 0, 0, 1023, 256);
+            gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0);
+            gDPSetTileSize(gDisplayListHead++,0, 0, 0, 124, 124);
+            break;
+        case PRINT_RGBA16_128x16:
+            gDPSetTextureImage(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 1, tex);
+            gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0);
+            gDPLoadBlock(gDisplayListHead++,7, 0, 0, 2047, 64);
+            gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 7, 0);
+            gDPSetTileSize(gDisplayListHead++,0, 0, 0, 508, 60);
+            break;
+        case PRINT_IA4_512x16:
+            gDPSetTextureImage(gDisplayListHead++,G_IM_FMT_IA, G_IM_SIZ_16b, 1, tex);
+            gDPSetTile(gDisplayListHead++,G_IM_FMT_IA, G_IM_SIZ_16b, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0);
+            gDPLoadBlock(gDisplayListHead++,7, 0, 0, 2047, 64);
+            gDPSetTile(gDisplayListHead++,G_IM_FMT_IA, G_IM_SIZ_4b, 32, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 9, 0);
+            gDPSetTileSize(gDisplayListHead++,0, 0, 0, 2044, 60);
+            break;
+    }
 }
 
 fontChar * get_fontchar_from_utf8_codepoint(u32 codepoint) {
     // Binary search
     int low = 0;
-    int high = UTF8_COUNT - 1;
+    int high = sPrintFont->charCount-1;
 
     while (low <= high) {
         int mid = low + (high - low)/2;
 
-        u32 searchedCodepoint = utf8Table[mid].utf8code;
+        u32 searchedCodepoint = sPrintFont->charArray[mid].utf8code;
         if (searchedCodepoint == codepoint) {
-            return &utf8Table[mid];
+            return &sPrintFont->charArray[mid];
         } else if (codepoint < searchedCodepoint) {
             high = mid - 1;
         } else {
@@ -556,8 +127,8 @@ fontChar * get_fontchar_from_utf8_codepoint(u32 codepoint) {
 }
 
 void render_fontchar(fontChar * fc ,int x, int y) {
-    if (fc->tex != print_texture) {
-        utf8_set_texture(fc->tex);
+    if (sCurrPrintTexture != fc->tex) {
+        set_print_texture(sPrintFont->printParam,fc->tex);
     }
 
     Vtx * charVerts = alloc_display_list(4 * sizeof(Vtx));
@@ -697,7 +268,7 @@ void utf8_print(char * str, int x, int y) {
             if (fc->tex != NULL) {
                 render_fontchar(fc,x+printX,y+printY);
             }
-            printX += fc->size+1;
+            printX += fc->size+sPrintFont->spacing;
         }
         
         charIndex += size;
@@ -745,7 +316,7 @@ char * utf8_autonewline(char * str, int maxX) {
         fontChar * fc = get_fontchar_from_utf8_codepoint(codepoint);
 
         if (fc != NULL) {
-            printX += fc->size+1;
+            printX += fc->size+sPrintFont->spacing;
         }
         
         charIndex += size;
@@ -795,7 +366,7 @@ void utf8_size(char * str, int * x, int * y) {
         fontChar * fc = get_fontchar_from_utf8_codepoint(codepoint);
 
         if (fc != NULL) {
-            printX += fc->size+1;
+            printX += fc->size+sPrintFont->spacing;
         }
         printXmax = MAX(printX,printXmax);
         
@@ -807,7 +378,11 @@ void utf8_size(char * str, int * x, int * y) {
 }
 
 void utf8_init_print(void) {
-    print_texture = NULL;
+    sCurrPrintTexture = NULL;
+}
+
+void utf8_set_font(int fontID) {
+    sPrintFont = &sFontInfoArray[fontID];
 }
 
 nineSliceParams * sCur9sliceParams = NULL;
@@ -973,8 +548,10 @@ void init_slice_render(nineSliceParams * params) {
     gDPPipeSync(gDisplayListHead++);
     gDPLoadTextureBlock(gDisplayListHead++, params->texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0,
         G_TX_WRAP, G_TX_WRAP, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
-    
+
     gDPPipeSync(gDisplayListHead++);
+
+    sCurrPrintTexture = params->texture;
 }
 
 void render_rgba16_texture(int x, int y, Texture * tex) {
@@ -988,13 +565,7 @@ void render_rgba16_texture(int x, int y, Texture * tex) {
     make_vertex(v, 3,   x+32,y+32, 0,       eUv, 0,      255, 255, 255, 255);
 
     // Load RGBA16
-	gDPPipeSync(gDisplayListHead++);
-	gSPTexture(gDisplayListHead++,65535, 65535, 0, 0, 1);
-	gDPSetTextureImage(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 1, tex);
-	gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0);
-	gDPLoadBlock(gDisplayListHead++,7, 0, 0, 1023, 256);
-	gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0);
-	gDPSetTileSize(gDisplayListHead++,0, 0, 0, 124, 124);
+    set_print_texture(PRINT_RGBA16_32x32,tex);
 
     gSPVertex(gDisplayListHead++,v,16,0);
     gSP2Triangles(gDisplayListHead++, 0, 1, 2, 0, 1, 3, 2, 0);
@@ -1002,15 +573,16 @@ void render_rgba16_texture(int x, int y, Texture * tex) {
 
 void ui_render(void) {
     create_dl_ortho_matrix();
+    utf8_init_print();
+    utf8_set_font(FONT_SM64DS);
     event_system_render_loop();
 
     #ifdef ENABLE_DEBUG_FREE_MOVE
-        utf8_init_print();
         char debugBuffer[100];
         sprintf(debugBuffer,"RAM Remaining: %d*", main_pool_available()/80000);
         utf8_print(debugBuffer,10,220);
     #endif
-
+    
     return;
 
     int xToCut = 180 + (int)(sinf(gGlobalTimer*.1f)*50.0f);
@@ -1023,7 +595,6 @@ void ui_render(void) {
     init_slice_render(&gNotepadSliceParams);
     render_9slice(10,220,20+x,180+y);
 
-    utf8_init_print();
     utf8_print(str,20,200);
 //
     //gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);

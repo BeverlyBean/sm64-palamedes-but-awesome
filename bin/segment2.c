@@ -3622,6 +3622,14 @@ Texture sm64DS_latin_i4[] = {
     #include "textures/segment2/sm64ds_latin.ia4.inc.c"
 };
 
+Texture pinball_1_rgba16[] = {
+    #include "textures/segment2/pinball1.rgba16.inc.c"
+};
+
+Texture pinball_2_rgba16[] = {
+    #include "textures/segment2/pinball2.rgba16.inc.c"
+};
+
 Texture nine_slice_sample_rgba16[] = {
     #include "textures/segment2/nine_slice_sample.rgba16.inc.c"
 };

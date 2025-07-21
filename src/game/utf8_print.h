@@ -4,6 +4,12 @@
 #define UI_H
 
 enum {
+    PRINT_RGBA16_32x32,
+    PRINT_RGBA16_128x16,
+    PRINT_IA4_512x16,
+};
+
+enum {
     UTF8_SPACE,
 
     UTF8_EXCLAMATION,
@@ -107,6 +113,11 @@ enum {
 
 #define PRINT_Y_OFFSET 16
 
+enum {
+    FONT_SM64DS,
+    FONT_PINBALL,
+};
+
 typedef struct {
     u32 utf8code;
     Texture * tex;
@@ -116,9 +127,17 @@ typedef struct {
     u8 sizeSecondary;
 } fontChar;
 
+typedef struct {
+    int charCount;
+    int spacing;
+    int printParam;
+    fontChar * charArray;
+} fontInfo;
+
 void utf8_initialize_table(void);
 void utf8_print(char * str, int x, int y);
 void utf8_init_print(void);
+void utf8_set_font(int fontID);
 char * utf8_autonewline(char * str, int maxX);
 void utf8_size(char * str, int * x, int * y);
 
