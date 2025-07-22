@@ -1,0 +1,8 @@
+#include "sm64.h"
+
+#ifndef UI_H
+#define UI_H
+
+void ui_render(void);
+
+#endif

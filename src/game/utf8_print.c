@@ -4,11 +4,11 @@
 #include "utf8_print.h"
 #include "types.h"
 #include "segment2.h"
-#include "ingame_menu.h"
 #include "geo_misc.h"
 #include "game_init.h"
 #include "text_load.h"
 #include "event_dialog.h"
+#include "emutest.h"
 
 //0-2 top, 3-5 bottom
 u8 print_textcolor[6];
@@ -62,7 +62,7 @@ void utf8_initialize_table(void) {
             fontChar * nextChar = &sPrintFont->charArray[i+1];
 
             if (curChar->size == 0) {
-                curChar->size = nextChar->xUv-curChar->xUv;
+                curChar->size = (nextChar->xUv-curChar->xUv)-1;
             }
         }
     }
@@ -73,7 +73,11 @@ void set_print_texture(int printTextureParam, Texture * tex) {
 
     gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
     gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
-    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
+    if (gEmulator & (EMU_CONSOLE|EMU_ARES)) {
+        gDPSetTextureFilter(gDisplayListHead++, G_TF_BILERP);
+    } else {
+        gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
+    }
     gDPSetCombineMode(gDisplayListHead++, G_CC_UI_TEXT, G_CC_UI_TEXT);
     gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
 
@@ -84,7 +88,7 @@ void set_print_texture(int printTextureParam, Texture * tex) {
             gDPSetTextureImage(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 1, tex);
             gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0);
             gDPLoadBlock(gDisplayListHead++,7, 0, 0, 1023, 256);
-            gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0);
+            gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 0, 0, G_TX_CLAMP | G_TX_NOMIRROR, 5, 0, G_TX_CLAMP | G_TX_NOMIRROR, 5, 0);
             gDPSetTileSize(gDisplayListHead++,0, 0, 0, 124, 124);
             break;
         case PRINT_RGBA16_128x16:
@@ -133,24 +137,26 @@ void render_fontchar(fontChar * fc ,int x, int y) {
 
     Vtx * charVerts = alloc_display_list(4 * sizeof(Vtx));
 
-    u16 xUv = fc->xUv*32+2;
-    u16 size = fc->size*32-2;
+    u16 xUv = fc->xUv*32;
+    u16 size = fc->size*32;
 
-    make_vertex(charVerts, 0, x,          y,    0, xUv,      16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
-    make_vertex(charVerts, 1, x+fc->size, y,    0, xUv+size, 16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
-    make_vertex(charVerts, 2, print_italics+x,          y+16, 0, xUv,      0,     print_textcolor[0], print_textcolor[1], print_textcolor[2], 255);
-    make_vertex(charVerts, 3, print_italics+x+fc->size, y+16, 0, xUv+size, 0,     print_textcolor[0], print_textcolor[1], print_textcolor[2], 255);
+    u16 oUv = 0; //Uv offset
+
+    make_vertex(charVerts, 0, x,          y,                  oUv, oUv+xUv,      16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
+    make_vertex(charVerts, 1, x+fc->size, y,                  oUv, oUv+xUv+size, 16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
+    make_vertex(charVerts, 2, print_italics+x,          y+16, oUv, oUv+xUv,      0,     print_textcolor[0], print_textcolor[1], print_textcolor[2], 255);
+    make_vertex(charVerts, 3, print_italics+x+fc->size, y+16, oUv, oUv+xUv+size, 0,     print_textcolor[0], print_textcolor[1], print_textcolor[2], 255);
 
     gSPVertex(gDisplayListHead++,charVerts,4,0);
     gSP2Triangles(gDisplayListHead++, 0, 1, 2, 0, 1, 3, 2, 0);
 
     if (fc->xUvSecondary > 0) {
         charVerts = alloc_display_list(4 * sizeof(Vtx));
-        xUv = fc->xUvSecondary*32+2;
-        size = fc->sizeSecondary*32-2;
+        xUv = fc->xUvSecondary*32;
+        size = fc->sizeSecondary*32;
 
-        make_vertex(charVerts, 0, x,          y,    0, xUv,      16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
-        make_vertex(charVerts, 1, x+fc->size, y,    0, xUv+size, 16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
+        make_vertex(charVerts, 0, x,          y,                  0, xUv,      16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
+        make_vertex(charVerts, 1, x+fc->size, y,                  0, xUv+size, 16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
         make_vertex(charVerts, 2, print_italics+x,          y+16, 0, xUv,      0,     print_textcolor[0], print_textcolor[1], print_textcolor[2], 255);
         make_vertex(charVerts, 3, print_italics+x+fc->size, y+16, 0, xUv+size, 0,     print_textcolor[0], print_textcolor[1], print_textcolor[2], 255);
 
@@ -478,7 +484,7 @@ void render_9slice(int x1, int y1, int x2, int y2) {
     make_vertex(v, 3,  x2-cSizR, y1-cSizT, 0,       uvX,           cSizT*32,            255, 255, 255, 255);
 
     gSPVertex(gDisplayListHead++,v,4,0);
-	gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 2, G_TX_RENDERTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 3, 0);
+	gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 2, G_TX_RENDERTILE, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 3, 0);
     gDPPipeSync(gDisplayListHead++);
     gSP2Triangles(gDisplayListHead++, 0, 2, 1, 0, 2, 3, 1, 0);
 
@@ -491,7 +497,7 @@ void render_9slice(int x1, int y1, int x2, int y2) {
     make_vertex(v, 3,  x2-cSizR, y2,       0,       uvX,           cSizT*32,            255, 255, 255, 255);
 
     gSPVertex(gDisplayListHead++,v,4,0);
-    gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 194, G_TX_RENDERTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 3, 0);
+    gDPSetTile(gDisplayListHead++,G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 194, G_TX_RENDERTILE, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 3, 0);
     gDPPipeSync(gDisplayListHead++);
     gSP2Triangles(gDisplayListHead++, 0, 2, 1, 0, 2, 3, 1, 0);
 
@@ -569,56 +575,4 @@ void render_rgba16_texture(int x, int y, Texture * tex) {
 
     gSPVertex(gDisplayListHead++,v,16,0);
     gSP2Triangles(gDisplayListHead++, 0, 1, 2, 0, 1, 3, 2, 0);
-}
-
-void ui_render(void) {
-    create_dl_ortho_matrix();
-    utf8_init_print();
-    utf8_set_font(FONT_SM64DS);
-    event_system_render_loop();
-
-    #ifdef ENABLE_DEBUG_FREE_MOVE
-        char debugBuffer[100];
-        sprintf(debugBuffer,"RAM Remaining: %d*", main_pool_available()/80000);
-        utf8_print(debugBuffer,10,220);
-    #endif
-    
-    return;
-
-    int xToCut = 180 + (int)(sinf(gGlobalTimer*.1f)*50.0f);
-    char * str = utf8_autonewline(get_text(TEXT_TEST),xToCut);
-
-    int x;
-    int y;
-    utf8_size(str,&x,&y);
-
-    init_slice_render(&gNotepadSliceParams);
-    render_9slice(10,220,20+x,180+y);
-
-    utf8_print(str,20,200);
-//
-    //gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
-    //render_9slice(10,162,120,10);
-//
-    //init_4slice_render(&notepadParams);
-    //render_9slice(200,100,250,50);
-//
-    //init_4slice_render(&notepadParams);
-    //render_9slice(155,175,250,150);
-//
-    //init_4slice_render(&stickyNoteParams);
-//
-    //gDPSetEnvColor(gDisplayListHead++, 255, 100, 120, 255);
-    //render_4slice(30,132,100,100);
-//
-    //gDPSetEnvColor(gDisplayListHead++, 255, 255, 100, 255);
-    //render_4slice(30,132-40,100,100-40);
-//
-    //gDPSetEnvColor(gDisplayListHead++, 100, 100, 255, 255);
-    //render_4slice(30,132-80,100,100-80);
-//
-    //utf8_init_print();
-    //utf8_print("Option 1",40,108);
-    //utf8_print("W FAPS",40,108-40);
-    //utf8_print("Option 3",40,108-80);
 }

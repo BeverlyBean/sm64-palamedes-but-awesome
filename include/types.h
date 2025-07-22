@@ -473,6 +473,7 @@ struct MarioState {
              s16 ceilYaw;
              s16 wallYaw;
              struct Object * objInterest;
+             u8 canInteractInterest;
 
              struct Animation * queueTargetAnim;
              s32 queueTargetAnimID;

@@ -1,7 +1,7 @@
 #include "types.h"
 
-#ifndef UI_H
-#define UI_H
+#ifndef UTF8_PRINT_H
+#define UTF8_PRINT_H
 
 enum {
     PRINT_RGBA16_32x32,
@@ -156,7 +156,5 @@ void render_9slice(int x1, int y1, int x2, int y2);
 void render_4slice(int x1, int y1, int x2, int y2);
 
 void render_rgba16_texture(int x, int y, Texture * tex);
-
-void ui_render(void);
 
 #endif

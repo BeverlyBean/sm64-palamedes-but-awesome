@@ -18,6 +18,8 @@
 #include "rumble_init.h"
 
 s32 check_common_idle_cancels(struct MarioState *m) {
+    m->canInteractInterest = TRUE;
+
     mario_drop_held_object(m);
     if (m->floor->normal.y < COS73) {
         return mario_push_off_steep_floor(m, ACT_FREEFALL, 0);
@@ -594,6 +596,8 @@ void stopping_step(struct MarioState *m, s32 animID, u32 action) {
 }
 
 s32 act_braking_stop(struct MarioState *m) {
+    m->canInteractInterest = TRUE;
+
     if (m->input & INPUT_STOMPED) {
         return set_mario_action(m, ACT_SHOCKWAVE_BOUNCE, 0);
     }
@@ -810,6 +814,8 @@ s32 landing_step(struct MarioState *m, s32 animID, u32 action) {
 }
 
 s32 check_common_landing_cancels(struct MarioState *m, u32 action) {
+    m->canInteractInterest = TRUE;
+
     if (m->input & INPUT_STOMPED) {
         return set_mario_action(m, ACT_SHOCKWAVE_BOUNCE, 0);
     }

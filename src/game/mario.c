@@ -34,6 +34,7 @@
 #include "rumble_init.h"
 #include "cubic_volume.h"
 #include "src/game/event_dialog.h"
+#include "src/data/event_externs.h"
 
 /**************************************************
  *                    ANIMATIONS                  *
@@ -963,9 +964,8 @@ void set_mario_interest(void) {
 
 u32 set_mario_b_action(struct MarioState *m, u32 defaultState) {
     if (m->objInterest) {
-        extern EventData testNPC[];
         if (o->oBehParams2ndByte == 0 && (gMarioState->controller->buttonPressed & B_BUTTON)) {
-            event_start_npc(testNPC,m->objInterest);
+            event_start_npc(eventTestNPC,m->objInterest);
             return set_mario_action(m,ACT_READING_NPC_DIALOG,0);
         }
         return FALSE;
@@ -1734,6 +1734,7 @@ void queue_rumble_particles(struct MarioState *m) {
  */
 s32 execute_mario_action(UNUSED struct Object *obj) {
     s32 inLoop = TRUE;
+    gMarioState->canInteractInterest = FALSE;
 
     set_mario_interest();
 
