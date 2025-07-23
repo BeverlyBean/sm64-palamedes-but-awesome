@@ -68,6 +68,7 @@ Vp gTextureViewport = { {
     { 128, 128, 511, 0 },
 } };
 
+#define SHADOW_VIEWPORT_SCALE 200.0f/WORLD_SCALE
 void special_shadow_generate(void) {
 
     Mtx *matrix = (Mtx *) alloc_display_list(sizeof(Mtx));
@@ -75,7 +76,7 @@ void special_shadow_generate(void) {
         return;
     }
     create_dl_identity_matrix();
-    guOrtho(matrix, -50.0f/WORLD_SCALE, 50.0f/WORLD_SCALE, -50.0f/WORLD_SCALE, 50.0f/WORLD_SCALE, -50.0f/WORLD_SCALE, 50.0f/WORLD_SCALE, 1.0f);
+    guOrtho(matrix, -SHADOW_VIEWPORT_SCALE, SHADOW_VIEWPORT_SCALE, -SHADOW_VIEWPORT_SCALE, SHADOW_VIEWPORT_SCALE, -SHADOW_VIEWPORT_SCALE, SHADOW_VIEWPORT_SCALE, 1.0f);
     // Should produce G_RDPHALF_1 in Fast3D
     gSPPerspNormalize(gDisplayListHead++, 0xFFFF);
     gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(matrix), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
