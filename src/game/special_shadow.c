@@ -75,7 +75,7 @@ void special_shadow_generate(void) {
         return;
     }
     create_dl_identity_matrix();
-    guOrtho(matrix, -50.0f*WORLD_SCALE, 50.0f*WORLD_SCALE, -50.0f*WORLD_SCALE, 50.0f*WORLD_SCALE, -50.0f*WORLD_SCALE, 50.0f*WORLD_SCALE, 1.0f);
+    guOrtho(matrix, -50.0f/WORLD_SCALE, 50.0f/WORLD_SCALE, -50.0f/WORLD_SCALE, 50.0f/WORLD_SCALE, -50.0f/WORLD_SCALE, 50.0f/WORLD_SCALE, 1.0f);
     // Should produce G_RDPHALF_1 in Fast3D
     gSPPerspNormalize(gDisplayListHead++, 0xFFFF);
     gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(matrix), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
