@@ -11,7 +11,10 @@
 Mat4 sUiMatStack[5];
 int sUiMatStackIndex = 0;
 
-void ui_transform(Mat4 mat) {
+uiTrans sUiTransList[UI_TRANS_TOTAL_COUNT];
+uiObject sUiObjectList[UI_OBJECT_TOTAL_COUNT];
+
+void ui_mtx_inc(Mat4 mat) {
     mtxf_mul(sUiMatStack[sUiMatStackIndex],mat,sUiMatStack[sUiMatStackIndex-1]);
 
     Mtx *mtx = (Mtx *) alloc_display_list(sizeof(Mtx));
@@ -21,8 +24,64 @@ void ui_transform(Mat4 mat) {
     sUiMatStackIndex++;
 }
 
-void ui_pop_transform(void) {
+void ui_mtx_pop(void) {
     sUiMatStackIndex--;
+}
+
+void ui_init_transform(u8 myId, s8 parentId) {
+    uiTrans * self = &sUiTransList[myId];
+    uiTrans * parent = NULL;
+
+    self->initialized = TRUE;
+
+    self->uiTransChildPtr = -1;
+    self->uiTransSibling = -1;
+
+    self->uiObjectChildPtr = -1;
+    self->uiObjectSibling = -1;
+
+    if (parentId != -1) {
+        parent = &sUiTransList[parentId];
+
+        if (parent->uiTransChildPtr == -1) {
+            parent->uiTransChildPtr = self;
+        } else {
+            // Navigate parent transform list
+            uiTrans * sibling = &sUiTransList[parent->uiTransChildPtr];
+            while(sibling){
+                sibling = &sUiTransList[sibling->uiTransSibling];
+            }
+            sibling->uiTransSibling = self;
+        }
+    }
+}
+
+void ui_init_object(u8 myId, s8 parentTransId) {
+    uiObject * self = &sUiObjectList[myId];
+    uiTrans * parent = NULL;
+
+    self->initialized = TRUE;
+    self->uiObjectSibling = -1;
+
+    if (parentTransId != -1) {
+        parent = &sUiTransList[parentTransId];
+
+        if (parent->uiObjectChildPtr == -1) {
+            parent->uiObjectChildPtr = self;
+        } else {
+            // Navigate parent object list
+            uiObject * sibling = &sUiObjectList[parent->uiObjectChildPtr];
+            while(sibling){
+                sibling = &sUiObjectList[sibling->uiObjectSibling];
+            }
+            sibling->uiObjectSibling = self;
+        }
+    }
+}
+
+void ui_set_transform_pos(u8 myId, Vec3f pos) {
+    uiTrans * self = &sUiTransList[myId];
+    vec3f_copy(self->pos,pos);
 }
 
 void ui_init_transform(void) {
@@ -48,23 +107,23 @@ void ui_mat4_screenspace(Mat4 mat) {
     mat[3][2] = -120.0f;
 }
 
-s16 pingTimer = 0;
+void ui_init() {
+    ui_init_transform(UI_TR_SCREENSPACE,UI_NONE);
+    ui_init_object(UI_OB_TX_RAM);
+}
+
 void ui_render(void) {
     ui_init_transform();
 
-    if (gPlayer1Controller->buttonDown & Z_TRIG) {
-        pingTimer++;
-    }
-
     Mat4 rotmat;
     Vec3f vz = {0,0,0};
-    Vec3s vr = {0,pingTimer*0x50,0};
+    Vec3s vr = {0,0,0};
     mtxf_rotate_zxy_and_translate(rotmat,vz,vr);
-    ui_transform(rotmat);
+    ui_mtx_inc(rotmat);
 
     Mat4 screenSpace;
     ui_mat4_screenspace(screenSpace);
-    ui_transform(screenSpace);
+    ui_mtx_inc(screenSpace);
 
 
     utf8_init_print();
