@@ -40,6 +40,10 @@ EventData * sEventStartStackArray[5];
 int sEventStackIndex = 0;
 Bool8 sEventHalt = FALSE;
 
+uiid sUiidDialogTransform = UI_NONE;
+uiid sUiidDialogSlice;
+uiid sUiidDialogText;
+
 // Branch
 void event_branch(EventData * branchLocation) {
     // Check if it's already in the stack to avoid infinite recursion
@@ -85,9 +89,15 @@ void event_set_dialog(int callContext) {
             sEventOldDialogDisplay = sEventDialogDisplay;
             sEventDialogDisplay = get_text(event_arg_int(0));
             sEventHalt = TRUE;
+
+            sUiidDialogTransform = ui_create_transform(gUiidScreen);
+            ui_set_trans_xy(sUiidDialogTransform, 40, 62);
+            sUiidDialogSlice = ui_create_slice(sUiidDialogTransform,&gNotepadSliceParams,-10,27,247,-39);
+            sUiidDialogText = ui_create_text(sUiidDialogTransform,event_arg_int(0));
             break;
         case EVENT_CALL_CONTEXT_HALTED:
             if (gMarioState->controller->buttonPressed & A_BUTTON) {
+
                 gEventHead+=2;
                 sEventHalt = FALSE;
                 if (sEventDialogOptionCount > 0) {
@@ -280,15 +290,13 @@ void event_system_logic_loop(void) {
 
     // Event ui
 
-    Vec3f modvec = {0,sins(gGlobalTimer*0x1000)*20.0f,-120};
-    ui_set_transform_pos(UI_TR_SCREENSPACE,modvec);
 }
 
 void event_system_render_loop(void) {
     if (gEventHead != NULL) {
         if (sEventDialogDisplay) {
             init_slice_render(&gNotepadSliceParams);
-            render_9slice(30,90,287,24);
+            render_slice(30,90,287,24);
 
             int yOffset = -10;
             if (sEventDialogOptionCount == 3) {
@@ -300,7 +308,7 @@ void event_system_render_loop(void) {
                 int hx = x/2;
 
                 init_slice_render(&gStickySliceParams);
-                render_4slice(150-hx,200-(i*40)+yOffset,170+hx,168-(i*40)+yOffset);
+                render_slice(150-hx,200-(i*40)+yOffset,170+hx,168-(i*40)+yOffset);
                 utf8_init_print();
                 utf8_print(str,160-hx,177-(i*40)+yOffset);
 

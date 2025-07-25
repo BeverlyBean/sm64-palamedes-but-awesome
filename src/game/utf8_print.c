@@ -39,19 +39,22 @@ nineSliceParams testSliceParams = {
     .texture = nine_slice_sample_rgba16,
     .centerTexture = NULL,
     .xDivide1 = 16,
+    .sliceType = SLICE_TYPE_4,
 };
 
 nineSliceParams gStickySliceParams = {
     .texture = nine_slice_stickynote_rgba16,
     .centerTexture = NULL,
     .xDivide1 = 19,
+    .sliceType = SLICE_TYPE_4,
 };
 
 nineSliceParams gNotepadSliceParams = {
     .texture = nine_slice_notepad_rgba16,
     .centerTexture = NULL,
     .xDivide1 = 8,
-    .xDivide2 = 24
+    .xDivide2 = 24,
+    .sliceType = SLICE_TYPE_9,
 };
 
 void utf8_initialize_table(void) {
@@ -560,6 +563,14 @@ void init_slice_render(nineSliceParams * params) {
     gDPPipeSync(gDisplayListHead++);
 
     sCurrPrintTexture = params->texture;
+}
+
+void render_slice(int x1, int y1, int x2, int y2) {
+    if (sCur9sliceParams->sliceType == SLICE_TYPE_4) {
+        render_4slice(x1,y1,x2,y2);
+    } else {
+        render_9slice(x1,y1,x2,y2);
+    }
 }
 
 void render_rgba16_texture(int x, int y, Texture * tex) {

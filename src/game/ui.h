@@ -1,17 +1,23 @@
 #include "sm64.h"
+#include "utf8_print.h"
 
 #ifndef UI_H
 #define UI_H
 
-enum uiTransforms {
-    UI_TR_SCREENSPACE,
-};
+typedef s8 uiid;
 
-enum uiObjects {
-    UI_OB_TX_RAM,
-};
+uiid ui_create_transform(s8 parentId);
+uiid ui_create_text(s8 parentTransId, s16 textId);
+uiid ui_create_slice(s8 parentTransId, nineSliceParams * p, s16 x1, s16 y1, s16 x2, s16 y2);
 
-void ui_set_transform_pos(u8 myId, Vec3f pos);
+void ui_destroy_trans(uiid * idPtr);
+void ui_destroy_object(uiid * idPtr);
+
+void ui_set_trans_pos(s8 myId, Vec3f pos);
+void ui_set_trans_xy(s8 myId, s16 x, s16 y);
+void ui_set_text(s8 myId, s16 textId);
+
+extern uiid gUiidScreen;
 
 void ui_render(void);
 void ui_init(void);
@@ -34,6 +40,13 @@ typedef struct {
     s8 uiObjectSibling;
 
     u16 text;
+
+    s16 x1;
+    s16 y1;
+    s16 x2;
+    s16 y2;
+
+    void * ptr;
 } uiObject;
 
 typedef struct {

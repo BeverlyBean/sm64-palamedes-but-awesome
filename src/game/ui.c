@@ -17,6 +17,8 @@ int sUiMatStackIndex = 0;
 uiTrans sUiTransList[UI_TRANS_COUNT];
 uiObject sUiObjectList[UI_OBJECT_COUNT];
 
+uiid gUiidScreen;
+
 void ui_mtx_inc(Mat4 mat) {
     mtxf_mul(sUiMatStack[sUiMatStackIndex],mat,sUiMatStack[sUiMatStackIndex-1]);
 
@@ -31,11 +33,19 @@ void ui_mtx_pop(void) {
     sUiMatStackIndex--;
 }
 
-void ui_init_transform(u8 myId, s8 parentId) {
+uiid ui_create_transform(s8 parentId) {
+    s8 myId = 0;
+    while (sUiTransList[myId].initialized == TRUE) {
+        myId++;
+    }
+
     uiTrans * self = &sUiTransList[myId];
     uiTrans * parent = NULL;
 
     self->initialized = TRUE;
+
+    vec3f_set(self->pos,0,0,0);
+    vec3f_set(self->rot,0,0,0);
 
     self->uiTransChild = -1;
     self->uiTransSibling = -1;
@@ -62,9 +72,14 @@ void ui_init_transform(u8 myId, s8 parentId) {
             }
         }
     }
+    return myId;
 }
 
-void ui_init_object(u8 myId, s8 parentTransId) {
+uiid ui_create_object(s8 parentTransId) {
+    s8 myId = 0;
+    while (sUiObjectList[myId].initialized == TRUE) {
+        myId++;
+    }
     uiObject * self = &sUiObjectList[myId];
     uiTrans * parent = NULL;
 
@@ -89,20 +104,60 @@ void ui_init_object(u8 myId, s8 parentTransId) {
             }
         }
     }
+    return myId;
 }
 
-void ui_init_text(u8 myId, s8 parentTransId, s16 textId) {
-    ui_init_object(myId, parentTransId);
+void ui_destroy_trans(uiid * idPtr) {
+    sUiTransList[*idPtr].initialized = FALSE;
+    *idPtr = UI_NONE; 
+}
+
+void ui_destroy_object(uiid * idPtr) {
+    sUiObjectList[*idPtr].initialized = FALSE;
+    *idPtr = UI_NONE; 
+}
+
+uiid ui_create_text(s8 parentTransId, s16 textId) {
+    s8 myId = ui_create_object(parentTransId);
     uiObject * self = &sUiObjectList[myId];
 
     self->type = UI_CLASS_TEXT;
     self->text = textId;
 
+    return myId;
 }
 
-void ui_set_transform_pos(u8 myId, Vec3f pos) {
+uiid ui_create_slice(s8 parentTransId, nineSliceParams * p, s16 x1, s16 y1, s16 x2, s16 y2) {
+    s8 myId = ui_create_object(parentTransId);
+    uiObject * self = &sUiObjectList[myId];
+
+    self->type = UI_CLASS_SLICE;
+    
+    self->x1 = x1;
+    self->y1 = y1;
+    self->x2 = x2;
+    self->y2 = y2;
+
+    self->ptr = p;
+
+    return myId;
+}
+
+void ui_set_trans_pos(s8 myId, Vec3f pos) {
     uiTrans * self = &sUiTransList[myId];
     vec3f_copy(self->pos,pos);
+}
+
+void ui_set_trans_xy(s8 myId, s16 x, s16 y) {
+    uiTrans * self = &sUiTransList[myId];
+    self->pos[0] = (f32)x;
+    self->pos[1] = (f32)y;
+    self->pos[2] = 0.0f;
+}
+
+void ui_set_text(s8 myId, s16 textId) {
+    uiObject * self = &sUiObjectList[myId];
+    self->text = textId;
 }
 
 void ui_init_mtx_stack(void) {
@@ -111,7 +166,7 @@ void ui_init_mtx_stack(void) {
     //guOrtho(matrix, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
 
     u16 perspNorm;
-    guPerspective(matrix, &perspNorm, 90.0f, 1.333333333333333f, 10.0f, 1000.0f, 1.0f);
+    guPerspective(matrix, &perspNorm, 90.0f, 4.0f/3.0f, 10.0f, 1000.0f, 1.0f);
     gSPPerspNormalize(gDisplayListHead++, perspNorm);
     gSPPerspNormalize(gDisplayListHead++, 0xFFFF);
     gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(matrix), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
@@ -124,16 +179,8 @@ void ui_init_mtx_stack(void) {
 void ui_mat4_screenspace(Mat4 mat) {
     mtxf_identity(mat);
     mat[3][0] = -160.0f;
-    mat[3][1] = -120.0f;
-    mat[3][2] = -120.0f;
-}
-
-void ui_init(void) {
-    ui_init_transform(UI_TR_SCREENSPACE, UI_NONE);
-    Vec3f screenCorner = {-160.0f,-120.0f,-120.0f};
-    ui_set_transform_pos(UI_TR_SCREENSPACE, screenCorner);
-
-    ui_init_text(UI_OB_TX_RAM,UI_TR_SCREENSPACE,TEXT_TEST_2);
+    mat[3][1] = -90.0f;
+    mat[3][2] = -90.0f;
 }
 
 int sUiDebugRecursion = 0;
@@ -142,7 +189,13 @@ int sUiDebugY = 0;
 void ui_process_ui_object(uiObject * self) {
     switch(self->type) {
         case UI_CLASS_TEXT:
-            utf8_print(get_text(self->text),10,10);
+            utf8_init_print();
+            utf8_set_font(FONT_SM64DS);
+            utf8_print(get_text(self->text),0,0);
+            break;
+        case UI_CLASS_SLICE:
+            init_slice_render(self->ptr);
+            render_slice(self->x1,self->y1, self->x2, self->y2);
             break;
     }
 }
@@ -159,10 +212,11 @@ void ui_transform_process_children(s8 transId) {
         ui_mtx_inc(transform);
 
         uiObject * object = &sUiObjectList[child->uiObjectChild];
+        if (child->uiObjectChild == UI_NONE) {
+            object = NULL;
+        }
         while(object) {
-
             ui_process_ui_object(object);
-
             if (object->uiObjectSibling != UI_NONE) {
                 object = &sUiObjectList[object->uiObjectSibling];
             } else {
@@ -203,9 +257,6 @@ void ui_render(void) {
     sUiDebugRecursion = 0;
     sUiDebugY = 0;
 
-    utf8_init_print();
-    utf8_set_font(FONT_SM64DS);
-
     ui_init_mtx_stack();
     for (int i = 0; i < UI_TRANS_COUNT; i++) {
         uiTrans * self = &sUiTransList[i];
@@ -227,4 +278,13 @@ void ui_render(void) {
         //utf8_print("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",10,220);
     #endif
     */
+}
+
+void ui_init(void) {
+    gUiidScreen = ui_create_transform(UI_NONE);
+    Vec3f screenCorner = {-160.0f,-120.0f,-120.0f};
+    ui_set_trans_pos(gUiidScreen,screenCorner);
+
+    //ui_create_text(gUiidScreen,TEXT_TEST_2);
+    //ui_create_slice(gUiidScreen,&gNotepadSliceParams,10,100,100,10);
 }

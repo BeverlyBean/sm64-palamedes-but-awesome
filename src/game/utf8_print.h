@@ -141,19 +141,24 @@ void utf8_set_font(int fontID);
 char * utf8_autonewline(char * str, int maxX);
 void utf8_size(char * str, int * x, int * y);
 
+enum {
+    SLICE_TYPE_4,
+    SLICE_TYPE_9
+};
+
 typedef struct {
     Texture * texture;
     Texture * centerTexture;
     u8 xDivide1;
     u8 xDivide2;
+    u8 sliceType;
 } nineSliceParams;
 
 extern nineSliceParams gNotepadSliceParams;
 extern nineSliceParams gStickySliceParams;
 
 void init_slice_render(nineSliceParams * params);
-void render_9slice(int x1, int y1, int x2, int y2);
-void render_4slice(int x1, int y1, int x2, int y2);
+void render_slice(int x1, int y1, int x2, int y2);
 
 void render_rgba16_texture(int x, int y, Texture * tex);
 
