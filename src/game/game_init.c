@@ -35,6 +35,7 @@
 #include "level_update.h"
 #include "utf8_print.h"
 #include <PR/os_internal_reg.h>
+#include "ui.h"
 
 // Emulators that the Instant Input patch should not be applied to
 #define INSTANT_INPUT_BLACKLIST (EMU_CONSOLE | EMU_WIIVC | EMU_ARES | EMU_SIMPLE64 | EMU_CEN64)
@@ -802,6 +803,8 @@ void thread5_game_loop(UNUSED void *arg) {
 #ifdef WIDE
     gConfig.widescreen = save_file_get_widescreen_mode();
 #endif
+
+    ui_init();
 
     while (TRUE) {
         if (sSingleThreadOtherFrame) {

@@ -78,6 +78,8 @@ void set_print_texture(int printTextureParam, Texture * tex) {
     } else {
         gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
     }
+
+    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
     gDPSetCombineMode(gDisplayListHead++, G_CC_UI_TEXT, G_CC_UI_TEXT);
     gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
 
@@ -137,15 +139,15 @@ void render_fontchar(fontChar * fc ,int x, int y) {
 
     Vtx * charVerts = alloc_display_list(4 * sizeof(Vtx));
 
-    u16 xUv = fc->xUv*32;
-    u16 size = fc->size*32;
+    u16 xUv = (fc->xUv)*32;
+    u16 size = (fc->size+1)*32;
 
     u16 oUv = 0; //Uv offset
 
     make_vertex(charVerts, 0, x,          y,                  oUv, oUv+xUv,      16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
-    make_vertex(charVerts, 1, x+fc->size, y,                  oUv, oUv+xUv+size, 16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
+    make_vertex(charVerts, 1, x+fc->size+1, y,                  oUv, oUv+xUv+size, 16*32, print_textcolor[3], print_textcolor[4], print_textcolor[5], 255);
     make_vertex(charVerts, 2, print_italics+x,          y+16, oUv, oUv+xUv,      0,     print_textcolor[0], print_textcolor[1], print_textcolor[2], 255);
-    make_vertex(charVerts, 3, print_italics+x+fc->size, y+16, oUv, oUv+xUv+size, 0,     print_textcolor[0], print_textcolor[1], print_textcolor[2], 255);
+    make_vertex(charVerts, 3, print_italics+x+fc->size+1, y+16, oUv, oUv+xUv+size, 0,     print_textcolor[0], print_textcolor[1], print_textcolor[2], 255);
 
     gSPVertex(gDisplayListHead++,charVerts,4,0);
     gSP2Triangles(gDisplayListHead++, 0, 1, 2, 0, 1, 3, 2, 0);
