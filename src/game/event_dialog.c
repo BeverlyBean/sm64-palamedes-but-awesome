@@ -90,6 +90,11 @@ void event_set_dialog(int callContext) {
             sEventDialogDisplay = get_text(event_arg_int(0));
             sEventHalt = TRUE;
 
+            if (sUiidDialogTransform != UI_NONE) {
+                ui_trans_ptr(sUiidDialogTransform)->layer = 1;
+                ui_trans_transition_out(sUiidDialogTransform);
+            }
+
             sUiidDialogTransform = ui_create_transform(gUiidScreen);
             ui_set_trans_xy(sUiidDialogTransform, 40, 62);
             sUiidDialogSlice = ui_create_slice(sUiidDialogTransform,&gNotepadSliceParams,-10,27,247,-39);
@@ -97,7 +102,6 @@ void event_set_dialog(int callContext) {
             break;
         case EVENT_CALL_CONTEXT_HALTED:
             if (gMarioState->controller->buttonPressed & A_BUTTON) {
-
                 gEventHead+=2;
                 sEventHalt = FALSE;
                 if (sEventDialogOptionCount > 0) {
@@ -111,6 +115,11 @@ void event_set_dialog(int callContext) {
 }
 
 void event_close_dialog(UNUSED int callContext) {
+    if (sUiidDialogTransform != UI_NONE) {
+        ui_trans_ptr(sUiidDialogTransform)->layer = 1;
+        ui_trans_transition_out(sUiidDialogTransform);
+    }
+
     sEventOldDialogDisplay = sEventDialogDisplay;
     sEventDialogDisplay = NULL;
     gEventHead++;
@@ -289,7 +298,10 @@ void event_system_logic_loop(void) {
     }
 
     // Event ui
-
+    if (sEventDialogOptionCount > 0) {
+        ui_trans_ptr(sUiidDialogTransform)->rot[1] =
+        approach_f32_asymptotic(ui_trans_ptr(sUiidDialogTransform)->rot[1],0x4000,.2f);
+    }
 }
 
 void event_system_render_loop(void) {

@@ -10,16 +10,19 @@ uiid ui_create_transform(s8 parentId);
 uiid ui_create_text(s8 parentTransId, s16 textId);
 uiid ui_create_slice(s8 parentTransId, nineSliceParams * p, s16 x1, s16 y1, s16 x2, s16 y2);
 
-void ui_destroy_trans(uiid * idPtr);
-void ui_destroy_object(uiid * idPtr);
+void ui_destroy_trans(uiid idPtr);
+void ui_destroy_object(uiid idPtr);
 
 void ui_set_trans_pos(s8 myId, Vec3f pos);
 void ui_set_trans_xy(s8 myId, s16 x, s16 y);
 void ui_set_text(s8 myId, s16 textId);
 
+void ui_trans_transition_out(s8 myId);
+
 extern uiid gUiidScreen;
 
 void ui_render(void);
+void ui_logic(void);
 void ui_init(void);
 
 #define UI_NONE -1
@@ -52,16 +55,26 @@ typedef struct {
 typedef struct {
     u8 initialized:1;
     u8 base:1;
+    u8 getout:1;
+    u8 layer:1;
 
-    s8 uiTransChild;
-    s8 uiTransSibling;
+    s8 parent;
 
-    s8 uiObjectChild;
+    uiid childlist;
+    uiid next;
+    uiid prev;
+
+    s8 objlist;
 
     Vec3f pos;
     Vec3f posLerp;
     Vec3f rot;
     Vec3f rotLerp;
+
+    f32 transition;
 } uiTrans;
+
+uiTrans * ui_trans_ptr(s8 myId);
+uiObject * ui_object_ptr(s8 myId);
 
 #endif

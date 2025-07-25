@@ -17,6 +17,8 @@ int sUiMatStackIndex = 0;
 uiTrans sUiTransList[UI_TRANS_COUNT];
 uiObject sUiObjectList[UI_OBJECT_COUNT];
 
+int sUiCurrLayer = 0;
+
 uiid gUiidScreen;
 
 void ui_mtx_inc(Mat4 mat) {
@@ -43,33 +45,37 @@ uiid ui_create_transform(s8 parentId) {
     uiTrans * parent = NULL;
 
     self->initialized = TRUE;
+    self->layer = 0;
+    self->parent = parentId;
+    self->getout = FALSE;
+    self->transition = 0.0f;
 
     vec3f_set(self->pos,0,0,0);
     vec3f_set(self->rot,0,0,0);
 
-    self->uiTransChild = -1;
-    self->uiTransSibling = -1;
+    self->childlist = UI_NONE;
+    self->next = UI_NONE;
+    self->prev = UI_NONE;
 
-    self->uiObjectChild = -1;
+    self->objlist = -1;
 
     self->base = (parentId == UI_NONE);
 
     if (parentId != UI_NONE) {
         parent = &sUiTransList[parentId];
 
-        if (parent->uiTransChild == -1) {
-            parent->uiTransChild = myId;
+        if (parent->childlist == UI_NONE) {
+            parent->childlist = myId;
         } else {
-            // Navigate parent transform list
-            uiTrans * sibling = &sUiTransList[parent->uiTransChild];
-            while(sibling){
-                if (sibling->uiTransSibling == UI_NONE) {
-                    sibling->uiTransSibling = myId;
-                    sibling = NULL;
-                } else {
-                    sibling = &sUiTransList[sibling->uiTransSibling];
-                }
+            // Navigate parent transform child list
+            uiid siblingId = parent->childlist;
+            uiTrans * sibling = &sUiTransList[siblingId];
+            while(siblingId != UI_NONE){
+                sibling = &sUiTransList[siblingId];
+                siblingId = sibling->next;
             }
+            sibling->next = myId;
+            self->prev = sibling->next;
         }
     }
     return myId;
@@ -89,11 +95,11 @@ uiid ui_create_object(s8 parentTransId) {
     if (parentTransId != UI_NONE) {
         parent = &sUiTransList[parentTransId];
 
-        if (parent->uiObjectChild == -1) {
-            parent->uiObjectChild = myId;
+        if (parent->objlist == -1) {
+            parent->objlist = myId;
         } else {
             // Navigate parent transform list
-            uiObject * sibling = &sUiObjectList[parent->uiObjectChild];
+            uiObject * sibling = &sUiObjectList[parent->objlist];
             while(sibling){
                 if (sibling->uiObjectSibling == UI_NONE) {
                     sibling->uiObjectSibling = myId;
@@ -107,14 +113,30 @@ uiid ui_create_object(s8 parentTransId) {
     return myId;
 }
 
-void ui_destroy_trans(uiid * idPtr) {
-    sUiTransList[*idPtr].initialized = FALSE;
-    *idPtr = UI_NONE; 
+void ui_destroy_trans(uiid myId) {
+    uiTrans * self = &sUiTransList[myId];
+    // Remove all objects I own
+    uiid objId = self->objlist;
+    while(objId != UI_NONE) {
+        uiObject * del = ui_object_ptr(objId);
+        del->initialized = FALSE;
+        objId = del->uiObjectSibling;
+    }
+
+    // Remove self from child list
+    if (self->prev == UI_NONE) {
+        sUiTransList[self->parent].childlist = self->next;
+    } else {
+        sUiTransList[self->prev].next = self->next;
+    }
+    if (ui_trans_ptr(self->next)) {
+        ui_trans_ptr(self->next)->prev = self->prev;
+    }
+    sUiTransList[myId].initialized = FALSE;
 }
 
-void ui_destroy_object(uiid * idPtr) {
-    sUiObjectList[*idPtr].initialized = FALSE;
-    *idPtr = UI_NONE; 
+void ui_destroy_object(uiid idPtr) {
+    sUiObjectList[idPtr].initialized = FALSE;
 }
 
 uiid ui_create_text(s8 parentTransId, s16 textId) {
@@ -143,6 +165,11 @@ uiid ui_create_slice(s8 parentTransId, nineSliceParams * p, s16 x1, s16 y1, s16 
     return myId;
 }
 
+void ui_trans_transition_out(s8 myId) {
+    uiTrans * self = &sUiTransList[myId];
+    self->getout = TRUE;
+}
+
 void ui_set_trans_pos(s8 myId, Vec3f pos) {
     uiTrans * self = &sUiTransList[myId];
     vec3f_copy(self->pos,pos);
@@ -153,11 +180,26 @@ void ui_set_trans_xy(s8 myId, s16 x, s16 y) {
     self->pos[0] = (f32)x;
     self->pos[1] = (f32)y;
     self->pos[2] = 0.0f;
+    vec3f_copy(self->posLerp,self->pos);
 }
 
 void ui_set_text(s8 myId, s16 textId) {
     uiObject * self = &sUiObjectList[myId];
     self->text = textId;
+}
+
+uiObject * ui_object_ptr(s8 myId) {
+    if (myId == UI_NONE) {
+        return NULL;
+    }
+    return &sUiObjectList[myId];
+}
+
+uiTrans * ui_trans_ptr(s8 myId) {
+    if (myId == UI_NONE) {
+        return NULL;
+    }
+    return &sUiTransList[myId];
 }
 
 void ui_init_mtx_stack(void) {
@@ -202,43 +244,41 @@ void ui_process_ui_object(uiObject * self) {
 
 void ui_transform_process_children(s8 transId) {
     sUiDebugY++;
-    uiTrans * child = &sUiTransList[transId];
+    uiTrans * child;
 
-    while(child) {
+    while(transId != UI_NONE) {
+        child = &sUiTransList[transId];
+
         frameLerpPos(child->pos,child->posLerp);
         frameLerpPos(child->rot,child->rotLerp);
         Vec3s rot; vec3f_to_vec3s(rot,child->rotLerp);
         Mat4 transform; mtxf_rotate_zxy_and_translate(transform,child->posLerp,rot);
         ui_mtx_inc(transform);
 
-        uiObject * object = &sUiObjectList[child->uiObjectChild];
-        if (child->uiObjectChild == UI_NONE) {
-            object = NULL;
-        }
-        while(object) {
-            ui_process_ui_object(object);
-            if (object->uiObjectSibling != UI_NONE) {
-                object = &sUiObjectList[object->uiObjectSibling];
-            } else {
+        // Only render child's objects if on same layer
+        if (child->layer == sUiCurrLayer) {
+            uiObject * object = &sUiObjectList[child->objlist];
+            if (child->objlist == UI_NONE) {
                 object = NULL;
+            }
+            while(object) {
+                ui_process_ui_object(object);
+                if (object->uiObjectSibling != UI_NONE) {
+                    object = &sUiObjectList[object->uiObjectSibling];
+                } else {
+                    object = NULL;
+                }
             }
         }
 
-        if (child->uiTransChild != UI_NONE) {
+        if (child->childlist != UI_NONE) {
             sUiDebugRecursion ++;
-            ui_transform_process_children(child->uiTransChild);
+            ui_transform_process_children(child->childlist);
             sUiDebugRecursion --;
         }
-
-        if (child->uiTransSibling != UI_NONE) {
-            transId = child->uiTransSibling;
-            child = &sUiTransList[child->uiTransSibling];
-            sUiDebugY++;
-        } else {
-            child = NULL;
-        }
-
         ui_mtx_pop();
+
+        transId = child->next;
     }
 }
 
@@ -258,11 +298,14 @@ void ui_render(void) {
     sUiDebugY = 0;
 
     ui_init_mtx_stack();
-    for (int i = 0; i < UI_TRANS_COUNT; i++) {
-        uiTrans * self = &sUiTransList[i];
-        if (self->initialized && self->base == TRUE) {
-            //I am a root
-            ui_transform_process_children(i);
+    for (int l = 0; l < 2; l++) {
+        sUiCurrLayer = l;
+        for (int i = 0; i < UI_TRANS_COUNT; i++) {
+            uiTrans * self = &sUiTransList[i];
+            if (self->initialized && self->base == TRUE) {
+                //I am a root
+                ui_transform_process_children(i);
+            }
         }
     }
 
@@ -278,6 +321,22 @@ void ui_render(void) {
         //utf8_print("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",10,220);
     #endif
     */
+}
+
+void ui_logic(void) {
+    for (int i = 0; i < UI_TRANS_COUNT; i++) {
+        uiTrans * self = &sUiTransList[i];
+        if (self->initialized) {
+            if (self->getout) {
+                self->transition += .1f;
+                self->pos[1] -= self->transition*2.0f;
+                self->rot[2] -= 0x100;
+                if (self->transition >= 1.0f) {
+                    ui_destroy_trans(i);
+                }
+            }
+        }
+    }
 }
 
 void ui_init(void) {

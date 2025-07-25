@@ -850,6 +850,8 @@ void thread5_game_loop(UNUSED void *arg) {
         gGlobalTimer++;
         }
 
+        ui_logic();
+
         if (gEmulator & (EMU_CONSOLE|EMU_ARES)) {
             sSingleThreaded = FALSE;
             if (gEmulator & EMU_ARES) {
