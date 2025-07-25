@@ -152,10 +152,10 @@ void ui_transform_process_children(s8 transId) {
     uiTrans * child = &sUiTransList[transId];
 
     while(child) {
-        print_text_fmt_int(30+(sUiDebugRecursion*16), 30+(16*sUiDebugY), "%d", transId);
-        
-        Vec3s rot; vec3f_to_vec3s(rot,child->rot);
-        Mat4 transform; mtxf_rotate_zxy_and_translate(transform,child->pos,rot);
+        frameLerpPos(child->pos,child->posLerp);
+        frameLerpPos(child->rot,child->rotLerp);
+        Vec3s rot; vec3f_to_vec3s(rot,child->rotLerp);
+        Mat4 transform; mtxf_rotate_zxy_and_translate(transform,child->posLerp,rot);
         ui_mtx_inc(transform);
 
         uiObject * object = &sUiObjectList[child->uiObjectChild];

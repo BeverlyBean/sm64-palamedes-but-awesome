@@ -11,6 +11,8 @@ enum uiObjects {
     UI_OB_TX_RAM,
 };
 
+void ui_set_transform_pos(u8 myId, Vec3f pos);
+
 void ui_render(void);
 void ui_init(void);
 

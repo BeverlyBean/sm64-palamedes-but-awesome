@@ -5,8 +5,10 @@
 #include "mario.h"
 #include "camera.h"
 #include "engine/math_util.h"
-
+#include "ui.h"
 #include "src/data/event.inc.c"
+#include "game_init.h"
+
 
 Vec3f gEventCameraPos;
 Vec3f gEventCameraFoc;
@@ -275,6 +277,11 @@ void event_system_logic_loop(void) {
             gEventCameraFoc[i] = approach_f32_asymptotic(gEventCameraFoc[i],sEventCameraTargetFocPointer[i],smoothstep2(sEventCameraTransition));
         }
     }
+
+    // Event ui
+
+    Vec3f modvec = {0,sins(gGlobalTimer*0x1000)*20.0f,-120};
+    ui_set_transform_pos(UI_TR_SCREENSPACE,modvec);
 }
 
 void event_system_render_loop(void) {
