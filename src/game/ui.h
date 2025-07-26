@@ -9,6 +9,7 @@ typedef s8 uiid;
 uiid ui_create_transform(s8 parentId);
 uiid ui_create_text(s8 parentTransId, s16 textId);
 uiid ui_create_slice(s8 parentTransId, nineSliceParams * p, s16 x1, s16 y1, s16 x2, s16 y2);
+uiid ui_create_btn(s8 parentTransId, s16 textId);
 
 void ui_destroy_trans(uiid idPtr);
 void ui_destroy_object(uiid idPtr);
@@ -27,13 +28,14 @@ void ui_init(void);
 
 #define UI_NONE -1
 
-#define UI_OBJECT_COUNT 25
-#define UI_TRANS_COUNT 15
+#define UI_OBJECT_COUNT 100
+#define UI_TRANS_COUNT 100
 
 enum {
     UI_CLASS_TEXT,
     UI_CLASS_SLICE,
-    UI_CLASS_TRANSFORM,
+    UI_CLASS_BUTTON,
+    UI_CLASS_IMAGE,
 };
 
 typedef struct {
@@ -50,6 +52,7 @@ typedef struct {
     s16 y2;
 
     void * ptr;
+    u8 printParam;
 } uiObject;
 
 typedef struct {

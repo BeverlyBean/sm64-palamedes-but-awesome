@@ -52,12 +52,14 @@ uiid ui_create_transform(s8 parentId) {
 
     vec3f_set(self->pos,0,0,0);
     vec3f_set(self->rot,0,0,0);
+    vec3f_set(self->posLerp,0,0,0);
+    vec3f_set(self->rotLerp,0,0,0);
 
     self->childlist = UI_NONE;
     self->next = UI_NONE;
     self->prev = UI_NONE;
 
-    self->objlist = -1;
+    self->objlist = UI_NONE;
 
     self->base = (parentId == UI_NONE);
 
@@ -69,13 +71,15 @@ uiid ui_create_transform(s8 parentId) {
         } else {
             // Navigate parent transform child list
             uiid siblingId = parent->childlist;
+            uiid siblingPrevId;
             uiTrans * sibling = &sUiTransList[siblingId];
             while(siblingId != UI_NONE){
                 sibling = &sUiTransList[siblingId];
+                siblingPrevId = siblingId;
                 siblingId = sibling->next;
             }
+            self->prev = siblingPrevId;
             sibling->next = myId;
-            self->prev = sibling->next;
         }
     }
     return myId;
@@ -115,13 +119,21 @@ uiid ui_create_object(s8 parentTransId) {
 
 void ui_destroy_trans(uiid myId) {
     uiTrans * self = &sUiTransList[myId];
+
+    if (!self->getout) {
+        return;
+    }
+    self->getout = FALSE;
+
     // Remove all objects I own
     uiid objId = self->objlist;
     while(objId != UI_NONE) {
         uiObject * del = ui_object_ptr(objId);
         del->initialized = FALSE;
+        del->text = TEXT_DEBUG_DELETED;
         objId = del->uiObjectSibling;
     }
+    self->objlist = UI_NONE;
 
     // Remove self from child list
     if (self->prev == UI_NONE) {
@@ -129,14 +141,15 @@ void ui_destroy_trans(uiid myId) {
     } else {
         sUiTransList[self->prev].next = self->next;
     }
-    if (ui_trans_ptr(self->next)) {
+    if (self->next != UI_NONE) {
         ui_trans_ptr(self->next)->prev = self->prev;
     }
-    sUiTransList[myId].initialized = FALSE;
-}
+    self->initialized = FALSE;
 
-void ui_destroy_object(uiid idPtr) {
-    sUiObjectList[idPtr].initialized = FALSE;
+    self->parent = UI_NONE;
+    self->childlist = UI_NONE;
+    self->next = UI_NONE;
+    self->prev = UI_NONE;
 }
 
 uiid ui_create_text(s8 parentTransId, s16 textId) {
@@ -165,8 +178,19 @@ uiid ui_create_slice(s8 parentTransId, nineSliceParams * p, s16 x1, s16 y1, s16 
     return myId;
 }
 
+uiid ui_create_btn(s8 parentTransId, s16 textId) {
+    s8 myId = ui_create_object(parentTransId);
+    uiObject * self = &sUiObjectList[myId];
+
+    self->type = UI_CLASS_BUTTON;
+    self->text = textId;
+
+    return myId;
+}
+
 void ui_trans_transition_out(s8 myId) {
     uiTrans * self = &sUiTransList[myId];
+    self->layer = 1;
     self->getout = TRUE;
 }
 
@@ -201,6 +225,7 @@ uiTrans * ui_trans_ptr(s8 myId) {
     }
     return &sUiTransList[myId];
 }
+
 
 void ui_init_mtx_stack(void) {
     Mtx *matrix = (Mtx *) alloc_display_list(sizeof(Mtx));
@@ -239,6 +264,19 @@ void ui_process_ui_object(uiObject * self) {
             init_slice_render(self->ptr);
             render_slice(self->x1,self->y1, self->x2, self->y2);
             break;
+        case UI_CLASS_BUTTON:;
+            int x;
+            int y;
+            char * str = get_text(self->text);
+            utf8_size(str,&x,&y);
+
+            init_slice_render(&gStickySliceParams);
+            render_slice((-x/2)-10,22,(x/2)+10,-10);
+
+            utf8_init_print();
+            utf8_set_font(FONT_SM64DS);
+            utf8_print(str,-x/2,0);
+            break;
     }
 }
 
@@ -249,8 +287,12 @@ void ui_transform_process_children(s8 transId) {
     while(transId != UI_NONE) {
         child = &sUiTransList[transId];
 
-        frameLerpPos(child->pos,child->posLerp);
-        frameLerpPos(child->rot,child->rotLerp);
+        if (child->initialized == FALSE) {
+            return;
+        }
+
+        frameLerpPosUi(child->pos,child->posLerp);
+        frameLerpPosUi(child->rot,child->rotLerp);
         Vec3s rot; vec3f_to_vec3s(rot,child->rotLerp);
         Mat4 transform; mtxf_rotate_zxy_and_translate(transform,child->posLerp,rot);
         ui_mtx_inc(transform);
@@ -283,17 +325,6 @@ void ui_transform_process_children(s8 transId) {
 }
 
 void ui_render(void) {
-
-    //Mat4 rotmat;
-    //Vec3f vz = {0,0,0};
-    //Vec3s vr = {0,0,0};
-    //mtxf_rotate_zxy_and_translate(rotmat,vz,vr);
-    //ui_mtx_inc(rotmat);
-
-    //Mat4 screenSpace;
-    //ui_mat4_screenspace(screenSpace);
-    //ui_mtx_inc(screenSpace);
-
     sUiDebugRecursion = 0;
     sUiDebugY = 0;
 
@@ -308,6 +339,26 @@ void ui_render(void) {
             }
         }
     }
+
+    int activemat = 0;
+    for (int i = 0; i < UI_OBJECT_COUNT; i++) {
+        uiObject * self = &sUiObjectList[i];
+        if (self->initialized) {
+            activemat++;
+        }
+    }
+
+    print_text_fmt_int(20, 100, "O %d", activemat);
+
+    activemat = 0;
+    for (int i = 0; i < UI_TRANS_COUNT; i++) {
+        uiTrans * self = &sUiTransList[i];
+        if (self->initialized) {
+            activemat++;
+        }
+    }
+    print_text_fmt_int(20, 120, "T %d", activemat);
+
 
     /*
     utf8_init_print();
@@ -328,8 +379,8 @@ void ui_logic(void) {
         uiTrans * self = &sUiTransList[i];
         if (self->initialized) {
             if (self->getout) {
-                self->transition += .1f;
-                self->pos[1] -= self->transition*2.0f;
+                self->transition += 0.02f;
+                self->pos[1] -= self->transition*5.0f;
                 self->rot[2] -= 0x100;
                 if (self->transition >= 1.0f) {
                     ui_destroy_trans(i);
@@ -344,6 +395,7 @@ void ui_init(void) {
     Vec3f screenCorner = {-160.0f,-120.0f,-120.0f};
     ui_set_trans_pos(gUiidScreen,screenCorner);
 
-    //ui_create_text(gUiidScreen,TEXT_TEST_2);
-    //ui_create_slice(gUiidScreen,&gNotepadSliceParams,10,100,100,10);
+    uiid debugTextT = ui_create_transform(gUiidScreen);
+    ui_set_trans_xy(debugTextT,10,220);
+    ui_create_text(debugTextT,TEXT_DEBUG_RAM);
 }

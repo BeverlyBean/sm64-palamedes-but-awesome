@@ -25,6 +25,19 @@ f32 * frameLerpPos(Vec3f pos, Vec3f lerpValue) {
     return lerpValue;
 }
 
+f32 * frameLerpPosUi(Vec3f pos, Vec3f lerpValue) {
+    if (gFrameLerpRenderFrame == FRAMELERP_NORMAL) {
+        vec3f_copy(lerpValue,pos);
+    } else {
+        Vec3f inBetween;
+        for (int i = 0; i<3; i++) {
+            inBetween[i] = pos[i] + (lerpValue[i] - pos[i])*.5f;
+        }
+        vec3f_copy(lerpValue,inBetween);
+    }
+    return lerpValue;
+}
+
 f32 * frameLerpRot(Quat rot, Quat lerpValue) {
     if (2.0*acosf(absf(quat_dot(rot,lerpValue)))>2.f) {
         quat_copy(lerpValue,rot);

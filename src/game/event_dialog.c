@@ -43,6 +43,7 @@ Bool8 sEventHalt = FALSE;
 uiid sUiidDialogTransform = UI_NONE;
 uiid sUiidDialogSlice;
 uiid sUiidDialogText;
+uiid sUiidDialogOptionTransform[5];
 
 // Branch
 void event_branch(EventData * branchLocation) {
@@ -90,21 +91,33 @@ void event_set_dialog(int callContext) {
             sEventDialogDisplay = get_text(event_arg_int(0));
             sEventHalt = TRUE;
 
-            if (sUiidDialogTransform != UI_NONE) {
-                ui_trans_ptr(sUiidDialogTransform)->layer = 1;
-                ui_trans_transition_out(sUiidDialogTransform);
-            }
-
             sUiidDialogTransform = ui_create_transform(gUiidScreen);
             ui_set_trans_xy(sUiidDialogTransform, 40, 62);
             sUiidDialogSlice = ui_create_slice(sUiidDialogTransform,&gNotepadSliceParams,-10,27,247,-39);
             sUiidDialogText = ui_create_text(sUiidDialogTransform,event_arg_int(0));
+
+            
+            for (int i = 0; i < sEventDialogOptionCount; i++) {
+                sUiidDialogOptionTransform[i] = ui_create_transform(gUiidScreen);
+                ui_set_trans_xy(sUiidDialogOptionTransform[i], 160, 200-(i*50));
+                ui_create_btn(sUiidDialogOptionTransform[i], sEventDialogOptionArray[i].textId);
+            }
             break;
         case EVENT_CALL_CONTEXT_HALTED:
             if (gMarioState->controller->buttonPressed & A_BUTTON) {
+                if (sUiidDialogTransform != UI_NONE) {
+                    ui_trans_transition_out(sUiidDialogTransform);
+                }
+
                 gEventHead+=2;
                 sEventHalt = FALSE;
                 if (sEventDialogOptionCount > 0) {
+                    // Clear options
+                    for (int i = 0; i < sEventDialogOptionCount; i++) {
+                        ui_trans_transition_out(sUiidDialogOptionTransform[i]);
+                        sUiidDialogOptionTransform[i] = UI_NONE;
+                    }
+
                     event_branch(sEventDialogOptionArray[sEventDialogOptionIndex].jump);
                     sEventDialogOptionCount = 0;
                     sEventDialogOptionIndex = 0;
@@ -116,7 +129,6 @@ void event_set_dialog(int callContext) {
 
 void event_close_dialog(UNUSED int callContext) {
     if (sUiidDialogTransform != UI_NONE) {
-        ui_trans_ptr(sUiidDialogTransform)->layer = 1;
         ui_trans_transition_out(sUiidDialogTransform);
     }
 
@@ -167,6 +179,10 @@ void event_end(UNUSED int callContext) {
             sEventHalt = TRUE;
             sEventDialogDisplay = NULL;
             event_camera_set_target_pointer(gCamera->pos,gCamera->focus);
+
+            if (sUiidDialogTransform != UI_NONE) {
+                ui_trans_transition_out(sUiidDialogTransform);
+            }
             break;
         case EVENT_CALL_CONTEXT_HALTED:
             if (sEventCameraTransitionDone) {

@@ -2,6 +2,8 @@
 #define TEXT_ENUMS_H
 
 enum {
+    TEXT_DEBUG_RAM,
+    TEXT_DEBUG_DELETED,
     TEXT_TEST,
     TEXT_TEST_2,
     TEXT_TEST_3,
