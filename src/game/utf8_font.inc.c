@@ -109,7 +109,7 @@ fontChar sCharListSM64DS[UTF8_COUNT] = {
     },
     [UTF8_8] = {
         .utf8code = '8',
-        .xUv = 341,
+        .xUv = 342,
         .tex = sm64DS_latin_i4,
     },
     [UTF8_9] = {

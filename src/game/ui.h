@@ -17,6 +17,7 @@ void ui_destroy_object(uiid idPtr);
 void ui_set_trans_pos(s8 myId, Vec3f pos);
 void ui_set_trans_xy(s8 myId, s16 x, s16 y);
 void ui_set_text(s8 myId, s16 textId);
+void ui_set_trans_color(s8 myId, u8 r, u8 g, u8 b);
 
 void ui_set_transition_instant(s8 myId);
 
@@ -35,14 +36,20 @@ void ui_init(void);
 
 #define UI_NONE -1
 
-#define UI_OBJECT_COUNT 100
-#define UI_TRANS_COUNT 100
+#define UI_OBJECT_COUNT 30
+#define UI_TRANS_COUNT 40
 
 enum {
     UI_CLASS_TEXT,
     UI_CLASS_SLICE,
     UI_CLASS_BUTTON,
     UI_CLASS_IMAGE,
+};
+
+enum {
+    PRINT_ORIGIN_LEFT,
+    PRINT_ORIGIN_CENTER,
+    PRINT_ORIGIN_RIGHT,
 };
 
 typedef struct {
@@ -62,6 +69,8 @@ typedef struct {
 
     void * ptr;
     u8 printParam;
+    u8 printOrigin;
+    s16 printInt[2];
 } uiObject;
 
 typedef struct {
@@ -87,6 +96,7 @@ typedef struct {
 
     f32 transition;
     u8 alpha;
+    u8 color[3];
 } uiTrans;
 
 uiTrans * ui_trans_ptr(s8 myId);

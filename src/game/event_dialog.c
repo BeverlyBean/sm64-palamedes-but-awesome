@@ -81,6 +81,14 @@ struct CutsceneSplinePoint * event_arg_spline(int num) {
     return (struct CutsceneSplinePoint *)((*(gEventHead+num)).v);
 }
 
+// DLCC Only, not formally part of engine
+u8 stickyNoteColors[4][3] = {
+    {0xFF,0xF9,0x5D},
+    {0xA9,0xCC,0x28},
+    {0xFF,0xC6,0xB8},
+    {0xFF,0xD8,0x00},
+};
+
 // Commands
 void event_set_dialog(int callContext) {
     switch(callContext) {
@@ -106,8 +114,10 @@ void event_set_dialog(int callContext) {
             
             for (int i = 0; i < sEventDialogOptionCount; i++) {
                 sUiidDialogOptionTransform[i] = ui_create_transform(gUiidScreen);
-                ui_set_trans_xy(sUiidDialogOptionTransform[i], 160, 200-(i*50));
-                ui_create_btn(sUiidDialogOptionTransform[i], sEventDialogOptionArray[i].textId);
+                ui_set_trans_xy(sUiidDialogOptionTransform[i], 300, 200-(i*50));
+                uiid btn = ui_create_btn(sUiidDialogOptionTransform[i], sEventDialogOptionArray[i].textId);
+                ui_object_ptr(btn)->printOrigin = PRINT_ORIGIN_RIGHT;
+                ui_set_trans_color(sUiidDialogOptionTransform[i],stickyNoteColors[i][0],stickyNoteColors[i][1],stickyNoteColors[i][2]);
             }
             break;
         case EVENT_CALL_CONTEXT_HALTED:

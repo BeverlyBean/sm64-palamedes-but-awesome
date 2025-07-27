@@ -16,10 +16,13 @@ int sUiMatStackIndex = 0;
 
 uiTrans sUiTransList[UI_TRANS_COUNT];
 uiObject sUiObjectList[UI_OBJECT_COUNT];
+char sUiCharBuffer[200];
 
 int sUiCurrLayer = 0;
 
 uiid gUiidScreen;
+
+uiid sUiidDebugText;
 
 void ui_mtx_inc(Mat4 mat) {
     mtxf_mul(sUiMatStack[sUiMatStackIndex],mat,sUiMatStack[sUiMatStackIndex-1]);
@@ -50,6 +53,9 @@ uiid ui_create_transform(s8 parentId) {
     self->getout = FALSE;
     self->transition = 0.0f;
     self->alpha = 0;
+    for (int i = 0; i < 3; i++) {
+        self->color[i] = 255;
+    }
 
     self->transitionFunction[0] = ui_trans_transition_fade_in;
     self->transitionFunction[1] = ui_trans_transition_fade_out;
@@ -98,7 +104,8 @@ uiid ui_create_object(s8 parentTransId) {
     uiTrans * parent = NULL;
 
     self->initialized = TRUE;
-    self->uiObjectSibling = -1;
+    self->uiObjectSibling = UI_NONE;
+    self->printOrigin = PRINT_ORIGIN_LEFT;
 
     if (parentTransId != UI_NONE) {
         self->parentTrans = parentTransId;
@@ -220,6 +227,13 @@ void ui_set_text(s8 myId, s16 textId) {
     self->text = textId;
 }
 
+void ui_set_trans_color(s8 myId, u8 r, u8 g, u8 b) {
+    uiTrans * self = &sUiTransList[myId];
+    self->color[0] = r;
+    self->color[1] = g;
+    self->color[2] = b;
+}
+
 void ui_set_transition_instant(s8 myId) {
     uiTrans * self = &sUiTransList[myId];
     self->alpha = 255;
@@ -303,13 +317,17 @@ int sUiDebugY = 0;
 
 void ui_process_ui_object(uiObject * self) {
     char * str;
-    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, ui_trans_ptr(self->parentTrans)->alpha);
+    uiTrans * tp = ui_trans_ptr(self->parentTrans); 
+    gDPSetEnvColor(gDisplayListHead++, tp->color[0], tp->color[1], tp->color[2], tp->alpha);
 
     switch(self->type) {
         case UI_CLASS_TEXT:
             utf8_init_print();
             utf8_set_font(FONT_SM64DS);
-            str = get_text(self->text);
+
+            sprintf(sUiCharBuffer,get_text(self->text),self->printInt[0],self->printInt[1]);
+            str = sUiCharBuffer;
+
             if (self->x2 != 0) {
                 str = utf8_autonewline(str,self->x2);
             }
@@ -319,18 +337,30 @@ void ui_process_ui_object(uiObject * self) {
             init_slice_render(self->ptr);
             render_slice(self->x1,self->y1, self->x2, self->y2);
             break;
-        case UI_CLASS_BUTTON:;
+        case UI_CLASS_BUTTON:
+            sprintf(sUiCharBuffer,get_text(self->text),self->printInt[0],self->printInt[1]);
+            str = sUiCharBuffer;
+
             int x;
             int y;
-            str = get_text(self->text);
             utf8_size(str,&x,&y);
 
+            int xoffset = 0;
+            switch(self->printOrigin) {
+                case PRINT_ORIGIN_LEFT:
+                    xoffset = x/2;
+                    break;
+                case PRINT_ORIGIN_RIGHT:
+                    xoffset = -x/2;
+                    break;
+            }
+
             init_slice_render(&gStickySliceParams);
-            render_slice((-x/2)-10,22,(x/2)+10,-10);
+            render_slice((-x/2)-10+xoffset,22,(x/2)+10+xoffset,-10);
 
             utf8_init_print();
             utf8_set_font(FONT_SM64DS);
-            utf8_print(str,-x/2,0);
+            utf8_print(str,(-x/2)+xoffset,0);
             break;
     }
 }
@@ -433,6 +463,8 @@ void ui_logic(void) {
             }
         }
     }
+    // Debug text
+    ui_object_ptr(sUiidDebugText)->printInt[0] = main_pool_available()/80000;
 }
 
 void ui_init(void) {
@@ -442,6 +474,5 @@ void ui_init(void) {
 
     uiid debugTextT = ui_create_transform(gUiidScreen);
     ui_set_trans_xy(debugTextT,10,220);
-    ui_create_text(debugTextT,TEXT_DEBUG_RAM);
-    //main_pool_available()/80000
+    sUiidDebugText = ui_create_text(debugTextT,TEXT_DEBUG_RAM);
 }

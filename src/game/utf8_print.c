@@ -90,7 +90,7 @@ void set_print_texture(int printTextureParam, Texture * tex) {
     }
 
     gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
-    gDPSetCombineMode(gDisplayListHead++, G_CC_UI_TEXT, G_CC_UI_TEXT);
+    gDPSetCombineMode(gDisplayListHead++, G_CC_FADEA, G_CC_FADEA);
     gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
 
     gDPPipeSync(gDisplayListHead++);
@@ -145,6 +145,7 @@ fontChar * get_fontchar_from_utf8_codepoint(u32 codepoint) {
 void render_fontchar(fontChar * fc ,int x, int y) {
     if (sCurrPrintTexture != fc->tex) {
         set_print_texture(sPrintFont->printParam,fc->tex);
+        gDPSetCombineMode(gDisplayListHead++, G_CC_UI_TEXT, G_CC_UI_TEXT);
     }
 
     Vtx * charVerts = alloc_display_list(4 * sizeof(Vtx));
