@@ -49,6 +49,10 @@ uiid ui_create_transform(s8 parentId) {
     self->parent = parentId;
     self->getout = FALSE;
     self->transition = 0.0f;
+    self->alpha = 0;
+
+    self->transitionFunction[0] = ui_trans_transition_fade_in;
+    self->transitionFunction[1] = ui_trans_transition_fade_out;
 
     vec3f_set(self->pos,0,0,0);
     vec3f_set(self->rot,0,0,0);
@@ -97,6 +101,8 @@ uiid ui_create_object(s8 parentTransId) {
     self->uiObjectSibling = -1;
 
     if (parentTransId != UI_NONE) {
+        self->parentTrans = parentTransId;
+
         parent = &sUiTransList[parentTransId];
 
         if (parent->objlist == -1) {
@@ -158,6 +164,7 @@ uiid ui_create_text(s8 parentTransId, s16 textId) {
 
     self->type = UI_CLASS_TEXT;
     self->text = textId;
+    self->x2 = 0;
 
     return myId;
 }
@@ -188,10 +195,11 @@ uiid ui_create_btn(s8 parentTransId, s16 textId) {
     return myId;
 }
 
-void ui_trans_transition_out(s8 myId) {
+void ui_trans_begin_remove(s8 myId) {
     uiTrans * self = &sUiTransList[myId];
-    self->layer = 1;
+    //self->layer = 1;
     self->getout = TRUE;
+    self->transition = 0.0f;
 }
 
 void ui_set_trans_pos(s8 myId, Vec3f pos) {
@@ -212,6 +220,47 @@ void ui_set_text(s8 myId, s16 textId) {
     self->text = textId;
 }
 
+void ui_set_transition_instant(s8 myId) {
+    uiTrans * self = &sUiTransList[myId];
+    self->alpha = 255;
+    self->transition = 1.0f;
+}
+
+// TRANSFORM TRANSITIONS
+
+void ui_trans_transition_fade_in(uiid myId) {
+    uiTrans * self = &sUiTransList[myId];
+    self->alpha = self->transition*255.0f;
+
+    self->transition += .05f;
+}
+
+void ui_trans_transition_fade_out(uiid myId) {
+    uiTrans * self = &sUiTransList[myId];
+    self->alpha = (1.0f - self->transition)*255.0f;
+
+    self->transition += .05f;
+}
+
+void ui_trans_transition_instant(uiid myId) {
+    uiTrans * self = &sUiTransList[myId];
+    self->alpha = 255.0f;
+    self->transition = 1.0f;
+}
+
+void ui_trans_transition_page_rip_out(uiid myId) {
+    uiTrans * self = &sUiTransList[myId];
+    self->alpha = 255.0f;
+    self->layer = 1;
+
+    self->pos[1] -= self->transition*5.0f;
+    self->rot[2] -= 0x100;
+
+    self->transition += 0.02f;
+}
+
+// TECHNICAL FUNCTIONS
+
 uiObject * ui_object_ptr(s8 myId) {
     if (myId == UI_NONE) {
         return NULL;
@@ -225,7 +274,6 @@ uiTrans * ui_trans_ptr(s8 myId) {
     }
     return &sUiTransList[myId];
 }
-
 
 void ui_init_mtx_stack(void) {
     Mtx *matrix = (Mtx *) alloc_display_list(sizeof(Mtx));
@@ -254,11 +302,18 @@ int sUiDebugRecursion = 0;
 int sUiDebugY = 0;
 
 void ui_process_ui_object(uiObject * self) {
+    char * str;
+    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, ui_trans_ptr(self->parentTrans)->alpha);
+
     switch(self->type) {
         case UI_CLASS_TEXT:
             utf8_init_print();
             utf8_set_font(FONT_SM64DS);
-            utf8_print(get_text(self->text),0,0);
+            str = get_text(self->text);
+            if (self->x2 != 0) {
+                str = utf8_autonewline(str,self->x2);
+            }
+            utf8_print(str,0,0);
             break;
         case UI_CLASS_SLICE:
             init_slice_render(self->ptr);
@@ -267,7 +322,7 @@ void ui_process_ui_object(uiObject * self) {
         case UI_CLASS_BUTTON:;
             int x;
             int y;
-            char * str = get_text(self->text);
+            str = get_text(self->text);
             utf8_size(str,&x,&y);
 
             init_slice_render(&gStickySliceParams);
@@ -358,20 +413,6 @@ void ui_render(void) {
         }
     }
     print_text_fmt_int(20, 120, "T %d", activemat);
-
-
-    /*
-    utf8_init_print();
-    utf8_set_font(FONT_SM64DS);
-    event_system_render_loop();
-
-    #ifdef ENABLE_DEBUG_FREE_MOVE
-        char debugBuffer[100];
-        sprintf(debugBuffer,"RAM Remaining: %d*", main_pool_available()/80000);
-        utf8_print(debugBuffer,10,220);
-        //utf8_print("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",10,220);
-    #endif
-    */
 }
 
 void ui_logic(void) {
@@ -379,10 +420,14 @@ void ui_logic(void) {
         uiTrans * self = &sUiTransList[i];
         if (self->initialized) {
             if (self->getout) {
-                self->transition += 0.02f;
-                self->pos[1] -= self->transition*5.0f;
-                self->rot[2] -= 0x100;
-                if (self->transition >= 1.0f) {
+                self->transitionFunction[1](i);
+            } else {
+                self->transitionFunction[0](i);
+            }
+
+            if (self->transition >= 1.0f) {
+                self->transition = 1.0f;
+                if (self->getout) {
                     ui_destroy_trans(i);
                 }
             }
@@ -398,4 +443,5 @@ void ui_init(void) {
     uiid debugTextT = ui_create_transform(gUiidScreen);
     ui_set_trans_xy(debugTextT,10,220);
     ui_create_text(debugTextT,TEXT_DEBUG_RAM);
+    //main_pool_available()/80000
 }

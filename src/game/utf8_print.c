@@ -57,6 +57,14 @@ nineSliceParams gNotepadSliceParams = {
     .sliceType = SLICE_TYPE_9,
 };
 
+nineSliceParams gNotepadRipSliceParams = {
+    .texture = nine_slice_notepad_rip_rgba16,
+    .centerTexture = NULL,
+    .xDivide1 = 8,
+    .xDivide2 = 24,
+    .sliceType = SLICE_TYPE_9,
+};
+
 void utf8_initialize_table(void) {
     for (int j = 0; j < 2; j++){
         sPrintFont = &sFontInfoArray[j];
@@ -74,7 +82,6 @@ void utf8_initialize_table(void) {
 void set_print_texture(int printTextureParam, Texture * tex) {
     sCurrPrintTexture = tex;
 
-    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
     gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
     if (gEmulator & (EMU_CONSOLE|EMU_ARES)) {
         gDPSetTextureFilter(gDisplayListHead++, G_TF_BILERP);
@@ -549,7 +556,6 @@ void render_9slice(int x1, int y1, int x2, int y2) {
 void init_slice_render(nineSliceParams * params) {
     sCur9sliceParams = params;
 
-    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
     gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
     gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
     gDPSetCombineMode(gDisplayListHead++, G_CC_FADEA, G_CC_FADEA);

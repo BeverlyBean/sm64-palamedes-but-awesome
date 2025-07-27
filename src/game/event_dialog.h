@@ -24,7 +24,6 @@ void event_start(EventData * event);
 void event_start_npc(EventData * event, struct Object * npcObj);
 
 void event_system_logic_loop(void);
-void event_system_render_loop(void);
 
 void event_camera_set_target_pointer(Vec3f pos, Vec3f foc);
 void event_camera_set_target(Vec3f pos, Vec3f foc);

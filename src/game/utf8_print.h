@@ -155,6 +155,7 @@ typedef struct {
 } nineSliceParams;
 
 extern nineSliceParams gNotepadSliceParams;
+extern nineSliceParams gNotepadRipSliceParams;
 extern nineSliceParams gStickySliceParams;
 
 void init_slice_render(nineSliceParams * params);

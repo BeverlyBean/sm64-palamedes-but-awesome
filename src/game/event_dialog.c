@@ -26,8 +26,6 @@ f32 sEventCameraSplineProgress[2];
 Vec3f sEventCameraConversationPos;
 Vec3f sEventCameraConversationFoc;
 
-char * sEventOldDialogDisplay = NULL;
-char * sEventDialogDisplay = NULL;
 f32 sEventCameraTransition = 0.0f;
 
 EventDialogOption sEventDialogOptionArray[5];
@@ -40,7 +38,7 @@ EventData * sEventStartStackArray[5];
 int sEventStackIndex = 0;
 Bool8 sEventHalt = FALSE;
 
-uiid sUiidDialogTransform = UI_NONE;
+uiid sUiidDialogTransform;
 uiid sUiidDialogSlice;
 uiid sUiidDialogText;
 uiid sUiidDialogOptionTransform[5];
@@ -87,15 +85,24 @@ struct CutsceneSplinePoint * event_arg_spline(int num) {
 void event_set_dialog(int callContext) {
     switch(callContext) {
         case EVENT_CALL_CONTEXT_EXECUTE:
-            sEventOldDialogDisplay = sEventDialogDisplay;
-            sEventDialogDisplay = get_text(event_arg_int(0));
             sEventHalt = TRUE;
+
+            u8 first = TRUE;
+            if (sUiidDialogTransform != UI_NONE) {
+                ui_object_ptr(sUiidDialogSlice)->ptr = &gNotepadRipSliceParams;
+                ui_trans_begin_remove(sUiidDialogTransform);
+                first = FALSE;
+            }
 
             sUiidDialogTransform = ui_create_transform(gUiidScreen);
             ui_set_trans_xy(sUiidDialogTransform, 40, 62);
             sUiidDialogSlice = ui_create_slice(sUiidDialogTransform,&gNotepadSliceParams,-10,27,247,-39);
             sUiidDialogText = ui_create_text(sUiidDialogTransform,event_arg_int(0));
-
+            ui_object_ptr(sUiidDialogText)->x2 = 240;
+            if (!first) {
+                ui_set_transition_instant(sUiidDialogTransform);
+            }
+            ui_trans_ptr(sUiidDialogTransform)->transitionFunction[1] = ui_trans_transition_page_rip_out;
             
             for (int i = 0; i < sEventDialogOptionCount; i++) {
                 sUiidDialogOptionTransform[i] = ui_create_transform(gUiidScreen);
@@ -105,16 +112,15 @@ void event_set_dialog(int callContext) {
             break;
         case EVENT_CALL_CONTEXT_HALTED:
             if (gMarioState->controller->buttonPressed & A_BUTTON) {
-                if (sUiidDialogTransform != UI_NONE) {
-                    ui_trans_transition_out(sUiidDialogTransform);
-                }
-
                 gEventHead+=2;
                 sEventHalt = FALSE;
                 if (sEventDialogOptionCount > 0) {
+                    // Since the question dialog is skewed, fade out instead
+                    ui_trans_ptr(sUiidDialogTransform)->transitionFunction[1] = ui_trans_transition_fade_out;
+
                     // Clear options
                     for (int i = 0; i < sEventDialogOptionCount; i++) {
-                        ui_trans_transition_out(sUiidDialogOptionTransform[i]);
+                        ui_trans_begin_remove(sUiidDialogOptionTransform[i]);
                         sUiidDialogOptionTransform[i] = UI_NONE;
                     }
 
@@ -129,11 +135,9 @@ void event_set_dialog(int callContext) {
 
 void event_close_dialog(UNUSED int callContext) {
     if (sUiidDialogTransform != UI_NONE) {
-        ui_trans_transition_out(sUiidDialogTransform);
+        ui_trans_begin_remove(sUiidDialogTransform);
     }
 
-    sEventOldDialogDisplay = sEventDialogDisplay;
-    sEventDialogDisplay = NULL;
     gEventHead++;
 }
 
@@ -177,11 +181,10 @@ void event_end(UNUSED int callContext) {
     switch(callContext) {
         case EVENT_CALL_CONTEXT_EXECUTE:
             sEventHalt = TRUE;
-            sEventDialogDisplay = NULL;
             event_camera_set_target_pointer(gCamera->pos,gCamera->focus);
 
             if (sUiidDialogTransform != UI_NONE) {
-                ui_trans_transition_out(sUiidDialogTransform);
+                ui_trans_begin_remove(sUiidDialogTransform);
             }
             break;
         case EVENT_CALL_CONTEXT_HALTED:
@@ -223,9 +226,9 @@ void event_camera_set(Vec3f pos, Vec3f foc) {
 // Event control functions
 void event_start(EventData * event) {
     if (gEventHead == NULL) {
-        sEventOldDialogDisplay = NULL;
-        sEventDialogDisplay = NULL;
         sEventHalt = FALSE;
+
+        sUiidDialogTransform = UI_NONE;
 
         sEventCameraSpline[0] = 0;
 
@@ -320,33 +323,4 @@ void event_system_logic_loop(void) {
     }
 }
 
-void event_system_render_loop(void) {
-    if (gEventHead != NULL) {
-        if (sEventDialogDisplay) {
-            init_slice_render(&gNotepadSliceParams);
-            render_slice(30,90,287,24);
-
-            int yOffset = -10;
-            if (sEventDialogOptionCount == 3) {
-                yOffset = 10;
-            }
-            for (int i = 0; i < sEventDialogOptionCount; i++) {
-                char * str = get_text(sEventDialogOptionArray[i].textId);
-                int x; int y; utf8_size(str,&x,&y);
-                int hx = x/2;
-
-                init_slice_render(&gStickySliceParams);
-                render_slice(150-hx,200-(i*40)+yOffset,170+hx,168-(i*40)+yOffset);
-                utf8_init_print();
-                utf8_print(str,160-hx,177-(i*40)+yOffset);
-
-                if (i == sEventDialogOptionIndex) {
-                    render_rgba16_texture(130-hx,180-(i*40)+yOffset,pin_rgba16);
-                }
-            }
-
-            utf8_init_print();
-            utf8_print(utf8_autonewline(sEventDialogDisplay,240), 40, 62);
-        }
-    }
-}
+//render_rgba16_texture(130-hx,180-(i*40)+yOffset,pin_rgba16);

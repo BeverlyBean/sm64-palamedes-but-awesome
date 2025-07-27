@@ -3642,6 +3642,10 @@ Texture nine_slice_notepad_rgba16[] = {
     #include "textures/segment2/notepadSlice.rgba16.inc.c"
 };
 
+Texture nine_slice_notepad_rip_rgba16[] = {
+    #include "textures/segment2/notepadRipSlice.rgba16.inc.c"
+};
+
 Texture pin_rgba16[] = {
     #include "textures/segment2/pin.rgba16.inc.c"
 };

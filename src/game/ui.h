@@ -18,7 +18,14 @@ void ui_set_trans_pos(s8 myId, Vec3f pos);
 void ui_set_trans_xy(s8 myId, s16 x, s16 y);
 void ui_set_text(s8 myId, s16 textId);
 
-void ui_trans_transition_out(s8 myId);
+void ui_set_transition_instant(s8 myId);
+
+void ui_trans_begin_remove(s8 myId);
+
+void ui_trans_transition_fade_in(uiid myId);
+void ui_trans_transition_fade_out(uiid myId);
+void ui_trans_transition_instant(uiid myId);
+void ui_trans_transition_page_rip_out(uiid myId);
 
 extern uiid gUiidScreen;
 
@@ -40,6 +47,8 @@ enum {
 
 typedef struct {
     u8 initialized:1;
+
+    uiid parentTrans;
 
     u8 type;
     s8 uiObjectSibling;
@@ -74,7 +83,10 @@ typedef struct {
     Vec3f rot;
     Vec3f rotLerp;
 
+    void (* transitionFunction[2])(uiid self);
+
     f32 transition;
+    u8 alpha;
 } uiTrans;
 
 uiTrans * ui_trans_ptr(s8 myId);
