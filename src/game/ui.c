@@ -23,6 +23,8 @@ int sUiCurrLayer = 0;
 uiid gUiidScreen;
 
 uiid sUiidDebugText;
+uiid sUiidHudTrans[2];
+uiid sUiidHudText[2];
 
 void ui_mtx_inc(Mat4 mat) {
     mtxf_mul(sUiMatStack[sUiMatStackIndex],mat,sUiMatStack[sUiMatStackIndex-1]);
@@ -172,6 +174,7 @@ uiid ui_create_text(s8 parentTransId, s16 textId) {
     self->type = UI_CLASS_TEXT;
     self->text = textId;
     self->x2 = 0;
+    self->printFont = FONT_SM64DS;
 
     return myId;
 }
@@ -198,6 +201,7 @@ uiid ui_create_btn(s8 parentTransId, s16 textId) {
 
     self->type = UI_CLASS_BUTTON;
     self->text = textId;
+    self->printFont = FONT_SM64DS;
 
     return myId;
 }
@@ -323,7 +327,7 @@ void ui_process_ui_object(uiObject * self) {
     switch(self->type) {
         case UI_CLASS_TEXT:
             utf8_init_print();
-            utf8_set_font(FONT_SM64DS);
+            utf8_set_font(self->printFont);
 
             sprintf(sUiCharBuffer,get_text(self->text),self->printInt[0],self->printInt[1]);
             str = sUiCharBuffer;
@@ -359,7 +363,7 @@ void ui_process_ui_object(uiObject * self) {
             render_slice((-x/2)-10+xoffset,22,(x/2)+10+xoffset,-10);
 
             utf8_init_print();
-            utf8_set_font(FONT_SM64DS);
+            utf8_set_font(self->printFont);
             utf8_print(str,(-x/2)+xoffset,0);
             break;
     }
@@ -471,6 +475,10 @@ void ui_init(void) {
     gUiidScreen = ui_create_transform(UI_NONE);
     Vec3f screenCorner = {-160.0f,-120.0f,-120.0f};
     ui_set_trans_pos(gUiidScreen,screenCorner);
+
+    sUiidHudTrans[0] = ui_create_transform(gUiidScreen);
+    sUiidHudTrans[1] = ui_create_transform(gUiidScreen);
+
 
     uiid debugTextT = ui_create_transform(gUiidScreen);
     ui_set_trans_xy(debugTextT,10,220);

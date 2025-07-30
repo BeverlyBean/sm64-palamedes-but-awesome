@@ -70,6 +70,7 @@ typedef struct {
     void * ptr;
     u8 printParam;
     u8 printOrigin;
+    u8 printFont;
     s16 printInt[2];
 } uiObject;
 
