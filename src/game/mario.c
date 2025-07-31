@@ -1729,6 +1729,18 @@ void queue_rumble_particles(struct MarioState *m) {
 }
 #endif
 
+void set_mario_lookat(void) {
+    gMarioState->lookAtEnabled = FALSE;
+
+    struct Object * interestingObject;
+    interestingObject = cur_obj_nearest_object_with_behavior(bhvStar);
+    
+    if (interestingObject != NULL && dist_between_objects(gMarioObject,interestingObject) < 1200.0f) {
+        gMarioState->lookAtEnabled = TRUE;
+        vec3f_copy(gMarioState->lookAtVec,&interestingObject->oPosVec);
+    }
+}
+
 /**
  * Main function for executing Mario's behavior. Returns particleFlags.
  */
@@ -1736,6 +1748,7 @@ s32 execute_mario_action(UNUSED struct Object *obj) {
     s32 inLoop = TRUE;
     gMarioState->canInteractInterest = FALSE;
 
+    set_mario_lookat();
     set_mario_interest();
 
     if (point_inside_volume(gMarioState->pos, &testVolume)) {

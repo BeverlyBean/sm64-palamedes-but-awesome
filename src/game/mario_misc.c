@@ -78,6 +78,10 @@ static s8 gMarioAttackScaleAnimation[3 * 6] = {
 struct MarioBodyState gBodyStates[2]; // 2nd is never accessed in practice, most likely Luigi related
 struct GraphNodeObject gMirrorMario;  // copy of Mario's geo node for drawing mirror Mario
 
+f32 sMarioLookDelta = 0.0f;
+s16 sMarioLookYaw = 0;
+s16 sMarioLookPitch = 0;
+
 // This whole file is weirdly organized. It has to be the same file due
 // to rodata boundaries and function aligns, which means the programmer
 // treated this like a "misc" file for vaguely Mario related things
@@ -409,10 +413,6 @@ Gfx *geo_mario_tilt_torso(s32 callContext, struct GraphNode *node, UNUSED Mat4 *
  * Makes Mario's head rotate with the camera angle when in C-up mode
  */
 
-f32 sMarioLookDelta = 0.0f;
-s16 sMarioLookYaw = 0;
-s16 sMarioLookPitch = 0;
-
 Gfx *geo_mario_head_rotation(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx) {
     struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
     struct MarioBodyState *bodyState = &gBodyStates[asGenerated->parameter];
@@ -431,50 +431,51 @@ Gfx *geo_mario_head_rotation(s32 callContext, struct GraphNode *node, UNUSED Mat
             rotNode->rotation[2] = bodyState->headAngle[0];
         } else {
             vec3_zero(bodyState->headAngle);
-            vec3_zero(rotNode->rotation);
+            if (sMarioLookDelta > 0.0f || gMarioState->lookAtEnabled) {
+                Vec3f interestPoint; vec3f_copy(interestPoint,gMarioState->lookAtVec)
+                Vec3f headForward; vec3f_copy(headForward,(*mtx)[1]);
+                Vec3f headPos; vec3f_copy(headPos,(*mtx)[3]);
+                Vec3f worldLookDir; vec3f_diff(worldLookDir,interestPoint,headPos);
+                vec3f_normalize(worldLookDir);
+
+                Vec3f vz = {0,0,0};
+
+                f32 UNUSED dist;
+                s16 pitchHead;
+                s16 yawHead;
+                s16 pitchWorld;
+                s16 yawWorld;
+                vec3_get_dist_and_angle(vz,headForward,&dist,&pitchHead,&yawHead);
+                vec3_get_dist_and_angle(vz,worldLookDir,&dist,&pitchWorld,&yawWorld);
+
+                u8 lookState = FALSE;
+                switch(gMarioState->action) {
+                    case ACT_IDLE:
+                    case ACT_WALKING:
+                    case ACT_BRAKING:
+                    case ACT_READING_NPC_DIALOG:
+                    case ACT_HOLD_WALKING:
+                    case ACT_DECELERATING:
+                        lookState = TRUE;
+                    break;
+                }
+
+                if (lookState && abs_angle_diff(yawWorld, gMarioState->faceAngle[1]) < 0x4000 && ABS(pitchWorld) < 0x3000) {
+                    sMarioLookYaw = yawWorld - yawHead;
+                    sMarioLookPitch = pitchHead - pitchWorld;
+
+                    sMarioLookDelta += .1f * gFrameLerpDeltaTime;
+                    sMarioLookDelta = MIN(sMarioLookDelta,1.0f);
+                } else {
+                    sMarioLookDelta -= .1f * gFrameLerpDeltaTime;
+                    sMarioLookDelta = MAX(sMarioLookDelta,0.0f);
+                }
+
+                rotNode->rotation[2] = approach_f32_asymptotic(0, sMarioLookPitch, smoothstep2(sMarioLookDelta));
+                rotNode->rotation[1] = 0;
+                rotNode->rotation[0] = approach_f32_asymptotic(0, sMarioLookYaw,smoothstep2(sMarioLookDelta));
+            }
         }
-
-        Vec3f interestPoint = {-1689, -1884, -1439};
-        Vec3f headForward; vec3f_copy(headForward,(*mtx)[1]);
-        Vec3f headPos; vec3f_copy(headPos,(*mtx)[3]);
-        Vec3f worldLookDir; vec3f_diff(worldLookDir,interestPoint,headPos);
-        vec3f_normalize(worldLookDir);
-
-        Vec3f vz = {0,0,0};
-
-        f32 UNUSED dist;
-        s16 pitchHead;
-        s16 yawHead;
-        s16 pitchWorld;
-        s16 yawWorld;
-        vec3_get_dist_and_angle(vz,headForward,&dist,&pitchHead,&yawHead);
-        vec3_get_dist_and_angle(vz,worldLookDir,&dist,&pitchWorld,&yawWorld);
-
-        u8 lookState = FALSE;
-        switch(gMarioState->action) {
-            case ACT_IDLE:
-            case ACT_WALKING:
-            case ACT_BRAKING:
-            case ACT_READING_NPC_DIALOG:
-            case ACT_HOLD_WALKING:
-                lookState = TRUE;
-            break;
-        }
-
-        if (lookState && abs_angle_diff(yawWorld, gMarioState->faceAngle[1]) < 0x4000 && ABS(pitchWorld) < 0x3000) {
-            sMarioLookYaw = yawWorld - yawHead;
-            sMarioLookPitch = pitchHead - pitchWorld;
-
-            sMarioLookDelta += .1f * gFrameLerpDeltaTime;
-            sMarioLookDelta = MIN(sMarioLookDelta,1.0f);
-        } else {
-            sMarioLookDelta -= .1f * gFrameLerpDeltaTime;
-            sMarioLookDelta = MAX(sMarioLookDelta,0.0f);
-        }
-
-        rotNode->rotation[2] = approach_f32_asymptotic(0, sMarioLookPitch, smoothstep2(sMarioLookDelta));
-        rotNode->rotation[0] = approach_f32_asymptotic(0, sMarioLookYaw,smoothstep2(sMarioLookDelta));
-
     }
     return NULL;
 }
