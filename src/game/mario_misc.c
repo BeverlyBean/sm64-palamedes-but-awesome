@@ -470,11 +470,13 @@ Gfx *geo_mario_head_rotation(s32 callContext, struct GraphNode *node, UNUSED Mat
                     sMarioLookDelta -= .1f * gFrameLerpDeltaTime;
                     sMarioLookDelta = MAX(sMarioLookDelta,0.0f);
                 }
-
-                rotNode->rotation[2] = approach_f32_asymptotic(0, sMarioLookPitch, smoothstep2(sMarioLookDelta));
-                rotNode->rotation[1] = 0;
-                rotNode->rotation[0] = approach_f32_asymptotic(0, sMarioLookYaw,smoothstep2(sMarioLookDelta));
             }
+            
+            rotNode->rotation[2] = approach_f32_asymptotic(0, sMarioLookPitch, smoothstep2(sMarioLookDelta));
+            rotNode->rotation[1] = 0;
+            rotNode->rotation[0] = approach_f32_asymptotic(0, sMarioLookYaw,smoothstep2(sMarioLookDelta));
+
+            quat_from_zxy_euler(rotNode->rotLerp,rotNode->rotation);
         }
     }
     return NULL;
