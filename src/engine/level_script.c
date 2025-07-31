@@ -876,23 +876,25 @@ static void level_cmd_set_echo(void) {
 
 static void level_cmd_cubic_volume(void) {
 
-    testVolume.pos[0] = CMD_GET(f32,4*1);
-    testVolume.pos[1] = CMD_GET(f32,4*2);
-    testVolume.pos[2] = CMD_GET(f32,4*3);
+    CubicVolume * vol = cubic_volume_add();
 
-    testVolume.scale[0] = CMD_GET(f32,4*4);
-    testVolume.scale[1] = CMD_GET(f32,4*5);
-    testVolume.scale[2] = CMD_GET(f32,4*6);
+    vol->pos[0] = CMD_GET(f32,4*1);
+    vol->pos[1] = CMD_GET(f32,4*2);
+    vol->pos[2] = CMD_GET(f32,4*3);
 
-    testVolume.rot[3] = CMD_GET(f32,4*7);
-    testVolume.rot[0] = CMD_GET(f32,4*8);
-    testVolume.rot[1] = CMD_GET(f32,4*9);
-    testVolume.rot[2] = CMD_GET(f32,4*10);
+    vol->scale[0] = CMD_GET(f32,4*4);
+    vol->scale[1] = CMD_GET(f32,4*5);
+    vol->scale[2] = CMD_GET(f32,4*6);
+
+    vol->rot[3] = CMD_GET(f32,4*7);
+    vol->rot[0] = CMD_GET(f32,4*8);
+    vol->rot[1] = CMD_GET(f32,4*9);
+    vol->rot[2] = CMD_GET(f32,4*10);
 
     Quat inversed;
-    quat_copy(inversed,testVolume.rot);
+    quat_copy(inversed,vol->rot);
 
-    quat_inverse(testVolume.rot,inversed);
+    quat_inverse(vol->rot,inversed);
 
     sCurrentCmd = CMD_NEXT;
 }

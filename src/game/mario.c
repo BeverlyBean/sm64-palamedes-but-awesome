@@ -1751,10 +1751,6 @@ s32 execute_mario_action(UNUSED struct Object *obj) {
     set_mario_lookat();
     set_mario_interest();
 
-    if (point_inside_volume(gMarioState->pos, &testVolume)) {
-        print_text_fmt_int(210, 100, "%d", point_inside_volume(gMarioState->pos, &testVolume));
-    };
-
     // Updates once per frame:
     vec3f_get_dist_and_angle(gMarioState->prevPos, gMarioState->pos, &gMarioState->moveSpeed, &gMarioState->movePitch, &gMarioState->moveYaw);
     vec3f_get_lateral_dist(gMarioState->prevPos, gMarioState->pos, &gMarioState->lateralSpeed);

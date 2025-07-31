@@ -35,8 +35,27 @@
 #include "rumble_init.h"
 
 CubicVolume testVolume;
+CubicVolume sCubicVolumeList[CUBIC_VOLUME_MAX];
+int sCubicVolumeCount = 0;
 
-s32 point_inside_volume(Vec3f p, CubicVolume * v) {
+void cubic_volume_reset(void) {
+    sCubicVolumeCount = 0;
+}
+
+CubicVolume * cubic_volume_add(void) {
+    return &sCubicVolumeList[sCubicVolumeCount];
+    sCubicVolumeCount++;
+}
+
+CubicVolume * cubic_volume_check_one(UNUSED int cubicVolumeType) {
+    return NULL;
+}
+
+void cubic_volume_check_all(UNUSED int cubicVolumeType) {
+
+}
+
+s32 cubic_volume_point_inside_volume(Vec3f p, CubicVolume * v) {
     Vec3f rp;
     vec3f_diff(rp,p,v->pos);
 
