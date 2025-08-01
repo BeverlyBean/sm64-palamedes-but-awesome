@@ -39,3 +39,6 @@
 #include "shadow_limb/model.inc.c"
 #include "shadow_torso/model.inc.c"
 #include "placeholderNPC/model.inc.c"
+#include "coin3D/model.inc.c"
+#include "coin3DB/model.inc.c"
+#include "coin3Dhi/model.inc.c"

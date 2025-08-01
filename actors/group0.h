@@ -347,4 +347,10 @@ extern const Gfx white_particle_small_unused_dl[];
 
 #include "placeholderNPC/geo_header.h"
 
+#include "coin3D/header.h"
+
+#include "coin3DB/header.h"
+
+#include "coin3Dhi/header.h"
+
 #endif

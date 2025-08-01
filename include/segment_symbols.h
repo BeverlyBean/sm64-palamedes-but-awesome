@@ -104,6 +104,8 @@ DECLARE_SEGMENT(inside_yay0)
 DECLARE_SEGMENT(effect_yay0)
 DECLARE_SEGMENT(title_screen_bg_yay0)
 
+DECLARE_SEGMENT(dma_textures)
+
 DECLARE_SEGMENT(debug_level_select_yay0)
 
 #ifdef VERSION_EU

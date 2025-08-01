@@ -21,6 +21,7 @@
 #include "level_geo.h"
 #include "mario.h"
 #include "worldspace_visual_debug.h"
+#include "coin.h"
 
 #include "config.h"
 #include "config/config_world.h"
@@ -1228,6 +1229,8 @@ void geo_process_object_parent(struct GraphNodeObjectParent *node) {
     if (node->node.children != NULL) {
         geo_process_node_and_siblings(node->node.children);
     }
+
+    coin_render();
 }
 
 /**
