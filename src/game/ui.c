@@ -494,20 +494,24 @@ void ui_logic(void) {
             }
 
             if (emphasize) {
-                sUiidHudEmphasisTimer[i] += .025f;
+                sUiidHudEmphasisTimer[i] += .05f;
                 sUiidHudEmphasisTimer[i] = MIN(sUiidHudEmphasisTimer[i],3.0f);
             } else {
-                sUiidHudEmphasisTimer[i] -= .025f;
+                sUiidHudEmphasisTimer[i] -= .05f;
                 sUiidHudEmphasisTimer[i] = MAX(sUiidHudEmphasisTimer[i],-5.0f);
             }
         }
     }
     if (ui_object_ptr(sUiidHudText[0])->printInt[0] != gMarioState->numCoins) {
         ui_object_ptr(sUiidHudText[0])->printInt[0] = gMarioState->numCoins;
+        ui_trans_ptr(sUiidHudTrans[0])->posLerp[0] = 22;
+        ui_trans_ptr(sUiidHudTrans[0])->pos[0] = 22;
         sUiidHudEmphasisTimer[0] = 3.25f;
     }
     if (ui_object_ptr(sUiidHudText[1])->printInt[0] != gMarioState->numStars) {
         ui_object_ptr(sUiidHudText[1])->printInt[0] = gMarioState->numStars;
+        ui_trans_ptr(sUiidHudTrans[1])->posLerp[0] = 22;
+        ui_trans_ptr(sUiidHudTrans[1])->pos[0] = 22;
         sUiidHudEmphasisTimer[1] = 3.25f;
     }
 }

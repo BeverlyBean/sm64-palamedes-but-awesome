@@ -7,6 +7,8 @@
 #define CUBIC_VOLUME_MAX 30
 
 typedef struct {
+    u8 type;
+    s16 param;
     Vec3f pos;
     Vec3f scale;
     Quat rot;
@@ -14,11 +16,13 @@ typedef struct {
 
 enum {
     VOLUME_TYPE_REGION,
+    VOLUME_TYPE_WARP,
     VOLUME_TYPE_SHADOW,
     VOLUME_TYPE_MUSIC,
     VOLUME_TYPE_BRIDGE
 };
 
 CubicVolume * cubic_volume_add(void);
+CubicVolume * cubic_volume_check_one(Vec3f pos, int cubicVolumeType);
 
 #endif
