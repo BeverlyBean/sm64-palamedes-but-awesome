@@ -61,6 +61,7 @@ typedef struct {
     s8 uiObjectSibling;
 
     u16 text;
+    u8 textXsize;
 
     s16 x1;
     s16 y1;

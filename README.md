@@ -2,11 +2,12 @@
 
 Features:
 - Multithreaded 60 FPS [HackerSM64-60threaded](https://github.com/rovertronic/HackerSM64-60threaded)
+- Graphical user interface object framework (`ui.h`)
 - UTF8 printing with rich text, emoji, and multilang (`utf8_print.h`)
 - Easy string loading with integrated multilang (`text_load.h`)
 - Event system that handles dialog and cutscenes (`event_dialog.h`)
 - Shadow mapping for important actors (`special_shadow.h`)
-- Cubic Volumes in levels (`cubic_volume.h`)
+- Cubic Volumes for levels (`cubic_volume.h`)
 - Suspension bridge system (`bridge.h`)
 - Vertex iterator for vertex animation (`vertex_iterator.h`)
 - Custom collision transformation for deformable collision (`surface_load.h` extended)

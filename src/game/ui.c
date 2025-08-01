@@ -10,6 +10,7 @@
 #include "print.h"
 #include "data/text_enums.h"
 #include "text_load.h"
+#include "level_update.h"
 
 Mat4 sUiMatStack[5];
 int sUiMatStackIndex = 0;
@@ -25,6 +26,7 @@ uiid gUiidScreen;
 uiid sUiidDebugText;
 uiid sUiidHudTrans[2];
 uiid sUiidHudText[2];
+f32 sUiidHudEmphasisTimer[2];
 
 void ui_mtx_inc(Mat4 mat) {
     mtxf_mul(sUiMatStack[sUiMatStackIndex],mat,sUiMatStack[sUiMatStackIndex-1]);
@@ -321,6 +323,8 @@ int sUiDebugY = 0;
 
 void ui_process_ui_object(uiObject * self) {
     char * str;
+    int x;
+    int y;
     uiTrans * tp = ui_trans_ptr(self->parentTrans); 
     gDPSetEnvColor(gDisplayListHead++, tp->color[0], tp->color[1], tp->color[2], tp->alpha);
 
@@ -331,6 +335,9 @@ void ui_process_ui_object(uiObject * self) {
 
             sprintf(sUiCharBuffer,get_text(self->text),self->printInt[0],self->printInt[1]);
             str = sUiCharBuffer;
+
+            utf8_size(str,&x,&y);
+            self->textXsize = x;
 
             if (self->x2 != 0) {
                 str = utf8_autonewline(str,self->x2);
@@ -345,9 +352,8 @@ void ui_process_ui_object(uiObject * self) {
             sprintf(sUiCharBuffer,get_text(self->text),self->printInt[0],self->printInt[1]);
             str = sUiCharBuffer;
 
-            int x;
-            int y;
             utf8_size(str,&x,&y);
+            self->textXsize = x;
 
             int xoffset = 0;
             switch(self->printOrigin) {
@@ -437,7 +443,7 @@ void ui_render(void) {
         }
     }
 
-    print_text_fmt_int(20, 100, "O %d", activemat);
+    //print_text_fmt_int(20, 100, "O %d", activemat);
 
     activemat = 0;
     for (int i = 0; i < UI_TRANS_COUNT; i++) {
@@ -446,7 +452,7 @@ void ui_render(void) {
             activemat++;
         }
     }
-    print_text_fmt_int(20, 120, "T %d", activemat);
+    //print_text_fmt_int(20, 120, "T %d", activemat);
 }
 
 void ui_logic(void) {
@@ -468,7 +474,42 @@ void ui_logic(void) {
         }
     }
     // Debug text
-    ui_object_ptr(sUiidDebugText)->printInt[0] = main_pool_available()/80000;
+    //ui_object_ptr(sUiidDebugText)->printInt[0] = main_pool_available()/80000;
+
+    // Hud
+    for (int i = 0; i < 2; i++) {
+        if (sUiidHudText[i] != UI_NONE ) {
+            u8 size = ui_object_ptr(sUiidHudText[i])->textXsize;
+            f32 emphasis = CLAMP(sUiidHudEmphasisTimer[i],0.0f,1.0f);
+            emphasis = smoothstep2(emphasis);
+            ui_trans_ptr(sUiidHudTrans[i])->pos[0] = ((-size)+(emphasis*(f32)(22+size)));
+            ui_trans_ptr(sUiidHudTrans[i])->alpha = emphasis*255.0f;
+
+            f32 bounce = sinf((CLAMP(sUiidHudEmphasisTimer[i],3.0f,3.5f)-1.0f)*M_PI*4.0f)*3.0f;
+            ui_trans_ptr(sUiidHudTrans[i])->pos[1] = 209-(20*i)+bounce;
+
+            u8 emphasize = FALSE;
+            if ((gMarioState->action & ACT_GROUP_MASK) == ACT_GROUP_STATIONARY) {
+                emphasize = TRUE;
+            }
+
+            if (emphasize) {
+                sUiidHudEmphasisTimer[i] += .025f;
+                sUiidHudEmphasisTimer[i] = MIN(sUiidHudEmphasisTimer[i],3.0f);
+            } else {
+                sUiidHudEmphasisTimer[i] -= .025f;
+                sUiidHudEmphasisTimer[i] = MAX(sUiidHudEmphasisTimer[i],-5.0f);
+            }
+        }
+    }
+    if (ui_object_ptr(sUiidHudText[0])->printInt[0] != gMarioState->numCoins) {
+        ui_object_ptr(sUiidHudText[0])->printInt[0] = gMarioState->numCoins;
+        sUiidHudEmphasisTimer[0] = 3.25f;
+    }
+    if (ui_object_ptr(sUiidHudText[1])->printInt[0] != gMarioState->numStars) {
+        ui_object_ptr(sUiidHudText[1])->printInt[0] = gMarioState->numStars;
+        sUiidHudEmphasisTimer[1] = 3.25f;
+    }
 }
 
 void ui_init(void) {
@@ -478,9 +519,19 @@ void ui_init(void) {
 
     sUiidHudTrans[0] = ui_create_transform(gUiidScreen);
     sUiidHudTrans[1] = ui_create_transform(gUiidScreen);
+    ui_set_trans_xy(sUiidHudTrans[0],22,189);
+    ui_set_trans_xy(sUiidHudTrans[1],22,209);
+
+    sUiidHudText[0] = ui_create_text(sUiidHudTrans[0],TEXT_COINS);
+    sUiidHudText[1] = ui_create_text(sUiidHudTrans[1],TEXT_STARS);
+    ui_object_ptr(sUiidHudText[0])->printFont = FONT_PINBALL;
+    ui_object_ptr(sUiidHudText[1])->printFont = FONT_PINBALL;
+
+    sUiidHudEmphasisTimer[0] = -10.0f;
+    sUiidHudEmphasisTimer[1] = -10.0f;
 
 
-    uiid debugTextT = ui_create_transform(gUiidScreen);
-    ui_set_trans_xy(debugTextT,10,220);
-    sUiidDebugText = ui_create_text(debugTextT,TEXT_DEBUG_RAM);
+    //uiid debugTextT = ui_create_transform(gUiidScreen);
+    //ui_set_trans_xy(debugTextT,10,220);
+    //sUiidDebugText = ui_create_text(debugTextT,TEXT_DEBUG_RAM);
 }

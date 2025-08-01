@@ -387,6 +387,7 @@ void utf8_size(char * str, int * x, int * y) {
         if (fc != NULL) {
             printX += fc->size+sPrintFont->spacing;
         }
+        if (str[charIndex+1] == '\0' && sPrintFont->spacing < 0) { printX -= sPrintFont->spacing-1;}
         printXmax = MAX(printX,printXmax);
         
         charIndex += size;
