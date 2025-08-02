@@ -32,6 +32,7 @@
 #include "game/emutest.h"
 #include "game/cubic_volume.h"
 #include "game/bridge.h"
+#include "game/coin.h"
 
 #include "config.h"
 
@@ -329,6 +330,7 @@ static void level_cmd_init_level(void) {
     clear_areas();
     main_pool_push_state();
     bridge_reset();
+    coin_reset();
     for (u8 clearPointers = 0; clearPointers < AREA_COUNT; clearPointers++) {
         gAreaSkyboxStart[clearPointers] = 0;
         gAreaSkyboxEnd[clearPointers] = 0;

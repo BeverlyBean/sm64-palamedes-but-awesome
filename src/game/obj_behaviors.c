@@ -33,6 +33,7 @@
 #include "spawn_sound.h"
 #include "rumble_init.h"
 #include "event_dialog.h"
+#include "coin.h"
 
 /**
  * @file obj_behaviors.c

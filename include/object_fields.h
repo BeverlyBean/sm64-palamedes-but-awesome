@@ -999,6 +999,7 @@
 // Secrets/Red Coins
 #define /*0x0F4*/ oHiddenStarTriggerCounter OBJECT_FIELD_S32(0x1B)
 #define /*0x0F8*/ oHiddenStarTriggerTotal OBJECT_FIELD_S32(0x1C)
+#define /*0x0FC*/ oCoinObjectPtr OBJECT_FIELD_VPTR(0x1D)
 
 /* Sealed Door Star */
 #define /*0x108*/ oUnlockDoorStarState  OBJECT_FIELD_U32(0x20)

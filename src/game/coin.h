@@ -7,10 +7,15 @@
 
 typedef struct {
     u8 initialized;
+    u8 type;
     Vec3f pos;
 } coinObject;
 
 void coin_render(void);
-void coin_create(Vec3f pos);
+void coin_reset(void);
+
+void coin_obj_update(void);
+void coin_obj_create(void);
+void coin_obj_destroy(void);
 
 #endif
