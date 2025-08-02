@@ -34,6 +34,7 @@ void bhv_red_coin_init(void) {
         o->parentObj = NULL;
     }
 
+    coin_obj_create(1);
     obj_set_hitbox(o, &sRedCoinHitbox);
 }
 
@@ -82,6 +83,7 @@ void bhv_red_coin_loop(void) {
 #endif
         }
 
+        coin_obj_destroy(o);
         coin_collected();
         // Despawn the coin.
         o->oInteractStatus = INT_STATUS_NONE;

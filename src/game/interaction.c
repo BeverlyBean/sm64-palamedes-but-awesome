@@ -24,6 +24,7 @@
 #include "sound_init.h"
 #include "rumble_init.h"
 #include "config.h"
+#include "coin.h"
 
 u8  sDelayInvincTimer;
 s16 sInvulnerable;
@@ -750,6 +751,7 @@ u32 interact_coin(struct MarioState *m, UNUSED u32 interactType, struct Object *
     }
 #endif
 
+    coin_obj_destroy(obj);
     return FALSE;
 }
 

@@ -159,6 +159,7 @@ void bhv_coin_loop(void) {
 
 void bhv_coin_formation_spawned_coin_loop(void) {
     if (o->oTimer == 0) {
+        coin_obj_create(0);
         cur_obj_set_behavior(bhvYellowCoin);
         obj_set_hitbox(o, &sYellowCoinHitbox);
         if (o->oCoinSnapToGround) {
@@ -184,6 +185,7 @@ void bhv_coin_formation_spawned_coin_loop(void) {
         o->oAnimState++;
     }
     if (o->parentObj->oAction == COIN_FORMATION_ACT_DEACTIVATE) {
+        coin_obj_destroy(o);
         obj_mark_for_deletion(o);
     }
 }
@@ -325,4 +327,12 @@ void bhv_golden_coin_sparkles_loop(void) {
     struct Object *sparkleObj = spawn_object(o, MODEL_SPARKLES, bhvCoinSparkles);
     sparkleObj->oPosX += random_float() * 30.0f - 15.0f;
     sparkleObj->oPosZ += random_float() * 30.0f - 15.0f;
+}
+
+void bhv_blue_coin_render_init(void) {
+    coin_obj_create(2);
+}
+
+void bhv_yellow_coin_render_init(void) {
+    coin_obj_create(0);
 }

@@ -432,10 +432,10 @@
 #define MODEL_DORRIE                      0x68        // dorrie_geo
 
 // other models
-#define MODEL_YELLOW_COIN                 0x74        // yellow_coin_geo
-#define MODEL_YELLOW_COIN_NO_SHADOW       0x75        // yellow_coin_no_shadow_geo
-#define MODEL_BLUE_COIN                   0x76        // blue_coin_geo
-#define MODEL_BLUE_COIN_NO_SHADOW         0x77        // blue_coin_no_shadow_geo
+#define MODEL_YELLOW_COIN                 MODEL_NONE  // yellow_coin_geo
+#define MODEL_YELLOW_COIN_NO_SHADOW       MODEL_NONE  // yellow_coin_no_shadow_geo
+#define MODEL_BLUE_COIN                   MODEL_NONE  // blue_coin_geo
+#define MODEL_BLUE_COIN_NO_SHADOW         MODEL_NONE  // blue_coin_no_shadow_geo
 #define MODEL_HEART                       0x78        // heart_geo
 #define MODEL_TRANSPARENT_STAR            0x79        // transparent_star_geo
 #define MODEL_STAR                        0x7A        // star_geo
@@ -533,8 +533,8 @@
 #define MODEL_1UP                         0xD4        // mushroom_1up_geo
 #define MODEL_CASTLE_STAR_DOOR_8_STARS    0xD5        // castle_geo_000F00
 #define MODEL_CASTLE_STAR_DOOR_70_STARS   0xD6        // castle_geo_000F00
-#define MODEL_RED_COIN                    0xD7        // red_coin_geo
-#define MODEL_RED_COIN_NO_SHADOW          0xD8        // red_coin_no_shadow_geo
+#define MODEL_RED_COIN                    MODEL_NONE  // red_coin_geo
+#define MODEL_RED_COIN_NO_SHADOW          MODEL_NONE  // red_coin_no_shadow_geo
 #define MODEL_METAL_BOX                   0xD9        // metal_box_geo
 #define MODEL_METAL_BOX_DL                0xDA        // metal_box_dl
 #define MODEL_NUMBER                      0xDB        // number_geo

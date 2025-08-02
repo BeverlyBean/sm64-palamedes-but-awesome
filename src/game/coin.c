@@ -30,36 +30,24 @@ Gfx sGfxLoadCoinTex[] = {
 
 extern u8 dmaCoinTexture[];
 
-coinObject coinList[MAX_COINS] = {
-    {TRUE,0,{0,-1000,0}},
-    {TRUE,0,{75,-1000,0}},
-    {TRUE,0,{75*2,-1000,0}},
-    {TRUE,1,{75*3,-1000,0}},
-    {TRUE,2,{75*4,-1000,0}}
-};
+coinObject coinList[MAX_COINS];
 
-void coin_obj_create(void) {
+void coin_obj_create(int type) {
     int i = 0;
     while (coinList[i].initialized) {
         i++;
     }
-    coinList[i].initialized = TRUE;
+    coinList[i].obj = o;
+    coinList[i].type = type;
     o->oCoinObjectPtr = &coinList[i];
-    vec3f_copy(coinList[i].pos,&o->oPosVec);
+    coinList[i].initialized = TRUE;
 }
 
-void coin_obj_update(void) {
-    coinObject * myCoin = o->oCoinObjectPtr;
-    if (myCoin != NULL) {
-        vec3f_copy(myCoin->pos,&o->oPosVec);
-    }
-}
-
-void coin_obj_destroy(void) {
-    coinObject * myCoin = o->oCoinObjectPtr;
+void coin_obj_destroy(struct Object * owner) {
+    coinObject * myCoin = owner->oCoinObjectPtr;
     if (myCoin != NULL) {
         myCoin->initialized = FALSE;
-        o->oCoinObjectPtr = NULL;
+        owner->oCoinObjectPtr = NULL;
     }
 }
 
@@ -69,8 +57,18 @@ void coin_reset(void) {
     }
 }
 
+int coin_count(void) {
+    int ct = 0;
+    for (int i = 0; i < MAX_COINS; i++) {
+        if (coinList[i].initialized) {
+            ct++;
+        }
+    }
+    return ct;
+}
+
 void coin_render(void) {
-    Gfx * dlh = alloc_display_list((sizeof(Gfx)*3*10)+4);
+    Gfx * dlh = alloc_display_list(sizeof(Gfx)* ((10*coin_count())+10) );
     Gfx * dl = dlh;
 
     sCoinAngle += 0x800*gFrameLerpDeltaTime;
@@ -91,13 +89,13 @@ void coin_render(void) {
     for (int j = 0; j < 3; j++) {
         switch(j) {
             case 0:
-                gDPSetEnvColor(dlh++,255,240,0,255);
+                gDPSetEnvColor(dlh++,255,220,15,255);
                 break;
             case 1:
-                gDPSetEnvColor(dlh++,255,20,20,255);
+                gDPSetEnvColor(dlh++,255,40,40,255);
                 break;
             case 2:
-                gDPSetEnvColor(dlh++,0,50,255,255);
+                gDPSetEnvColor(dlh++,60,30,255,255);
                 //scale
                 for (int i = 0; i < 9; i++) {
                     u8 r = i%3;
@@ -107,17 +105,18 @@ void coin_render(void) {
                 break;
         }
         for (int i = 0; i < MAX_COINS; i++) {
-            if (coinList[i].initialized && coinList[i].type == j) {
-                f32 dsqrd = sqr(gLakituState.pos[0] - coinList[i].pos[0]) + sqr(gLakituState.pos[1] - coinList[i].pos[1]) + sqr(gLakituState.pos[2] - coinList[i].pos[2]);
+            if (coinList[i].type == j && coinList[i].initialized && (!(coinList[i].obj->header.gfx.node.flags & GRAPH_RENDER_INVISIBLE)) ) {
+                Vec3f pos; vec3f_copy(pos,coinList[i].obj->header.gfx.posLerp);
+                f32 dsqrd = sqr(gLakituState.pos[0] - pos[0]) + sqr(gLakituState.pos[1] - pos[1]) + sqr(gLakituState.pos[2] - pos[2]);
                 Gfx * mesh = coin3Dhi_CylinderHi_mesh_tri_0;
                 if ((gEmulator & (EMU_CONSOLE|EMU_ARES)) && dsqrd >= 4000000.0f) { // farther than 2000.0f
                     mesh = coin3D_Cylinder_mesh_tri_0;
                 }
 
                 Mtx *mtx = alloc_display_list(sizeof(*mtx));
-                sCoinTransform[3][0] = coinList[i].pos[0];
-                sCoinTransform[3][1] = coinList[i].pos[1];
-                sCoinTransform[3][2] = coinList[i].pos[2];
+                sCoinTransform[3][0] = pos[0];
+                sCoinTransform[3][1] = pos[1];
+                sCoinTransform[3][2] = pos[2];
                 mtxf_to_mtx(mtx, sCoinTransform);
 
                 gSPMatrix(dlh++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -125,7 +124,6 @@ void coin_render(void) {
             }
         }
     }
-
     gSPEndDisplayList(dlh++);
 
     geo_append_display_list(dl, LAYER_OPAQUE);
