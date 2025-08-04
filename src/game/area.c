@@ -29,6 +29,8 @@
 #include "special_shadow.h"
 #include "bridge.h"
 #include "ui.h"
+#include "coin.h"
+#include "neo_shadow.h"
 #ifdef S2DEX_TEXT_ENGINE
 #include "s2d_engine/init.h"
 #endif
@@ -239,6 +241,9 @@ void load_area(s32 index) {
         main_pool_push_state();
 
         gMarioCurrentRoom = 0;
+
+        coin_reset();
+        neoshadow_reset();
 
         if (gCurrentArea->terrainData != NULL) {
             load_area_terrain(index, gCurrentArea->terrainData, gCurrentArea->surfaceRooms,

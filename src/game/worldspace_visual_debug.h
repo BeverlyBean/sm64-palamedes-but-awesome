@@ -12,7 +12,7 @@ typedef struct {
 #define WSVD_THREAD5 (1<<1)
 #define WSVD_CUBE    (1<<2)
 
-#define MAX_DEBUG_TRANSFORMS 30
+#define MAX_DEBUG_TRANSFORMS 100
 
 void render_worldspace_visual_debug(void);
 

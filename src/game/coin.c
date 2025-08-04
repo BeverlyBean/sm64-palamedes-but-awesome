@@ -8,6 +8,7 @@
 #include "camera.h"
 #include "object_list_processor.h"
 #include "emutest.h"
+#include "neo_shadow.h"
 
 u8 sCoinTexture[4096];
 s16 sCoinAngle = 0;
@@ -37,10 +38,17 @@ void coin_obj_create(int type) {
     while (coinList[i].initialized) {
         i++;
     }
+    if (i >= MAX_COINS) {
+        return;
+    }
     coinList[i].obj = o;
     coinList[i].type = type;
     o->oCoinObjectPtr = &coinList[i];
     coinList[i].initialized = TRUE;
+
+    if (o->shadow == NULL) {
+        neoshadow_obj_create(o);
+    }
 }
 
 void coin_obj_destroy(struct Object * owner) {

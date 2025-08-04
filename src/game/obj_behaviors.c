@@ -34,6 +34,7 @@
 #include "rumble_init.h"
 #include "event_dialog.h"
 #include "coin.h"
+#include "neo_shadow.h"
 
 /**
  * @file obj_behaviors.c

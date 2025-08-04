@@ -12,6 +12,7 @@
 #include "object_list_processor.h"
 #include "spawn_object.h"
 #include "types.h"
+#include "neo_shadow.h"
 
 /**
  * Attempt to allocate an object from freeList (singly linked) and append it
@@ -91,6 +92,11 @@ void clear_object_lists(struct ObjectNode *objLists) {
  * Free the given object.
  */
 void unload_object(struct Object *obj) {
+    if (obj->shadow) {
+        neoShadow * s = (neoShadow *)obj->shadow;
+        s->initialized = FALSE;
+        obj->shadow = NULL;
+    }
     obj->activeFlags = ACTIVE_FLAG_DEACTIVATED;
     obj->prevObj = NULL;
     obj->oFloor = NULL;
@@ -187,6 +193,7 @@ struct Object *allocate_object(struct ObjectNode *objList) {
 
     obj->header.gfx.node.flags &= ~GRAPH_RENDER_INVISIBLE;
     vec3_same(obj->header.gfx.pos, -10000.0f);
+    obj->shadow = NULL;
 
     return obj;
 }

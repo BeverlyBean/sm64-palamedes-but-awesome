@@ -22,6 +22,7 @@
 #include "mario.h"
 #include "worldspace_visual_debug.h"
 #include "coin.h"
+#include "neo_shadow.h"
 
 #include "config.h"
 #include "config/config_world.h"
@@ -956,6 +957,9 @@ void geo_set_animation_globals(struct AnimInfo *node, s32 hasAnimation, struct O
  * the floor below it.
  */
 void geo_process_shadow(struct GraphNodeShadow *node) {
+    if (gCurGraphNodeObjectNode != NULL && gCurGraphNodeObjectNode->shadow == NULL) {
+        neoshadow_obj_create(gCurGraphNodeObjectNode);
+    }
 #ifndef DISABLE_SHADOWS
     if (gCurGraphNodeCamera != NULL && gCurGraphNodeObject != NULL) {
         Vec3f shadowPos;
@@ -1231,6 +1235,7 @@ void geo_process_object_parent(struct GraphNodeObjectParent *node) {
     }
 
     coin_render();
+    neoshadow_render();
 }
 
 /**

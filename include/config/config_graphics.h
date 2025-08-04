@@ -113,7 +113,7 @@
 /**
  * Disables all object shadows. You'll probably only want this either as a last resort for performance or if you're making a super stylized hack.
  */
-// #define DISABLE_SHADOWS
+#define DISABLE_SHADOWS
 
 /**
  * Uses old shadow IDs for Fast64 compatibility. This is a temporary fix until Fast64 is updated to use the enum defines.
