@@ -12,6 +12,7 @@ typedef struct {
 } coinObject;
 
 void coin_render(void);
+void coin_logic(void);
 void coin_reset(void);
 
 void coin_obj_create(int type);

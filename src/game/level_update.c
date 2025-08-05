@@ -35,6 +35,7 @@
 #include "event_dialog.h"
 #include "ui.h"
 #include "neo_shadow.h"
+#include "coin.h"
 
 #include "config.h"
 
@@ -1063,6 +1064,7 @@ s32 play_mode_normal(void) {
 
     event_system_logic_loop();
     ui_logic();
+    coin_logic();
     neoshadow_logic();
 
     // If either initiate_painting_warp or initiate_delayed_warp initiated a

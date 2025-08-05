@@ -285,4 +285,15 @@ void bhv_whomp_loop(void) {
         }
         load_object_collision_model();
     }
+    if (o->shadow != NULL) {
+        neoShadow * s = o->shadow;
+        s->overridden = TRUE;
+        neoshadow_cast(s,o);
+        f32 scaleAmount = sins(o->oFaceAnglePitch)*300.0f*o->header.gfx.scale[1];
+        s->scale[1] = (70.0f * o->header.gfx.scale[1]) + (scaleAmount*.7f);
+        s->scale[0] = 180.0f * o->header.gfx.scale[1];
+        s->pos[0] += sins(o->oFaceAngleYaw)*((scaleAmount*.8f)-(25.0f*o->header.gfx.scale[1]));
+        s->pos[2] += coss(o->oFaceAngleYaw)*((scaleAmount*.8f)-(25.0f*o->header.gfx.scale[1]));
+        s->yaw = o->oMoveAngleYaw;
+    }
 }

@@ -339,9 +339,12 @@ void mtxf_shadow(Mat4 dest, Vec3f upDir, Vec3f pos, Vec3f scale, s16 yaw) {
     vec3f_cross(forwardDir, leftDir, upDir);
     vec3f_normalize(forwardDir);
 
-    vec3f_prod(dest[0], leftDir, scale);
-    vec3f_prod(dest[1], upDir, scale);
-    vec3f_prod(dest[2], forwardDir, scale);
+    for (int i = 0; i < 3; i++) {
+        dest[0][i] = leftDir[i] * scale[0];    // X axis
+        dest[1][i] = upDir[i] * scale[1];      // Y axis
+        dest[2][i] = forwardDir[i] * scale[2]; // Z axis
+    }
+
     vec3f_copy(dest[3], pos);
     MTXF_END(dest);
 }

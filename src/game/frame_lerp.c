@@ -61,3 +61,12 @@ f32 frameLerpFloat(f32 f, f32 lerpValue) {
     }
     return lerpValue;
 }
+
+s16 frameLerpShort(s16 v, s16 lerpValue) {
+    if (gFrameLerpRenderFrame == FRAMELERP_NORMAL) {
+        return v;
+    } else {
+        return approach_s16_asymptotic(v,lerpValue,2);
+    }
+    return lerpValue;
+}

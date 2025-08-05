@@ -16,5 +16,6 @@ f32 * frameLerpPos(Vec3f pos, Vec3f lerpValue);
 f32 * frameLerpPosUi(Vec3f pos, Vec3f lerpValue);
 f32 * frameLerpRot(Quat rot, Quat rotValue);
 f32 frameLerpFloat(f32 f, f32 lerpValue);
+s16 frameLerpShort(s16 v, s16 lerpValue);
 
 #endif

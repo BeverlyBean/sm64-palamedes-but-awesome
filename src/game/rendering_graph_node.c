@@ -958,7 +958,22 @@ void geo_set_animation_globals(struct AnimInfo *node, s32 hasAnimation, struct O
  */
 void geo_process_shadow(struct GraphNodeShadow *node) {
     if (gCurGraphNodeObjectNode != NULL && gCurGraphNodeObjectNode->shadow == NULL) {
-        neoshadow_obj_create(gCurGraphNodeObjectNode);
+        u32 mask = __osDisableInt();
+
+        u8 shadowType;
+        switch(node->shadowType) {
+            case LEGACY_SHADOW_CIRCLE_9_VERTS:
+            case LEGACY_SHADOW_CIRCLE_4_VERTS:
+            case LEGACY_SHADOW_CIRCLE_PLAYER:
+            case SHADOW_CIRCLE:
+                shadowType = NEOSHADOW_TYPE_CICRLE;
+                break;
+            default:
+                shadowType = NEOSHADOW_TYPE_SQUARE;
+        }
+
+        neoshadow_obj_create(gCurGraphNodeObjectNode,node->shadowScale,shadowType);
+        __osRestoreInt(mask);
     }
 #ifndef DISABLE_SHADOWS
     if (gCurGraphNodeCamera != NULL && gCurGraphNodeObject != NULL) {
