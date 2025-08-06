@@ -44,7 +44,7 @@ fontChar sCharListSM64DS[UTF8_COUNT] = {
     },
     [UTF8_COMMA] = {
         .utf8code = 0x2C,
-        .xUv = 361,
+        .xUv = 362,
         .tex = sm64DS_latin_i4,
         .size = 2,
     },
@@ -56,7 +56,7 @@ fontChar sCharListSM64DS[UTF8_COUNT] = {
     },
     [UTF8_PERIOD] = {
         .utf8code = '.',
-        .xUv = 355,
+        .xUv = 356,
         .tex = sm64DS_latin_i4,
         .size = 2,
     },
@@ -114,7 +114,7 @@ fontChar sCharListSM64DS[UTF8_COUNT] = {
     },
     [UTF8_9] = {
         .utf8code = '9',
-        .xUv = 348,
+        .xUv = 349,
         .tex = sm64DS_latin_i4,
         .size = 6
     },
