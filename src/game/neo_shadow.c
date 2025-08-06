@@ -26,6 +26,11 @@ const Gfx dl_neo_shadow_mesh[] = {
     gsSPEndDisplayList(),
 };
 
+const Gfx dl_neo_shadow_end[] = {
+    gsSPSetGeometryMode(G_LIGHTING | G_CULL_BACK),
+    gsDPSetCombineMode(G_CC_SHADE, G_CC_SHADE),
+    gsSPEndDisplayList(),  
+};
 
 #include "engine/math_util.h"
 
@@ -143,6 +148,7 @@ void neoshadow_render(void) {
             }
         }
     }
+    gSPDisplayList(dlh++,dl_neo_shadow_end);
     gSPEndDisplayList(dlh++);
 
     geo_append_display_list(dl, LAYER_TRANSPARENT_DECAL);
