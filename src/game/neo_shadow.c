@@ -11,6 +11,7 @@
 #include "neo_shadow.h"
 #include "worldspace_visual_debug.h"
 #include "segment2.h"
+#include "level_update.h"
 
 static const Vtx vertex_neo_shadow[] = {
     {{{    -1,      0,     -1}, 0, { -2048,  -2048}, {0xff, 0xff, 0xff, 0xff}}},
@@ -32,7 +33,32 @@ neoShadow sNeoShadowList[MAX_NEO_SHADOWS];
 Gfx * sNeoShadowTextures[NEOSHADOW_RENDER_PASS_CT] = {
     [NEOSHADOW_TYPE_CICRLE] = dl_shadow_circle,
     [NEOSHADOW_TYPE_SQUARE] = dl_shadow_square,
+    [NEOSHADOW_TYPE_COIN] = dl_shadow_coin,
 };
+
+s32 neoshadow_dim_with_distance(f32 distFromFloor) {
+    u8 solidity = 180;
+    if (solidity < 121) {
+        return solidity;
+    } else if (distFromFloor <= 0.0f) {
+        return solidity;
+    } else if (distFromFloor >= 600.0f) {
+        return 120;
+    } else {
+        return (((120 - solidity) * distFromFloor) / 600.0f) + (f32) solidity;
+    }
+}
+
+f32 neoshadow_scale_with_distance(f32 distFromFloor) {
+    f32 initial = 1.0f;
+    if (distFromFloor <= 0.0f) {
+        return initial;
+    } else if (distFromFloor >= 600.0f) {
+        return initial * 0.5f;
+    } else {
+        return initial * (1.0f - ((distFromFloor * 0.5f) / 600.0f));
+    }
+}
 
 void neoshadow_cast(neoShadow * s, struct Object * obj) {
     struct Surface * floor;
@@ -47,8 +73,10 @@ void neoshadow_cast(neoShadow * s, struct Object * obj) {
         s->normal[2] = floor->normal.z;
 
         f32 baseScale = (f32)s->baseScale;
-        s->scale[0] = baseScale * obj->header.gfx.scale[0];
-        s->scale[1] = baseScale * obj->header.gfx.scale[2];
+        f32 scale = neoshadow_scale_with_distance(obj->oPosY - h) * baseScale;
+
+        s->scale[0] = scale * obj->header.gfx.scale[0];
+        s->scale[1] = scale * obj->header.gfx.scale[2];
     }
 }
 
@@ -95,19 +123,21 @@ void neoshadow_render(void) {
         gSPDisplayList(dlh++,sNeoShadowTextures[j]);
         for (int i = 0; i < MAX_NEO_SHADOWS; i++) {
             neoShadow * s = &sNeoShadowList[i];
-            if (s->type == j && s->initialized) {
+            if (s->type == j && s->initialized && s->scale[0] > 0.0f) {
                 frameLerpPos(s->pos,s->posLerp);
                 s->scaleLerp[0] = frameLerpFloat(s->scale[0],s->scaleLerp[0]);
                 s->scaleLerp[1] = frameLerpFloat(s->scale[1],s->scaleLerp[1]);
                 s->yawLerp = frameLerpShort(s->yaw,s->yawLerp);
 
+                f32 ydist = s->owner->oPosY-s->pos[1];
                 Mat4 shadowMat;
-                Vec3f scale = {s->scaleLerp[0],s->scaleLerp[0],s->scaleLerp[1]};
-                mtxf_shadow(shadowMat,s->normal,s->posLerp,scale,s->yawLerp);
+                Vec3f scalev = {s->scaleLerp[0],s->scaleLerp[0],s->scaleLerp[1]};
+                mtxf_shadow(shadowMat,s->normal,s->posLerp,scalev,s->yawLerp);
 
                 Mtx *mtx = alloc_display_list(sizeof(*mtx));
                 mtxf_to_mtx(mtx, shadowMat);
 
+                gDPSetEnvColor(dlh++,0,0,0,neoshadow_dim_with_distance(ydist));
                 gSPMatrix(dlh++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
                 gSPDisplayList(dlh++,dl_neo_shadow_mesh);
             }
@@ -123,7 +153,7 @@ void neoshadow_logic(void) {
         neoShadow * s = &sNeoShadowList[i];
         if (s->initialized && !s->overridden) {
             struct Object * obj = s->owner;
-            f32 dsqrd = sqr(obj->oPosX - s->pos[0]) + sqr(obj->oPosY - s->pos[1]) + sqr(obj->oPosZ - s->pos[2]);
+            f32 dsqrd = sqr(gMarioState->pos[0] - s->pos[0]) + sqr(gMarioState->pos[1] - s->pos[1]) + sqr(gMarioState->pos[2] - s->pos[2]);
             if (dsqrd <= 4000000.0f) {
                 neoshadow_cast(s,obj);
             } else {

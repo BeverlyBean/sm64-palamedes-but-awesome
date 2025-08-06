@@ -47,7 +47,11 @@ void coin_obj_create(int type) {
     coinList[i].initialized = TRUE;
 
     if (o->shadow == NULL) {
-        neoshadow_obj_create(o,50,NEOSHADOW_TYPE_SQUARE);
+        s16 baseScale = 75;
+        if (type == 2) {
+            baseScale = 112;
+        }
+        neoshadow_obj_create(o,baseScale,NEOSHADOW_TYPE_COIN);
     }
 }
 
@@ -141,7 +145,7 @@ void coin_logic(void) {
     for (int i = 0; i < MAX_COINS; i++) {
         if (coinList[i].initialized && coinList[i].obj->shadow) {
             neoShadow * s = coinList[i].obj->shadow;
-            s->yaw = sCoinAngle+0x800;
+            s->yaw = sCoinAngle+0x800+gLakituState.yaw;
         }
     }
 }

@@ -63,6 +63,9 @@ f32 frameLerpFloat(f32 f, f32 lerpValue) {
 }
 
 s16 frameLerpShort(s16 v, s16 lerpValue) {
+    if (abs_angle_diff(v,lerpValue) > 0x3000) {
+        return v;
+    }
     if (gFrameLerpRenderFrame == FRAMELERP_NORMAL) {
         return v;
     } else {

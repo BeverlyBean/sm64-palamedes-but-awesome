@@ -13,6 +13,7 @@ Features:
 - Custom collision transformation for deformable collision (`surface_load.h` extended)
 - Collision surface materials (`surface_material.h`) (currently being serviced, broken)
 - Coin render batching system (`coin.h`)
+- Shadow render batching system (`neo_shadow.h`)
 - World space visual debug (`worldspace_visual_debug.h`)
 
 # ![](https://i.imgur.com/CeOukzk.gif) HackerSM64 ![](https://i.imgur.com/s0LUbTo.gif)
