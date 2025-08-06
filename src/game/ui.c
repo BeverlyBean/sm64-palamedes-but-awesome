@@ -23,7 +23,6 @@ int sUiCurrLayer = 0;
 
 uiid gUiidScreen;
 
-uiid sUiidDebugText;
 uiid sUiidHudTrans[2];
 uiid sUiidHudText[2];
 f32 sUiidHudEmphasisTimer[2];
@@ -473,8 +472,6 @@ void ui_logic(void) {
             }
         }
     }
-    // Debug text
-    //ui_object_ptr(sUiidDebugText)->printInt[0] = main_pool_available()/80000;
 
     // Hud
     for (int i = 0; i < 2; i++) {
@@ -533,9 +530,4 @@ void ui_init(void) {
 
     sUiidHudEmphasisTimer[0] = -10.0f;
     sUiidHudEmphasisTimer[1] = -10.0f;
-
-
-    //uiid debugTextT = ui_create_transform(gUiidScreen);
-    //ui_set_trans_xy(debugTextT,10,220);
-    //sUiidDebugText = ui_create_text(debugTextT,TEXT_DEBUG_RAM);
 }

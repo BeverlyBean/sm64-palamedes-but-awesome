@@ -15,6 +15,7 @@ Features:
 - Coin render batching system (`coin.h`)
 - Shadow render batching system (`neo_shadow.h`)
 - World space visual debug (`worldspace_visual_debug.h`)
+- Quick & easy debug tracker for any variable (`debug_tracker.h`)
 
 # ![](https://i.imgur.com/CeOukzk.gif) HackerSM64 ![](https://i.imgur.com/s0LUbTo.gif)
 

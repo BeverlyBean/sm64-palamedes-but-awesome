@@ -36,6 +36,8 @@
 #include "src/game/event_dialog.h"
 #include "src/data/event_externs.h"
 
+f32 sDebugRamTrack;
+
 /**************************************************
  *                    ANIMATIONS                  *
  **************************************************/
@@ -1747,6 +1749,10 @@ void set_mario_lookat(void) {
 s32 execute_mario_action(UNUSED struct Object *obj) {
     s32 inLoop = TRUE;
     gMarioState->canInteractInterest = FALSE;
+
+    sDebugRamTrack = main_pool_available()/80000.0f;
+    debug_f32(&sDebugRamTrack,"Ram Remaining *");
+    debug_vec3f(&gMarioState->pos,"Mario Pos");
 
     set_mario_lookat();
     set_mario_interest();
