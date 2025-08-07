@@ -12,6 +12,7 @@
 #include "worldspace_visual_debug.h"
 #include "segment2.h"
 #include "level_update.h"
+#include "special_shadow.h"
 
 static const Vtx vertex_neo_shadow[] = {
     {{{    -1,      0,     -1}, 0, { -2048,  -2048}, {0xff, 0xff, 0xff, 0xff}}},
@@ -20,13 +21,13 @@ static const Vtx vertex_neo_shadow[] = {
     {{{     1,      0,      1}, 0, {  2048,   2048}, {0xff, 0xff, 0xff, 0xff}}},
 };
 
-const Gfx dl_neo_shadow_mesh[] = {
+Gfx dl_neo_shadow_mesh[] = {
     gsSPVertex(vertex_neo_shadow, 4, 0),
     gsSP2Triangles( 0,  2,  1, 0x0,  1,  2,  3, 0x0),
     gsSPEndDisplayList(),
 };
 
-const Gfx dl_neo_shadow_end[] = {
+Gfx dl_neo_shadow_end[] = {
     gsSPSetGeometryMode(G_LIGHTING | G_CULL_BACK),
     gsDPSetCombineMode(G_CC_SHADE, G_CC_SHADE),
     gsSPEndDisplayList(),  
@@ -39,6 +40,7 @@ Gfx * sNeoShadowTextures[NEOSHADOW_RENDER_PASS_CT] = {
     [NEOSHADOW_TYPE_CICRLE] = dl_shadow_circle,
     [NEOSHADOW_TYPE_SQUARE] = dl_shadow_square,
     [NEOSHADOW_TYPE_COIN] = dl_shadow_coin,
+    [NEOSHADOW_TYPE_MARIO] = dl_shadow_special,
 };
 
 s32 neoshadow_dim_with_distance(f32 distFromFloor) {
@@ -123,9 +125,13 @@ int neoshadow_count(void) {
 void neoshadow_render(void) {
     Gfx * dlh = alloc_display_list(sizeof(Gfx)* ((10*neoshadow_count())+10) );
     Gfx * dl = dlh;
+    Gfx * shadowMesh = dl_neo_shadow_mesh;
 
     for (int j = 0; j < NEOSHADOW_RENDER_PASS_CT; j++) {
         gSPDisplayList(dlh++,sNeoShadowTextures[j]);
+        if (j == NEOSHADOW_TYPE_MARIO) {
+            shadowMesh = dl_shadow_special_tri;
+        }
         for (int i = 0; i < MAX_NEO_SHADOWS; i++) {
             neoShadow * s = &sNeoShadowList[i];
             if (s->type == j && s->initialized && s->scale[0] > 0.0f) {
@@ -144,7 +150,7 @@ void neoshadow_render(void) {
 
                 gDPSetEnvColor(dlh++,0,0,0,neoshadow_dim_with_distance(ydist));
                 gSPMatrix(dlh++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-                gSPDisplayList(dlh++,dl_neo_shadow_mesh);
+                gSPDisplayList(dlh++,shadowMesh);
             }
         }
     }

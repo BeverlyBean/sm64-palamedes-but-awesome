@@ -4,8 +4,8 @@
 #ifndef SPECIAL_SHADOW_H
 #define SPECIAL_SHADOW_H
 
-extern const Gfx dl_shadow_special[];
-extern const Gfx dl_shadow_special_tri[];
+extern Gfx dl_shadow_special[];
+extern Gfx dl_shadow_special_tri[];
 
 typedef struct {
     Mat4 transform;

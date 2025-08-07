@@ -47,9 +47,9 @@ void coin_obj_create(int type) {
     coinList[i].initialized = TRUE;
 
     if (o->shadow == NULL) {
-        s16 baseScale = 75;
+        s16 baseScale = 70;
         if (type == 2) {
-            baseScale = 112;
+            baseScale = 105;
         }
         neoshadow_obj_create(o,baseScale,NEOSHADOW_TYPE_COIN);
     }

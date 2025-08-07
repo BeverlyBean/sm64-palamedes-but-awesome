@@ -35,6 +35,7 @@
 #include "cubic_volume.h"
 #include "src/game/event_dialog.h"
 #include "src/data/event_externs.h"
+#include "neo_shadow.h"
 
 f32 sDebugRamTrack;
 
@@ -1753,6 +1754,11 @@ s32 execute_mario_action(UNUSED struct Object *obj) {
     sDebugRamTrack = main_pool_available()/80000.0f;
     debug_f32(&sDebugRamTrack,"Ram Remaining *");
     debug_vec3f(&gMarioState->pos,"Mario Pos");
+
+    if (gMarioObject->shadow) {
+        neoShadow * s = gMarioObject->shadow;
+        s->type = NEOSHADOW_TYPE_MARIO;
+    }
 
     set_mario_lookat();
     set_mario_interest();

@@ -4,7 +4,7 @@
 
 u8 special_shadow_texture_rgba16[4096];
 
-const Gfx dl_shadow_special[] = {
+Gfx dl_shadow_special[] = {
     gsDPPipeSync(),
     gsSPClearGeometryMode(G_LIGHTING | G_CULL_BACK),
     gsSPTexture(0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON),
@@ -22,7 +22,7 @@ static const Vtx vertex_special_shadow[] = {
     {{{     1,      0,      1}, 0, { ( 2048+2048)/2,  ( 2048+2048)/2}, {0xff, 0xff, 0xff, 0xff}}},
 };
 
-const Gfx dl_shadow_special_tri[] = {
+Gfx dl_shadow_special_tri[] = {
     gsSPVertex(vertex_special_shadow, 4, 0),
     gsSP2Triangles( 0,  2,  1, 0x0,  1,  2,  3, 0x0),
     gsDPPipeSync(),
