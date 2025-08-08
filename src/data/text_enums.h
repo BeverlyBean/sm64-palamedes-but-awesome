@@ -2,10 +2,16 @@
 #define TEXT_ENUMS_H
 
 enum {
+    // Hud Strings
     TEXT_COINS,
     TEXT_STARS,
+    TEXT_PAUSE,
+
+    // Debug Strings
     TEXT_DEBUG_RAM,
     TEXT_DEBUG_DELETED,
+
+    // Test Strings
     TEXT_TEST,
     TEXT_TEST_2,
     TEXT_TEST_3,

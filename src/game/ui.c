@@ -11,6 +11,15 @@
 #include "data/text_enums.h"
 #include "text_load.h"
 #include "level_update.h"
+#include "geo_misc.h"
+
+const Gfx dl_ui_draw_text_bg_box[] = {
+    gsDPPipeSync(),
+    gsSPClearGeometryMode(G_LIGHTING),
+    gsDPSetCombineMode(G_CC_FADE, G_CC_FADE),
+    gsDPSetRenderMode(G_RM_XLU_SURF, G_RM_XLU_SURF2),
+    gsSPEndDisplayList(),
+};
 
 Mat4 sUiMatStack[5];
 int sUiMatStackIndex = 0;
@@ -18,14 +27,17 @@ int sUiMatStackIndex = 0;
 uiTrans sUiTransList[UI_TRANS_COUNT];
 uiObject sUiObjectList[UI_OBJECT_COUNT];
 char sUiCharBuffer[200];
-
 int sUiCurrLayer = 0;
 
 uiid gUiidScreen;
 
+uiid sUiidPauseTrans;
+uiDestroySignal sPauseDestroySignal;
+
 uiid sUiidHudTrans[2];
 uiid sUiidHudText[2];
-f32 sUiidHudEmphasisTimer[2];
+f32 sHudEmphasisTimer[2];
+f32 sHudMarioMoveTimer;
 
 void ui_mtx_inc(Mat4 mat) {
     mtxf_mul(sUiMatStack[sUiMatStackIndex],mat,sUiMatStack[sUiMatStackIndex-1]);
@@ -56,6 +68,7 @@ uiid ui_create_transform(s8 parentId) {
     self->getout = FALSE;
     self->transition = 0.0f;
     self->alpha = 0;
+    self->destroySignal = NULL;
     for (int i = 0; i < 3; i++) {
         self->color[i] = 255;
     }
@@ -109,6 +122,7 @@ uiid ui_create_object(s8 parentTransId) {
     self->initialized = TRUE;
     self->uiObjectSibling = UI_NONE;
     self->printOrigin = PRINT_ORIGIN_LEFT;
+    self->alpha = 255;
 
     if (parentTransId != UI_NONE) {
         self->parentTrans = parentTransId;
@@ -133,6 +147,16 @@ uiid ui_create_object(s8 parentTransId) {
     return myId;
 }
 
+void ui_set_destroy_signal(uiid myId, uiDestroySignal * destroySignal) {
+    uiTrans * self = &sUiTransList[myId];
+    (*destroySignal) = FALSE;
+    self->destroySignal = destroySignal;
+}
+
+s32 ui_is_not_transitioning(uiid myId) {
+    return (ui_trans_ptr(myId) && ui_trans_ptr(myId)->transition == 1.0f);
+}
+
 void ui_destroy_trans(uiid myId) {
     uiTrans * self = &sUiTransList[myId];
 
@@ -151,6 +175,11 @@ void ui_destroy_trans(uiid myId) {
     }
     self->objlist = UI_NONE;
 
+    // Delete children if I have any
+    if (self->childlist != UI_NONE) {
+        ui_destroy_trans(self->childlist);
+    }
+
     // Remove self from child list
     if (self->prev == UI_NONE) {
         sUiTransList[self->parent].childlist = self->next;
@@ -166,6 +195,24 @@ void ui_destroy_trans(uiid myId) {
     self->childlist = UI_NONE;
     self->next = UI_NONE;
     self->prev = UI_NONE;
+
+    if (self->destroySignal) {
+        (*self->destroySignal) = TRUE;
+    }
+}
+
+f32 ui_trans_get_parents_alpha(uiid transParent) {
+    uiTrans * self = ui_trans_ptr(transParent);
+    if (self) {
+        f32 myAlpha = (self->alpha/255.f);
+        if (self->parent != UI_NONE) {
+            f32 parentAlpha = ui_trans_get_parents_alpha(self->parent);
+            myAlpha *= parentAlpha;
+        }
+        return myAlpha;
+    } else {
+        return 1.0f;
+    }
 }
 
 uiid ui_create_text(s8 parentTransId, s16 textId) {
@@ -192,6 +239,20 @@ uiid ui_create_slice(s8 parentTransId, nineSliceParams * p, s16 x1, s16 y1, s16 
     self->y2 = y2;
 
     self->ptr = p;
+
+    return myId;
+}
+
+uiid ui_create_rectangle(s8 parentTransId, s16 x1, s16 y1, s16 x2, s16 y2) {
+    s8 myId = ui_create_object(parentTransId);
+    uiObject * self = &sUiObjectList[myId];
+
+    self->type = UI_CLASS_BOX;
+    
+    self->x1 = x1;
+    self->y1 = y1;
+    self->x2 = x2;
+    self->y2 = y2;
 
     return myId;
 }
@@ -251,14 +312,14 @@ void ui_trans_transition_fade_in(uiid myId) {
     uiTrans * self = &sUiTransList[myId];
     self->alpha = self->transition*255.0f;
 
-    self->transition += .05f;
+    self->transition += .1f;
 }
 
 void ui_trans_transition_fade_out(uiid myId) {
     uiTrans * self = &sUiTransList[myId];
     self->alpha = (1.0f - self->transition)*255.0f;
 
-    self->transition += .05f;
+    self->transition += .1f;
 }
 
 void ui_trans_transition_instant(uiid myId) {
@@ -275,7 +336,7 @@ void ui_trans_transition_page_rip_out(uiid myId) {
     self->pos[1] -= self->transition*5.0f;
     self->rot[2] -= 0x100;
 
-    self->transition += 0.02f;
+    self->transition += 0.04f;
 }
 
 // TECHNICAL FUNCTIONS
@@ -325,7 +386,11 @@ void ui_process_ui_object(uiObject * self) {
     int x;
     int y;
     uiTrans * tp = ui_trans_ptr(self->parentTrans); 
-    gDPSetEnvColor(gDisplayListHead++, tp->color[0], tp->color[1], tp->color[2], tp->alpha);
+    f32 parentAlpha = ui_trans_get_parents_alpha(self->parentTrans);
+
+    if (tp->alpha == 0 || self->alpha == 0) {return;} // Skip render if 0 alpha
+    f32 mixAlpha = ((parentAlpha) * (self->alpha/255.f))*255.f;
+    gDPSetEnvColor(gDisplayListHead++, tp->color[0], tp->color[1], tp->color[2], mixAlpha);
 
     switch(self->type) {
         case UI_CLASS_TEXT:
@@ -370,6 +435,18 @@ void ui_process_ui_object(uiObject * self) {
             utf8_init_print();
             utf8_set_font(self->printFont);
             utf8_print(str,(-x/2)+xoffset,0);
+            break;
+        case UI_CLASS_BOX:;
+            Vtx * boxVerts = alloc_display_list(4 * sizeof(Vtx));
+
+            make_vertex(boxVerts, 0, self->x1, self->y1,         0,   0,0,   255,255,255,255);
+            make_vertex(boxVerts, 1, self->x2, self->y1,         0,   0,0,   255,255,255,255);
+            make_vertex(boxVerts, 2, self->x1, self->y2,         0,   0,0,   255,255,255,255);
+            make_vertex(boxVerts, 3, self->x2, self->y2,         0,   0,0,   255,255,255,255);
+
+            gSPDisplayList(gDisplayListHead++,dl_ui_draw_text_bg_box);
+            gSPVertex(gDisplayListHead++,boxVerts,4,0);
+            gSP2Triangles(gDisplayListHead++, 1, 0, 2, 0, 3, 1, 2, 0);
             break;
     }
 }
@@ -473,29 +550,35 @@ void ui_logic(void) {
         }
     }
 
+    if ((gMarioState->action & ACT_GROUP_MASK) == ACT_GROUP_STATIONARY) {
+        sHudMarioMoveTimer -= .01f;
+        sHudMarioMoveTimer = MAX(sHudMarioMoveTimer,0.0f);
+    } else {
+        sHudMarioMoveTimer = 1.0f;
+    }
+
     // Hud
     for (int i = 0; i < 2; i++) {
         if (sUiidHudText[i] != UI_NONE ) {
             u8 size = ui_object_ptr(sUiidHudText[i])->textXsize;
-            f32 emphasis = CLAMP(sUiidHudEmphasisTimer[i],0.0f,1.0f);
+            f32 emphasis = CLAMP(sHudEmphasisTimer[i],0.0f,1.0f);
             emphasis = smoothstep2(emphasis);
             ui_trans_ptr(sUiidHudTrans[i])->pos[0] = ((-size)+(emphasis*(f32)(22+size)));
-            ui_trans_ptr(sUiidHudTrans[i])->alpha = emphasis*255.0f;
 
-            f32 bounce = sinf((CLAMP(sUiidHudEmphasisTimer[i],3.0f,3.5f)-1.0f)*M_PI*4.0f)*3.0f;
+            f32 bounce = sinf((CLAMP(sHudEmphasisTimer[i],3.0f,3.5f)-1.0f)*M_PI*4.0f)*3.0f;
             ui_trans_ptr(sUiidHudTrans[i])->pos[1] = 209-(20*i)+bounce;
 
-            u8 emphasize = FALSE;
-            if ((gMarioState->action & ACT_GROUP_MASK) == ACT_GROUP_STATIONARY) {
-                emphasize = TRUE;
-            }
-
-            if (emphasize) {
-                sUiidHudEmphasisTimer[i] += .05f;
-                sUiidHudEmphasisTimer[i] = MIN(sUiidHudEmphasisTimer[i],3.0f);
+            if (sHudMarioMoveTimer == 0.0f) {
+                sHudEmphasisTimer[i] += .05f;
+                sHudEmphasisTimer[i] = MIN(sHudEmphasisTimer[i],3.0f);
             } else {
-                sUiidHudEmphasisTimer[i] -= .05f;
-                sUiidHudEmphasisTimer[i] = MAX(sUiidHudEmphasisTimer[i],-5.0f);
+                sHudEmphasisTimer[i] -= .05f;
+                sHudEmphasisTimer[i] = MAX(sHudEmphasisTimer[i],0.0f);
+            }
+            if (sHudEmphasisTimer[i] == 0.0f) {
+                ui_trans_ptr(sUiidHudTrans[i])->alpha = 0;
+            } else {
+                ui_trans_ptr(sUiidHudTrans[i])->alpha = 255;
             }
         }
     }
@@ -503,13 +586,13 @@ void ui_logic(void) {
         ui_object_ptr(sUiidHudText[0])->printInt[0] = gMarioState->numCoins;
         ui_trans_ptr(sUiidHudTrans[0])->posLerp[0] = 22;
         ui_trans_ptr(sUiidHudTrans[0])->pos[0] = 22;
-        sUiidHudEmphasisTimer[0] = 3.25f;
+        sHudEmphasisTimer[0] = 3.25f;
     }
     if (ui_object_ptr(sUiidHudText[1])->printInt[0] != gMarioState->numStars) {
         ui_object_ptr(sUiidHudText[1])->printInt[0] = gMarioState->numStars;
         ui_trans_ptr(sUiidHudTrans[1])->posLerp[0] = 22;
         ui_trans_ptr(sUiidHudTrans[1])->pos[0] = 22;
-        sUiidHudEmphasisTimer[1] = 3.25f;
+        sHudEmphasisTimer[1] = 3.25f;
     }
 }
 
@@ -528,6 +611,39 @@ void ui_init(void) {
     ui_object_ptr(sUiidHudText[0])->printFont = FONT_PINBALL;
     ui_object_ptr(sUiidHudText[1])->printFont = FONT_PINBALL;
 
-    sUiidHudEmphasisTimer[0] = -10.0f;
-    sUiidHudEmphasisTimer[1] = -10.0f;
+    sHudEmphasisTimer[0] = 0.0f;
+    sHudEmphasisTimer[1] = 0.0f;
+    sHudMarioMoveTimer = 0.0f;
+}
+
+// Pause screen
+
+void ui_pause_create(void) {
+    sUiidPauseTrans = ui_create_transform(gUiidScreen);
+    uiid pauseRectangle = ui_create_rectangle(sUiidPauseTrans,0,240,320,0);
+    ui_set_trans_color(sUiidPauseTrans,0,0,0);
+    ui_object_ptr(pauseRectangle)->alpha = 100;
+
+    uiid transPauseText = ui_create_transform(sUiidPauseTrans);
+    ui_create_text(transPauseText,TEXT_PAUSE);
+
+    ui_set_destroy_signal(sUiidPauseTrans,&sPauseDestroySignal);
+}
+
+void ui_pause_destroy(void) {
+    ui_trans_begin_remove(sUiidPauseTrans);
+    sUiidPauseTrans = UI_NONE;
+}
+
+// Return 1 to unpause, Return 2 for exit course.
+s32 ui_pause_logic(void) {
+    if (sPauseDestroySignal) {
+        return 1;
+    }
+    if (ui_is_not_transitioning(sUiidPauseTrans)) {
+        if (gPlayer1Controller->buttonPressed & START_BUTTON) {
+            ui_pause_destroy();
+        }
+    }
+    return 0;
 }

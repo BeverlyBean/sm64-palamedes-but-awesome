@@ -1063,7 +1063,6 @@ s32 play_mode_normal(void) {
     initiate_delayed_warp();
 
     event_system_logic_loop();
-    ui_logic();
     coin_logic();
     neoshadow_logic();
 
@@ -1081,6 +1080,7 @@ s32 play_mode_normal(void) {
 #endif
             gCameraMovementFlags |= CAM_MOVE_PAUSE_SCREEN;
             set_play_mode(PLAY_MODE_PAUSED);
+            ui_pause_create();
         }
     }
     
@@ -1088,8 +1088,20 @@ s32 play_mode_normal(void) {
 }
 
 s32 play_mode_paused(void) {
+    s32 action = ui_pause_logic();
+
+    switch(action) {
+        case 1:
+            raise_background_noise(1);
+            gCameraMovementFlags &= ~CAM_MOVE_PAUSE_SCREEN;
+            set_play_mode(PLAY_MODE_NORMAL);
+            break;
+    }
+
+    return FALSE;
+
     if (gMenuOptSelectIndex == MENU_OPT_NONE) {
-        set_menu_mode(MENU_MODE_RENDER_PAUSE_SCREEN);
+        //set_menu_mode(MENU_MODE_RENDER_PAUSE_SCREEN);
     } else if (gMenuOptSelectIndex == MENU_OPT_DEFAULT) {
         raise_background_noise(1);
         gCameraMovementFlags &= ~CAM_MOVE_PAUSE_SCREEN;
@@ -1220,6 +1232,8 @@ s32 update_level(void) {
     if (gMenuOptSelectIndex != 0) {
         gSaveOptSelectIndex = gMenuOptSelectIndex;
     }
+
+    ui_logic();
 
     switch (sCurrPlayMode) {
         case PLAY_MODE_NORMAL:
