@@ -83,12 +83,15 @@ void coin_render(void) {
     Gfx * dlh = alloc_display_list(sizeof(Gfx)* ((10*coin_count())+10) );
     Gfx * dl = dlh;
 
+    Vec3f cameraVector; vec3f_diff(cameraVector,gLakituState.pos,gLakituState.focus);
+    s16 camAngle = atan2s(cameraVector[2],cameraVector[0]);
+
     sCoinAngle += 0x800*gFrameLerpDeltaTime;
     if (sCoinAngle > 0x4000) {
         sCoinAngle -= 0x8000;
     }
 
-    Vec3s rotation = {0,sCoinAngle+gLakituState.yaw,0};
+    Vec3s rotation = {0,sCoinAngle+camAngle,0};
     Vec3f vz = {0,0,0};
     mtxf_rotate_zxy_and_translate(sCoinTransform,vz,rotation);
 
@@ -107,7 +110,7 @@ void coin_render(void) {
                 gDPSetEnvColor(dlh++,255,40,40,255);
                 break;
             case 2:
-                gDPSetEnvColor(dlh++,60,30,255,255);
+                gDPSetEnvColor(dlh++,0x80,0x80,255,255);
                 //scale
                 for (int i = 0; i < 9; i++) {
                     u8 r = i%3;
@@ -142,10 +145,13 @@ void coin_render(void) {
 }
 
 void coin_logic(void) {
+    Vec3f cameraVector; vec3f_diff(cameraVector,gLakituState.pos,gLakituState.focus);
+    s16 camAngle = atan2s(cameraVector[2],cameraVector[0]);
+
     for (int i = 0; i < MAX_COINS; i++) {
         if (coinList[i].initialized && coinList[i].obj->shadow) {
             neoShadow * s = coinList[i].obj->shadow;
-            s->yaw = sCoinAngle+0x800+gLakituState.yaw;
+            s->yaw = sCoinAngle+0x800+camAngle;
         }
     }
 }

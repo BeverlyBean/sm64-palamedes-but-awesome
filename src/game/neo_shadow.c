@@ -134,7 +134,7 @@ void neoshadow_render(void) {
         }
         for (int i = 0; i < MAX_NEO_SHADOWS; i++) {
             neoShadow * s = &sNeoShadowList[i];
-            if (s->type == j && s->initialized && s->scale[0] > 0.0f) {
+            if (s->type == j && s->initialized && (!(s->owner->header.gfx.node.flags & GRAPH_RENDER_INVISIBLE)) && s->scale[0] > 0.0f) {
                 frameLerpPos(s->pos,s->posLerp);
                 s->scaleLerp[0] = frameLerpFloat(s->scale[0],s->scaleLerp[0]);
                 s->scaleLerp[1] = frameLerpFloat(s->scale[1],s->scaleLerp[1]);
