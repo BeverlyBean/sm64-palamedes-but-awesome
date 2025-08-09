@@ -1008,7 +1008,7 @@ Gfx testbridge_testbridge_mesh_layer_1_tri_7[] = {
 	gsSPEndDisplayList(),
 };
 
-Vtx testbridge_testbridge_mesh_layer_1_vtx_8[27] = {
+Vtx testbridge_testbridge_mesh_layer_1_vtx_8[55] = {
 	{{ {4991, 947, 185}, 0, {0, 7705}, {210, 118, 0, 255} }},
 	{{ {5711, 1272, 585}, 0, {4095, 11391}, {229, 124, 0, 255} }},
 	{{ {5711, 1272, 185}, 0, {0, 11391}, {229, 124, 0, 255} }},
@@ -1036,21 +1036,6 @@ Vtx testbridge_testbridge_mesh_layer_1_vtx_8[27] = {
 	{{ {5711, 1272, 185}, 0, {0, 11391}, {0, 0, 129, 255} }},
 	{{ {5886, 1272, 185}, 0, {0, 12288}, {0, 0, 129, 255} }},
 	{{ {5886, 1242, 185}, 0, {0, 12288}, {0, 0, 129, 255} }},
-};
-
-Gfx testbridge_testbridge_mesh_layer_1_tri_8[] = {
-	gsSPVertex(testbridge_testbridge_mesh_layer_1_vtx_8 + 0, 27, 0),
-	gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
-	gsSP2Triangles(3, 5, 6, 0, 0, 7, 8, 0),
-	gsSP2Triangles(7, 0, 9, 0, 7, 9, 10, 0),
-	gsSP2Triangles(11, 12, 13, 0, 11, 13, 14, 0),
-	gsSP2Triangles(15, 16, 17, 0, 15, 17, 18, 0),
-	gsSP2Triangles(19, 20, 21, 0, 19, 21, 22, 0),
-	gsSP2Triangles(23, 24, 25, 0, 23, 25, 26, 0),
-	gsSPEndDisplayList(),
-};
-
-Vtx testbridge_testbridge_mesh_layer_1_vtx_9[28] = {
 	{{ {1111, 467, 585}, 0, {4096, 1063}, {3, 127, 0, 255} }},
 	{{ {1111, 467, 185}, 0, {0, 1063}, {3, 127, 0, 255} }},
 	{{ {886, 467, 185}, 0, {0, 0}, {0, 127, 0, 255} }},
@@ -1081,19 +1066,27 @@ Vtx testbridge_testbridge_mesh_layer_1_vtx_9[28] = {
 	{{ {1111, 467, 585}, 0, {4096, 1063}, {3, 127, 0, 255} }},
 };
 
-Gfx testbridge_testbridge_mesh_layer_1_tri_9[] = {
-	gsSPVertex(testbridge_testbridge_mesh_layer_1_vtx_9 + 0, 28, 0),
+Gfx testbridge_testbridge_mesh_layer_1_tri_8[] = {
+	gsSPVertex(testbridge_testbridge_mesh_layer_1_vtx_8 + 0, 31, 0),
+	gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
+	gsSP2Triangles(3, 5, 6, 0, 0, 7, 8, 0),
+	gsSP2Triangles(7, 0, 9, 0, 7, 9, 10, 0),
+	gsSP2Triangles(11, 12, 13, 0, 11, 13, 14, 0),
+	gsSP2Triangles(15, 16, 17, 0, 15, 17, 18, 0),
+	gsSP2Triangles(19, 20, 21, 0, 19, 21, 22, 0),
+	gsSP2Triangles(23, 24, 25, 0, 23, 25, 26, 0),
+	gsSP2Triangles(27, 28, 29, 0, 27, 29, 30, 0),
+	gsSPVertex(testbridge_testbridge_mesh_layer_1_vtx_8 + 31, 24, 0),
 	gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
 	gsSP2Triangles(4, 5, 6, 0, 4, 6, 7, 0),
 	gsSP2Triangles(8, 9, 10, 0, 8, 10, 11, 0),
 	gsSP2Triangles(12, 13, 14, 0, 12, 14, 15, 0),
 	gsSP2Triangles(16, 17, 18, 0, 16, 18, 19, 0),
 	gsSP2Triangles(20, 21, 22, 0, 20, 22, 23, 0),
-	gsSP2Triangles(24, 25, 26, 0, 24, 26, 27, 0),
 	gsSPEndDisplayList(),
 };
 
-Vtx testbridge_testbridge_mesh_layer_1_vtx_10[40] = {
+Vtx testbridge_testbridge_mesh_layer_1_vtx_9[40] = {
 	{{ {1011, 607, 215}, 0, {0, 0}, {0, 0, 127, 255} }},
 	{{ {1011, 467, 215}, 0, {0, 1024}, {0, 0, 127, 255} }},
 	{{ {1111, 467, 215}, 0, {643, 1024}, {0, 0, 127, 255} }},
@@ -1136,8 +1129,8 @@ Vtx testbridge_testbridge_mesh_layer_1_vtx_10[40] = {
 	{{ {5711, 1272, 215}, 0, {28189, 1024}, {0, 0, 127, 255} }},
 };
 
-Gfx testbridge_testbridge_mesh_layer_1_tri_10[] = {
-	gsSPVertex(testbridge_testbridge_mesh_layer_1_vtx_10 + 0, 32, 0),
+Gfx testbridge_testbridge_mesh_layer_1_tri_9[] = {
+	gsSPVertex(testbridge_testbridge_mesh_layer_1_vtx_9 + 0, 32, 0),
 	gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
 	gsSP2Triangles(3, 2, 4, 0, 3, 4, 5, 0),
 	gsSP2Triangles(5, 4, 6, 0, 5, 6, 7, 0),
@@ -1152,7 +1145,7 @@ Gfx testbridge_testbridge_mesh_layer_1_tri_10[] = {
 	gsSP2Triangles(25, 24, 26, 0, 25, 26, 27, 0),
 	gsSP2Triangles(27, 26, 28, 0, 27, 28, 29, 0),
 	gsSP2Triangles(30, 29, 28, 0, 30, 31, 29, 0),
-	gsSPVertex(testbridge_testbridge_mesh_layer_1_vtx_10 + 32, 8, 0),
+	gsSPVertex(testbridge_testbridge_mesh_layer_1_vtx_9 + 32, 8, 0),
 	gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
 	gsSP2Triangles(4, 5, 6, 0, 4, 6, 7, 0),
 	gsSPEndDisplayList(),
@@ -1407,39 +1400,6 @@ Gfx mat_revert_testbridge_f3dlite_material_190_layer1[] = {
 	gsSPEndDisplayList(),
 };
 
-Gfx mat_testbridge_f3dlite_material_312_layer1[] = {
-	gsSPClearGeometryMode(G_CULL_BACK),
-	gsDPPipeSync(),
-	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, TEXEL0, PRIMITIVE, 0, COMBINED, 0, 0, 0, 0, COMBINED),
-	gsDPSetAlphaDither(G_AD_NOISE),
-	gsDPSetTextureLUT(G_TT_RGBA16),
-	gsDPSetCycleType(G_CYC_2CYCLE),
-	gsDPPipelineMode(G_PM_NPRIMITIVE),
-	gsDPSetRenderMode(G_RM_PASS, G_RM_AA_ZB_TEX_EDGE2),
-	gsSPTexture(65535, 65535, 0, 0, 1),
-	gsDPSetPrimColor(0, 128, 178, 178, 178, 255),
-	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, testbridge_Z2_KAIZOKUTex_00F4C0_ci8_png_001_pal_rgba16),
-	gsDPSetTile(0, 0, 0, 256, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
-	gsDPLoadTLUTCmd(5, 52),
-	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_8b_LOAD_BLOCK, 1, testbridge_Z2_KAIZOKUTex_00F4C0_ci8_png_001_ci8),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
-	gsDPLoadBlock(7, 0, 0, 1023, 256),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b, 8, 0, 0, 0, G_TX_CLAMP | G_TX_NOMIRROR, 5, 0, G_TX_CLAMP | G_TX_MIRROR, 6, 0),
-	gsDPSetTileSize(0, 0, 0, 508, 1532),
-	gsSPEndDisplayList(),
-};
-
-Gfx mat_revert_testbridge_f3dlite_material_312_layer1[] = {
-	gsSPSetGeometryMode(G_CULL_BACK),
-	gsDPPipeSync(),
-	gsDPSetAlphaDither(G_AD_DISABLE),
-	gsDPSetTextureLUT(G_TT_NONE),
-	gsDPSetCycleType(G_CYC_1CYCLE),
-	gsDPPipelineMode(G_PM_1PRIMITIVE),
-	gsDPSetRenderMode(G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2),
-	gsSPEndDisplayList(),
-};
-
 Gfx mat_testbridge_f3dlite_material_313_layer1[] = {
 	gsSPClearGeometryMode(G_CULL_BACK),
 	gsDPPipeSync(),
@@ -1531,14 +1491,11 @@ Gfx testbridge_testbridge_mesh_layer_1[] = {
 	gsSPDisplayList(mat_testbridge_f3dlite_material_190_layer1),
 	gsSPDisplayList(testbridge_testbridge_mesh_layer_1_tri_7),
 	gsSPDisplayList(mat_revert_testbridge_f3dlite_material_190_layer1),
-	gsSPDisplayList(mat_testbridge_f3dlite_material_312_layer1),
-	gsSPDisplayList(testbridge_testbridge_mesh_layer_1_tri_8),
-	gsSPDisplayList(mat_revert_testbridge_f3dlite_material_312_layer1),
 	gsSPDisplayList(mat_testbridge_f3dlite_material_313_layer1),
-	gsSPDisplayList(testbridge_testbridge_mesh_layer_1_tri_9),
+	gsSPDisplayList(testbridge_testbridge_mesh_layer_1_tri_8),
 	gsSPDisplayList(mat_revert_testbridge_f3dlite_material_313_layer1),
 	gsSPDisplayList(mat_testbridge_f3dlite_material_314_layer1),
-	gsSPDisplayList(testbridge_testbridge_mesh_layer_1_tri_10),
+	gsSPDisplayList(testbridge_testbridge_mesh_layer_1_tri_9),
 	gsSPDisplayList(mat_revert_testbridge_f3dlite_material_314_layer1),
 	gsDPPipeSync(),
 	gsSPSetGeometryMode(G_LIGHTING),

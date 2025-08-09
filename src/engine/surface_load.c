@@ -335,8 +335,8 @@ static void load_static_surfaces(TerrainData **data, TerrainData *vertexData, s3
     struct Surface *surface;
     RoomData room = 0;
 
-    s32 type = surfaceType;// & SURFACE_MASK_TYPE;
-    //s32 material = (surfaceType >> 12);
+    s32 type = surfaceType & SURFACE_MASK_TYPE;
+    s32 material = (surfaceType >> 12);
 
 #ifndef ALL_SURFACES_HAVE_FORCE
     s16 hasForce = surface_has_force(type);
@@ -354,7 +354,7 @@ static void load_static_surfaces(TerrainData **data, TerrainData *vertexData, s3
         if (surface != NULL) {
             surface->room = room;
             surface->type = type;
-            //surface->material = material;
+            surface->material = material;
             surface->flags = flags;
 
 #ifdef ALL_SURFACES_HAVE_FORCE
@@ -611,11 +611,14 @@ void load_object_surfaces(TerrainData **data, TerrainData *vertexData, u32 dynam
     s32 surfaceType = *(*data)++;
     s32 numSurfaces = *(*data)++;
 
+    s32 type = surfaceType & SURFACE_MASK_TYPE;
+    s32 material = (surfaceType >> 12);
+
 #ifndef ALL_SURFACES_HAVE_FORCE
-    TerrainData hasForce = surface_has_force(surfaceType);
+    TerrainData hasForce = surface_has_force(type);
 #endif
 
-    s32 flags = surf_has_no_cam_collision(surfaceType) | (dynamic ? SURFACE_FLAG_DYNAMIC : 0);
+    s32 flags = surf_has_no_cam_collision(type) | (dynamic ? SURFACE_FLAG_DYNAMIC : 0);
 
     // The DDD warp is initially loaded at the origin and moved to the proper
     // position in paintings.c and doesn't update its room, so set it here.
@@ -626,7 +629,8 @@ void load_object_surfaces(TerrainData **data, TerrainData *vertexData, u32 dynam
 
         if (surface != NULL) {
             surface->object = o;
-            surface->type = surfaceType;
+            surface->type = type;
+            surface->material = material;
 
 #ifdef ALL_SURFACES_HAVE_FORCE
             surface->force = *(*data + 3);
@@ -789,6 +793,9 @@ void load_dynamic_surfaces_custom(TerrainData **data, TerrainData *vertexData, u
     s32 surfaceType = *(*data)++;
     s32 numSurfaces = *(*data)++;
 
+    s32 type = surfaceType & SURFACE_MASK_TYPE;
+    s32 material = (surfaceType >> 12);
+
 #ifndef ALL_SURFACES_HAVE_FORCE
     TerrainData hasForce = surface_has_force(surfaceType);
 #endif
@@ -797,7 +804,8 @@ void load_dynamic_surfaces_custom(TerrainData **data, TerrainData *vertexData, u
         struct Surface *surface = read_surface_data(vertexData, data, dynamic);
 
         if (surface != NULL) {
-            surface->type = surfaceType;
+            surface->type = type;
+            surface->material = material;
 
 #ifdef ALL_SURFACES_HAVE_FORCE
             surface->force = *(*data + 3);

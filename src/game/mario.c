@@ -466,8 +466,9 @@ s8 sTerrainSounds[7][6] = {
  * This depends on surfaces and terrain.
  */
 u32 mario_get_terrain_sound_addend(struct MarioState *m) {
-    s16 floorSoundType;
-    s16 terrainType = m->area->terrainType & TERRAIN_MASK;
+    //s16 floorSoundType;
+    //s16 terrainType = m->area->terrainType & TERRAIN_MASK;
+    
     s32 ret = SOUND_TERRAIN_DEFAULT << 16;
     s32 floorType;
 
@@ -480,6 +481,7 @@ u32 mario_get_terrain_sound_addend(struct MarioState *m) {
         } else if (SURFACE_IS_QUICKSAND(floorType)) {
             ret = SOUND_TERRAIN_SAND << 16;
         } else {
+            /*
             switch (floorType) {
                 default:
                     floorSoundType = 0;
@@ -519,8 +521,8 @@ u32 mario_get_terrain_sound_addend(struct MarioState *m) {
             }
 
             ret = sTerrainSounds[terrainType][floorSoundType] << 16;
-
-            //ret = surfaceMaterialList[m->floor->material]->sound << 16;
+            */
+            ret = surfaceMaterialList[m->floor->material]->sound << 16;
         }
     }
 
