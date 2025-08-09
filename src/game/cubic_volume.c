@@ -42,8 +42,10 @@ void cubic_volume_reset(void) {
 }
 
 CubicVolume * cubic_volume_add(void) {
-    return &sCubicVolumeList[sCubicVolumeCount];
-    sCubicVolumeCount++;
+    if (sCubicVolumeCount < CUBIC_VOLUME_MAX) {
+        sCubicVolumeCount++;
+    }
+    return &sCubicVolumeList[sCubicVolumeCount-1];
 }
 
 s32 cubic_volume_point_inside_volume(Vec3f p, CubicVolume * v) {
@@ -78,7 +80,7 @@ s32 cubic_volume_point_inside_volume(Vec3f p, CubicVolume * v) {
 }
 
 CubicVolume * cubic_volume_check_one(Vec3f pos, int cubicVolumeType) {
-    for (int i = 0; i < CUBIC_VOLUME_MAX; i++) {
+    for (int i = 0; i < sCubicVolumeCount; i++) {
         CubicVolume * v = &sCubicVolumeList[i];
         if (v->type == cubicVolumeType) {
             if (cubic_volume_point_inside_volume(pos,v)) {
@@ -90,7 +92,7 @@ CubicVolume * cubic_volume_check_one(Vec3f pos, int cubicVolumeType) {
 }
 
 void cubic_volume_check_all(Vec3f pos, int cubicVolumeType) {
-    for (int i = 0; i < CUBIC_VOLUME_MAX; i++) {
+    for (int i = 0; i < sCubicVolumeCount; i++) {
         CubicVolume * v = &sCubicVolumeList[i];
         if (v->type == cubicVolumeType) {
             if (cubic_volume_point_inside_volume(pos,v)) {

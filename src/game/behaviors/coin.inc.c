@@ -185,7 +185,6 @@ void bhv_coin_formation_spawned_coin_loop(void) {
         o->oAnimState++;
     }
     if (o->parentObj->oAction == COIN_FORMATION_ACT_DEACTIVATE) {
-        coin_obj_destroy(o);
         obj_mark_for_deletion(o);
     }
 }

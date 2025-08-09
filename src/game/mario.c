@@ -1744,6 +1744,14 @@ void set_mario_lookat(void) {
     }
 }
 
+void mario_warp_volume(void) {
+    CubicVolume * playerWarpVolume = cubic_volume_check_one(gMarioState->pos, VOLUME_TYPE_WARP);
+    if (playerWarpVolume) {
+        level_trigger_warp(gMarioState, WARP_OP_LOOK_UP);
+        sSourceWarpNodeId = playerWarpVolume->param;
+    }
+}
+
 /**
  * Main function for executing Mario's behavior. Returns particleFlags.
  */
@@ -1762,6 +1770,7 @@ s32 execute_mario_action(UNUSED struct Object *obj) {
 
     set_mario_lookat();
     set_mario_interest();
+    mario_warp_volume();
 
     // Updates once per frame:
     vec3f_get_dist_and_angle(gMarioState->prevPos, gMarioState->pos, &gMarioState->moveSpeed, &gMarioState->movePitch, &gMarioState->moveYaw);

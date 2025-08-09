@@ -5,6 +5,7 @@
 
 #include "level_table.h"
 #include "config.h"
+#include "game/cubic_volume.h"
 
 enum LevelCommands {
     /*0x00*/ LEVEL_CMD_LOAD_AND_EXECUTE,
@@ -452,8 +453,8 @@ enum GoddardScene {
 #define SET_ECHO(console, emulator) \
     CMD_BBBB(LEVEL_CMD_SET_ECHO, 0x04, console, emulator)
 
-#define CUBIC_VOLUME(px, py, pz, sx, sy, sz, rw, rx, ry, rz) \
-    CMD_BBBB(LEVEL_CMD_CUBIC_VOLUME, 4*11, 0, 0), \
+#define CUBIC_VOLUME(px, py, pz, sx, sy, sz, rw, rx, ry, rz, type, param) \
+    CMD_BBBB(LEVEL_CMD_CUBIC_VOLUME, 4*13, 0, 0), \
     CMD_F(px), \
     CMD_F(py), \
     CMD_F(pz), \
@@ -463,7 +464,9 @@ enum GoddardScene {
     CMD_F(rw), \
     CMD_F(rx), \
     CMD_F(ry), \
-    CMD_F(rz)
+    CMD_F(rz), \
+    CMD_W(type), \
+    CMD_W(param)
 
 #define BRIDGE_START(size, collision, x, y, z) \
     CMD_BBBB(LEVEL_CMD_BRIDGE_START, 4*5, size, 0), \

@@ -3625,6 +3625,7 @@ const BehaviorScript bhvMovingYellowCoin[] = {
     SET_INT(oIntangibleTimer, 0),
     SET_INT(oAnimState, OBJ_ANIM_STATE_INIT_ANIM),
     CALL_NATIVE(bhv_moving_yellow_coin_init),
+    CALL_NATIVE(bhv_yellow_coin_render_init),
     BEGIN_LOOP(),
         CALL_NATIVE(bhv_moving_yellow_coin_loop),
         ADD_INT(oAnimState, 1),

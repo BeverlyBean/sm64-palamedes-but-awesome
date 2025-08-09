@@ -7,6 +7,7 @@
 #include "bridge.h"
 #include "level_update.h"
 #include "frame_lerp.h"
+#include "cubic_volume.h"
 
 Bridge bridgePool[5];
 int sBridgeCount = 0;
@@ -77,6 +78,8 @@ void generate_bridge_vertex(Vec3s out, Vec3s in) {
 
 void bridge_update(void) {
 
+    CubicVolume * playerBridgeVolume = cubic_volume_check_one(gMarioState->pos, VOLUME_TYPE_BRIDGE);
+
     for (int i = 0; i < sBridgeCount; i++) {
         Bridge * b = &bridgePool[i];
 
@@ -90,13 +93,17 @@ void bridge_update(void) {
         f32 weightRight = (bridgeProgress*(f32)b->size) - (int)(bridgeProgress*(f32)b->size);
         f32 weightLeft = 1.0f - weightRight;
 
-        if ((gMarioState->action & ACT_GROUP_MASK) == ACT_GROUP_STATIONARY || (gMarioState->action & ACT_GROUP_MASK) == ACT_GROUP_MOVING) {
-            if (gMarioState->action == ACT_GROUND_POUND_LAND) {
-                weightRight *= 2.0f;
-                weightLeft *= 2.0f;
+        u8 marioOnBridge = (playerBridgeVolume && playerBridgeVolume->param == i);
+
+        if (marioOnBridge) {
+            if ((gMarioState->action & ACT_GROUP_MASK) == ACT_GROUP_STATIONARY || (gMarioState->action & ACT_GROUP_MASK) == ACT_GROUP_MOVING) {
+                if (gMarioState->action == ACT_GROUND_POUND_LAND) {
+                    weightRight *= 2.0f;
+                    weightLeft *= 2.0f;
+                }
+                bridgeJointPool[b->startJointIndex+bridgeProgressIndex].yVel -= 100.0f*weightLeft;
+                bridgeJointPool[b->startJointIndex+bridgeProgressIndex+1].yVel -= 100.0f*weightRight;
             }
-            bridgeJointPool[b->startJointIndex+bridgeProgressIndex].yVel -= 100.0f*weightLeft;
-            bridgeJointPool[b->startJointIndex+bridgeProgressIndex+1].yVel -= 100.0f*weightRight;
         }
 
         for (int j = 0; j < b->size; j++) {
@@ -138,7 +145,9 @@ void bridge_update(void) {
             }
         }
 
-        load_collision_custom_transform(b->collision,&generate_bridge_vertex);
+        if (marioOnBridge) {
+            load_collision_custom_transform(b->collision,&generate_bridge_vertex);
+        }
     }
 }
 

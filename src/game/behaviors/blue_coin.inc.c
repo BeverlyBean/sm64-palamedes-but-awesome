@@ -56,7 +56,6 @@ void bhv_hidden_blue_coin_loop(void) {
                 o->oAction = HIDDEN_BLUE_COIN_ACT_INACTIVE;
                 o->header.gfx.node.flags &= ~GRAPH_RENDER_INVISIBLE;
 #else
-                coin_obj_destroy(o);
                 obj_mark_for_deletion(o);
 #endif
             }

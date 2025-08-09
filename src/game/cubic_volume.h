@@ -25,4 +25,6 @@ enum {
 CubicVolume * cubic_volume_add(void);
 CubicVolume * cubic_volume_check_one(Vec3f pos, int cubicVolumeType);
 
+void cubic_volume_reset(void);
+
 #endif

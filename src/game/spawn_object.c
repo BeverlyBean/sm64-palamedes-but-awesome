@@ -13,6 +13,8 @@
 #include "spawn_object.h"
 #include "types.h"
 #include "neo_shadow.h"
+#include "coin.h"
+#include "interaction.h"
 
 /**
  * Attempt to allocate an object from freeList (singly linked) and append it
@@ -96,6 +98,9 @@ void unload_object(struct Object *obj) {
         neoShadow * s = (neoShadow *)obj->shadow;
         s->initialized = FALSE;
         obj->shadow = NULL;
+    }
+    if (obj->oInteractType == INTERACT_COIN) {
+        coin_obj_destroy(obj);
     }
     obj->activeFlags = ACTIVE_FLAG_DEACTIVATED;
     obj->prevObj = NULL;

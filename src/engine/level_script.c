@@ -373,6 +373,7 @@ static void level_cmd_clear_level(void) {
     // the game does a push on level load and a pop on level unload, we need to add another push to store state after the level has been loaded, so one more pop is needed
     main_pool_pop_state();
     unmap_tlbs();
+    cubic_volume_reset();
 
     sCurrentCmd = CMD_NEXT;
 }
@@ -892,6 +893,9 @@ static void level_cmd_cubic_volume(void) {
     vol->rot[0] = CMD_GET(f32,4*8);
     vol->rot[1] = CMD_GET(f32,4*9);
     vol->rot[2] = CMD_GET(f32,4*10);
+
+    vol->type = CMD_GET(u32,4*11);
+    vol->param = CMD_GET(u32,4*12);
 
     Quat inversed;
     quat_copy(inversed,vol->rot);
