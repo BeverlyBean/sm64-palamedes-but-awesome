@@ -306,6 +306,18 @@ void ui_set_transition_instant(s8 myId) {
     self->transition = 1.0f;
 }
 
+void ui_set_transition_slide(uiid myId, Vec3f start, Vec3f end) {
+    uiTrans * self = &sUiTransList[myId];
+    self->alpha = 255;
+    self->transitionFunction[0] = ui_trans_transition_slide_in;
+    self->transitionFunction[1] = ui_trans_transition_slide_out;
+    vec3f_copy(self->pos,start);
+    vec3f_copy(self->posLerp,start);
+    vec3f_copy(self->slideStart,start);
+    vec3f_copy(self->slideEnd,end);
+
+}
+
 // TRANSFORM TRANSITIONS
 
 void ui_trans_transition_fade_in(uiid myId) {
@@ -331,12 +343,27 @@ void ui_trans_transition_instant(uiid myId) {
 void ui_trans_transition_page_rip_out(uiid myId) {
     uiTrans * self = &sUiTransList[myId];
     self->alpha = 255.0f;
-    self->layer = 1;
 
-    self->pos[1] -= self->transition*5.0f;
-    self->rot[2] -= 0x100;
+    self->pos[1] -= self->transition*20.0f;
+    self->rot[2] -= 0x200;
 
-    self->transition += 0.04f;
+    self->transition += 0.06f;
+}
+
+void ui_trans_transition_slide_in(uiid myId) {
+    uiTrans * self = &sUiTransList[myId];
+    for (int i = 0; i < 3; i++) {
+        self->pos[i] = approach_f32_asymptotic(self->slideStart[i],self->slideEnd[i],smoothstep2(self->transition));
+    }
+    self->transition += .05f;
+}
+
+void ui_trans_transition_slide_out(uiid myId) {
+    uiTrans * self = &sUiTransList[myId];
+    for (int i = 0; i < 3; i++) {
+        self->pos[i] = approach_f32_asymptotic(self->slideEnd[i],self->slideStart[i],smoothstep2(self->transition));
+    }
+    self->transition += .05f;
 }
 
 // TECHNICAL FUNCTIONS

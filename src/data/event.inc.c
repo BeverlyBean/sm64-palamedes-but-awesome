@@ -2,8 +2,10 @@
 #include "levels/test/header.inc.h"
 
 EventData subEventTestOption1[] = {
+    E_CINEMA_TOGGLE(),
     E_SPLINE(test_area_1_spline_testPos,test_area_1_spline_testFoc),
     E_DIALOG(TEXT_TEST_4),
+    E_CINEMA_TOGGLE(),
     E_RETURN_TO_CONVERSATION(),
     E_END_BRANCH(),
 };

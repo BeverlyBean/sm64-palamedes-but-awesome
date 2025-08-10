@@ -43,6 +43,8 @@ uiid sUiidDialogSlice;
 uiid sUiidDialogText;
 uiid sUiidDialogOptionTransform[5];
 
+uiid sUiidCinemaTrans[2] = {UI_NONE};
+
 // Branch
 void event_branch(EventData * branchLocation) {
     // Check if it's already in the stack to avoid infinite recursion
@@ -99,6 +101,7 @@ void event_set_dialog(int callContext) {
             if (sUiidDialogTransform != UI_NONE) {
                 ui_object_ptr(sUiidDialogSlice)->ptr = &gNotepadRipSliceParams;
                 ui_trans_begin_remove(sUiidDialogTransform);
+                ui_trans_ptr(sUiidDialogTransform)->layer = 1;
                 first = FALSE;
             }
 
@@ -185,6 +188,30 @@ void event_branch_cmd(UNUSED int callContext) {
 void event_end_branch(UNUSED int callContext) {
     sEventStackIndex--;
     gEventHead = sEventStackArray[sEventStackIndex];
+}
+
+void event_absolute_cinema(UNUSED int callContext) {
+    if (sUiidCinemaTrans[0] == UI_NONE) {
+        sUiidCinemaTrans[0] = ui_create_transform(gUiidScreen);
+        sUiidCinemaTrans[1] = ui_create_transform(gUiidScreen);
+        ui_set_trans_color(sUiidCinemaTrans[0],0,0,0);
+        ui_set_trans_color(sUiidCinemaTrans[1],0,0,0);
+
+        ui_create_rectangle(sUiidCinemaTrans[0],-142,56,320,0);
+        ui_create_rectangle(sUiidCinemaTrans[1],-142,240,320,240-56);
+
+        Vec3f start = {0,-56,0};
+        Vec3f end = {0,0,0};
+        ui_set_transition_slide(sUiidCinemaTrans[0],start,end);
+        Vec3f start2 = {0,56,0};
+        ui_set_transition_slide(sUiidCinemaTrans[1],start2,end);
+    } else {
+        ui_trans_begin_remove(sUiidCinemaTrans[0]);
+        ui_trans_begin_remove(sUiidCinemaTrans[1]);
+        sUiidCinemaTrans[0] = UI_NONE;
+    }
+
+    gEventHead++;
 }
 
 void event_end(UNUSED int callContext) {

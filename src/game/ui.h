@@ -23,6 +23,7 @@ void ui_set_text(s8 myId, s16 textId);
 void ui_set_trans_color(s8 myId, u8 r, u8 g, u8 b);
 
 void ui_set_transition_instant(s8 myId);
+void ui_set_transition_slide(uiid myId, Vec3f start, Vec3f end);
 
 void ui_trans_begin_remove(s8 myId);
 
@@ -30,6 +31,8 @@ void ui_trans_transition_fade_in(uiid myId);
 void ui_trans_transition_fade_out(uiid myId);
 void ui_trans_transition_instant(uiid myId);
 void ui_trans_transition_page_rip_out(uiid myId);
+void ui_trans_transition_slide_in(uiid myId);
+void ui_trans_transition_slide_out(uiid myId);
 
 extern uiid gUiidScreen;
 
@@ -101,6 +104,10 @@ typedef struct {
 
     Vec3f pos;
     Vec3f posLerp;
+
+    Vec3f slideStart;
+    Vec3f slideEnd;
+
     Vec3f rot;
     Vec3f rotLerp;
 
