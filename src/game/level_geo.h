@@ -5,6 +5,7 @@
 #include <PR/gbi.h>
 
 #include "bridge.h"
+#include "day_night_cycle.h"
 
 enum EnvFxMode {
     /* 0*/ ENVFX_MODE_NONE,         // no effects

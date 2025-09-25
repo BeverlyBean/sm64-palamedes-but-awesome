@@ -36,6 +36,7 @@
 #include "ui.h"
 #include "neo_shadow.h"
 #include "coin.h"
+#include "day_night_cycle.h"
 
 #include "config.h"
 
@@ -1064,6 +1065,7 @@ s32 play_mode_normal(void) {
     event_system_logic_loop();
     coin_logic();
     neoshadow_logic();
+    day_night_logic();
 
     // If either initiate_painting_warp or initiate_delayed_warp initiated a
     // warp, change play mode accordingly.

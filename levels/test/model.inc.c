@@ -10317,8 +10317,6 @@ Gfx test_dl_Z2_KAIZOKU_room_00DL_00AED0_mesh_mesh_layer_1_tri_168[] = {
 };
 
 Gfx mat_test_dl_stone[] = {
-	gsSPLightColor(LIGHT_1, 0xFFFFFFFF),
-	gsSPLightColor(LIGHT_2, 0x7F7F7FFF),
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
 	gsDPSetAlphaDither(G_AD_NOISE),
@@ -10333,8 +10331,6 @@ Gfx mat_revert_test_dl_stone[] = {
 };
 
 Gfx mat_test_dl_grass[] = {
-	gsSPLightColor(LIGHT_1, 0x37FF00FF),
-	gsSPLightColor(LIGHT_2, 0x167F00FF),
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
 	gsDPSetAlphaDither(G_AD_NOISE),
@@ -10349,8 +10345,6 @@ Gfx mat_revert_test_dl_grass[] = {
 };
 
 Gfx mat_test_dl_sand[] = {
-	gsSPLightColor(LIGHT_1, 0xE2FF00FF),
-	gsSPLightColor(LIGHT_2, 0x707F00FF),
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
 	gsDPSetAlphaDither(G_AD_NOISE),
@@ -10365,8 +10359,6 @@ Gfx mat_revert_test_dl_sand[] = {
 };
 
 Gfx mat_test_dl_snow[] = {
-	gsSPLightColor(LIGHT_1, 0xA6CAFFFF),
-	gsSPLightColor(LIGHT_2, 0x51647FFF),
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
 	gsDPSetAlphaDither(G_AD_NOISE),

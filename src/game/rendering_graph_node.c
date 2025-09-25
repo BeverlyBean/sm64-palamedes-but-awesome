@@ -23,6 +23,7 @@
 #include "worldspace_visual_debug.h"
 #include "coin.h"
 #include "neo_shadow.h"
+#include "day_night_cycle.h"
 
 #include "config.h"
 #include "config/config_world.h"
@@ -1239,6 +1240,7 @@ void geo_process_object(struct Object *node) {
  */
 void geo_process_object_parent(struct GraphNodeObjectParent *node) {
     render_worldspace_visual_debug();
+    day_night_restore_object_light();
 
     if (node->sharedChild != NULL) {
         node->sharedChild->parent = (struct GraphNode *) node;
