@@ -73,9 +73,17 @@ void day_night_set_light(void) {
     curLight->l->l.col[1] = (u8)(day_night_get_color_channel(1));
     curLight->l->l.col[2] = (u8)(day_night_get_color_channel(2));
 
+    curLight->l->l.colc[0] = (u8)(day_night_get_color_channel(0));
+    curLight->l->l.colc[1] = (u8)(day_night_get_color_channel(1));
+    curLight->l->l.colc[2] = (u8)(day_night_get_color_channel(2));
+
     curLight->a.l.col[0] = (u8)(day_night_get_color_channel(3));
     curLight->a.l.col[1] = (u8)(day_night_get_color_channel(4));
     curLight->a.l.col[2] = (u8)(day_night_get_color_channel(5));
+
+    curLight->a.l.colc[0] = (u8)(day_night_get_color_channel(3));
+    curLight->a.l.colc[1] = (u8)(day_night_get_color_channel(4));
+    curLight->a.l.colc[2] = (u8)(day_night_get_color_channel(5));
 
     gSPSetLights1(dlh++, (*curLight));
     gSPEndDisplayList(dlh++);
