@@ -20,6 +20,9 @@ char * sEnglishText[] = {
     [TEXT_TESTCHOICE_3] = "@0@Say what?",
     [TEXT_TEST_PROMPT] = "@0@Got any questions?",
     [TEXT_TEST_END] = "@0@Well, that's all.",
+
+    // Mission Names & Hints
+    [TEXT_MISSION_TEST] = "Test Mission",
 };
 
 char * sGermanText[] = {

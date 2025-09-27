@@ -21,6 +21,10 @@ enum {
     TEXT_TESTCHOICE_3,
     TEXT_TEST_PROMPT,
     TEXT_TEST_END,
+
+    //Missions
+    TEXT_MISSION_TEST,
+
     TEXT_COUNT,
 };
 
