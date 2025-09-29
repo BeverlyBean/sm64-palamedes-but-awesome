@@ -19,6 +19,7 @@ Features:
 
 Optional Features:
 - Day & Night Cycle (`day_night_cycle.h`)
+- 8x Collision Bounds
 
 # ![](https://i.imgur.com/CeOukzk.gif) HackerSM64 ![](https://i.imgur.com/s0LUbTo.gif)
 
