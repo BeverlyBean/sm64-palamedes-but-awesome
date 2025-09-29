@@ -42,30 +42,41 @@
 #if EXTENDED_BOUNDS_MODE == 0 // 1x, normal cell size
     #define LEVEL_BOUNDARY_MAX 0x2000L //  8192
     #define CELL_SIZE          0x400   //  1024, NUM_CELLS = 16
+    #define COLLISION_DATA_TYPE s16
     #ifndef WORLD_SCALE
         #define WORLD_SCALE 1
     #endif
 #elif EXTENDED_BOUNDS_MODE == 1 // 2x, normal cell size
     #define LEVEL_BOUNDARY_MAX 0x4000L // 16384
     #define CELL_SIZE          0x400   //  1024, NUM_CELLS = 32
+    #define COLLISION_DATA_TYPE s16
     #ifndef WORLD_SCALE
         #define WORLD_SCALE 2
     #endif
 #elif EXTENDED_BOUNDS_MODE == 2 // 1x, smaller cell size
     #define LEVEL_BOUNDARY_MAX 0x2000L //  8192
     #define CELL_SIZE          0x200   //   512, NUM_CELLS = 32
+    #define COLLISION_DATA_TYPE s16
     #ifndef WORLD_SCALE
         #define WORLD_SCALE 1
     #endif
 #elif EXTENDED_BOUNDS_MODE == 3 // 4x, normal cell size
     #define LEVEL_BOUNDARY_MAX 0x8000L // 32768
     #define CELL_SIZE          0x400   //  1024, NUM_CELLS = 64
+    #define COLLISION_DATA_TYPE s16
+    #ifndef WORLD_SCALE
+        #define WORLD_SCALE 4
+    #endif
+#elif EXTENDED_BOUNDS_MODE == 4 // 8x, normal cell size
+    #define LEVEL_BOUNDARY_MAX 0x10000 // 65536
+    #define CELL_SIZE          0x400   //  1024, NUM_CELLS = 128
+    #define COLLISION_DATA_TYPE s32
     #ifndef WORLD_SCALE
         #define WORLD_SCALE 4
     #endif
 #endif
 
-STATIC_ASSERT(((EXTENDED_BOUNDS_MODE >= 0) && (EXTENDED_BOUNDS_MODE <= 3)), "You must set a valid extended bounds mode!");
+STATIC_ASSERT(((EXTENDED_BOUNDS_MODE >= 0) && (EXTENDED_BOUNDS_MODE <= 4)), "You must set a valid extended bounds mode!");
 
 /**
  * The amount of cells in each axis in an area.

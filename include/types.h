@@ -7,6 +7,7 @@
 #include <ultra64.h>
 #include "macros.h"
 #include "config.h"
+#include "config/config_world.h"
 
 #define BIT(i)  (1 << (i))
 #define BITMASK(size) ((BIT(size)) - 1)
@@ -80,6 +81,8 @@ typedef f32 Mat3[3][3];
 typedef f32 Mat4[4][4];
 
 typedef Vec4f Quat;
+
+typedef COLLISION_DATA_TYPE Vec3col[3];
 
 // -- Scripts --
 typedef uintptr_t GeoLayout;

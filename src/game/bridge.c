@@ -65,7 +65,7 @@ void bridge_update_joint_gfx_positions(void) {
     }
 }
 
-void generate_bridge_vertex(Vec3s out, Vec3s in) {
+void generate_bridge_vertex(Vec3col out, Vec3col in) {
     Vec3f pos;
     vec3s_to_vec3f(pos,in);
 

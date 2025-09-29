@@ -773,7 +773,7 @@ void load_object_static_model(void) {
     __osRestoreInt(mask);
 }
 
-void transform_dynamic_vertices_custom(TerrainData **data, TerrainData *vertexData, void (*func)(Vec3s,Vec3s)) {
+void transform_dynamic_vertices_custom(TerrainData **data, TerrainData *vertexData, void (*func)(Vec3col,Vec3col)) {
     register s32 numVertices = *(*data)++;
     register TerrainData *vertices = *data;
 
@@ -832,7 +832,7 @@ void load_dynamic_surfaces_custom(TerrainData **data, TerrainData *vertexData, u
     }
 }
 
-void load_collision_custom_transform(Collision * col, void (*func)(Vec3s,Vec3s)) {
+void load_collision_custom_transform(Collision * col, void (*func)(Vec3col,Vec3col)) {
     TerrainData *collisionData = col;
 
     collisionData++;
