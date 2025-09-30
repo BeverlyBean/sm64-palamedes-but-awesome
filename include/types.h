@@ -332,6 +332,7 @@ struct Object {
     /*0x21C*/ Mat4 transform;
     /*0x25C*/ void *respawnInfo;
               void * shadow;
+              u32 regionFlags;
 };
 
 struct ObjectHitbox {

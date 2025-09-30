@@ -1062,6 +1062,7 @@ s32 play_mode_normal(void) {
     initiate_painting_warp();
     initiate_delayed_warp();
 
+    region_logic();
     event_system_logic_loop();
     coin_logic();
     neoshadow_logic();

@@ -24,6 +24,7 @@
 #include "coin.h"
 #include "neo_shadow.h"
 #include "day_night_cycle.h"
+#include "cubic_volume.h"
 
 #include "config.h"
 #include "config/config_world.h"
@@ -1160,6 +1161,9 @@ void visualise_object_hitbox(struct Object *node) {
  * Process an object node.
  */
 void geo_process_object(struct Object *node) {
+    // Do not render if not in current region and not in global region
+    if ((!(node->regionFlags & gRegionFlags))&&(node->regionFlags != 0)) {return;}
+
     if (node->header.gfx.areaIndex == gCurGraphNodeRoot->areaIndex) {
         s32 isInvisible = (node->header.gfx.node.flags & GRAPH_RENDER_INVISIBLE);
         // Maintain throw matrix pointer if the game is paused as it won't be updated.
