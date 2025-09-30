@@ -23,6 +23,7 @@
 #include "profiling.h"
 #include "bridge.h"
 #include "cubic_volume.h"
+#include "level_region.h"
 
 
 /**

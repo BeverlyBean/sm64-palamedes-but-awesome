@@ -37,6 +37,7 @@
 #include "neo_shadow.h"
 #include "coin.h"
 #include "day_night_cycle.h"
+#include "level_region.h"
 
 #include "config.h"
 

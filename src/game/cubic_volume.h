@@ -22,18 +22,10 @@ enum {
     VOLUME_TYPE_BRIDGE
 };
 
-enum regionIds {
-    REGION_GLOBAL,
-};
-
 CubicVolume * cubic_volume_add(void);
 CubicVolume * cubic_volume_check_one(Vec3f pos, int cubicVolumeType);
 void cubic_volume_check_all(Vec3f pos, int cubicVolumeType, void (* iterateVolume)(CubicVolume *));
 
 void cubic_volume_reset(void);
-
-extern u32 gRegionFlags;
-void region_logic(void);
-void region_init_object(struct Object * obj);
 
 #endif

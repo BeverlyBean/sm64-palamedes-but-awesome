@@ -12,6 +12,7 @@ Features:
 - Vertex iterator for vertex animation (`vertex_iterator.h`)
 - Custom collision transformation for deformable collision (`surface_load.h` extended)
 - Collision surface materials (`surface_material.h`)
+- Overhauled room system using volumes instead of triangles (`level_region.h`)
 - Coin render batching system (`coin.h`)
 - Shadow render batching system (`neo_shadow.h`)
 - World space visual debug (`worldspace_visual_debug.h`)

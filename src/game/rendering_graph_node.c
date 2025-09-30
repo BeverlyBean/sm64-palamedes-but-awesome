@@ -25,6 +25,7 @@
 #include "neo_shadow.h"
 #include "day_night_cycle.h"
 #include "cubic_volume.h"
+#include "level_region.h"
 
 #include "config.h"
 #include "config/config_world.h"

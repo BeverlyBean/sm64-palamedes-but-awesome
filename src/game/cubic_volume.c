@@ -101,31 +101,3 @@ void cubic_volume_check_all(Vec3f pos, int cubicVolumeType, void (* iterateVolum
         }
     }
 }
-
-/* Region System */
-//TODO: Put in own file? (It's a really small system though)
-
-u32 gRegionFlags = 0;
-struct Object * sRegionObject = NULL;
-
-void region_flag_volume(CubicVolume * v) {
-    gRegionFlags |= (1 << v->param);
-}
-
-void region_flag_object(CubicVolume * v) {
-    sRegionObject->regionFlags |= (1 << v->param);
-}
-
-void region_init_object(struct Object * obj) {
-    sRegionObject = obj;
-
-    obj->regionFlags = 0;
-    cubic_volume_check_all(&obj->oPosVec,VOLUME_TYPE_REGION,region_flag_object);
-}
-
-void region_logic(void) {
-    gRegionFlags = 0;
-    cubic_volume_check_all(gMarioState->pos,VOLUME_TYPE_REGION,region_flag_volume);
-
-    debug_u32(&gRegionFlags,"Region flags");
-}
