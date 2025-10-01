@@ -12,6 +12,7 @@
 #include "worldspace_visual_debug.h"
 #include "segment2.h"
 #include "level_update.h"
+#include "level_region.h"
 #include "special_shadow.h"
 
 static const Vtx vertex_neo_shadow[] = {
@@ -165,6 +166,13 @@ void neoshadow_logic(void) {
         neoShadow * s = &sNeoShadowList[i];
         if (s->initialized && !s->overridden) {
             struct Object * obj = s->owner;
+            if (obj->regionFlags > 0 && (!(obj->regionFlags & gRegionFlags))) {
+                // If object not in loaded region, unload shadow
+                s->initialized = FALSE;
+                obj->shadow = NULL;
+                continue;
+            }
+
             f32 dsqrd = sqr(gMarioState->pos[0] - s->pos[0]) + sqr(gMarioState->pos[1] - s->pos[1]) + sqr(gMarioState->pos[2] - s->pos[2]);
             if (dsqrd <= 4000000.0f) {
                 neoshadow_cast(s,obj);

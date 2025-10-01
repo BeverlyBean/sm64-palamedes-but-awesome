@@ -33,6 +33,7 @@
 #include "game/cubic_volume.h"
 #include "game/bridge.h"
 #include "game/coin.h"
+#include "game/level_region.h"
 
 #include "config.h"
 

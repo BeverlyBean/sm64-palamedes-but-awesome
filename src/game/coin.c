@@ -9,6 +9,7 @@
 #include "object_list_processor.h"
 #include "emutest.h"
 #include "neo_shadow.h"
+#include "level_region.h"
 
 u8 sCoinTexture[4096];
 s16 sCoinAngle = 0;
@@ -45,14 +46,6 @@ void coin_obj_create(int type) {
     coinList[i].type = type;
     o->oCoinObjectPtr = &coinList[i];
     coinList[i].initialized = TRUE;
-
-    if (o->shadow == NULL) {
-        s16 baseScale = 70;
-        if (type == 2) {
-            baseScale = 105;
-        }
-        neoshadow_obj_create(o,baseScale,NEOSHADOW_TYPE_COIN);
-    }
 }
 
 void coin_obj_destroy(struct Object * owner) {
@@ -120,7 +113,7 @@ void coin_render(void) {
                 break;
         }
         for (int i = 0; i < MAX_COINS; i++) {
-            if (coinList[i].type == j && coinList[i].initialized && (!(coinList[i].obj->header.gfx.node.flags & GRAPH_RENDER_INVISIBLE)) ) {
+            if (coinList[i].type == j && coinList[i].initialized && (!(coinList[i].obj->header.gfx.node.flags & GRAPH_RENDER_INVISIBLE)) && (coinList[i].obj->regionFlags == 0 || (coinList[i].obj->regionFlags & gRegionFlags))   ) {
                 Vec3f pos; vec3f_copy(pos,coinList[i].obj->header.gfx.posLerp);
                 f32 dsqrd = sqr(gLakituState.pos[0] - pos[0]) + sqr(gLakituState.pos[1] - pos[1]) + sqr(gLakituState.pos[2] - pos[2]);
                 Gfx * mesh = coin3Dhi_CylinderHi_mesh_tri_0;
@@ -149,7 +142,15 @@ void coin_logic(void) {
     s16 camAngle = atan2s(cameraVector[2],cameraVector[0]);
 
     for (int i = 0; i < MAX_COINS; i++) {
-        if (coinList[i].initialized && coinList[i].obj->shadow) {
+        if (coinList[i].initialized) {
+            if (coinList[i].obj->shadow == NULL) {
+                s16 baseScale = 70;
+                if (coinList[i].type == 2) {
+                    baseScale = 105;
+                }
+                neoshadow_obj_create(coinList[i].obj,baseScale,NEOSHADOW_TYPE_COIN);
+            }
+
             neoShadow * s = coinList[i].obj->shadow;
             s->yaw = sCoinAngle+0x800+camAngle;
         }

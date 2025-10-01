@@ -151,6 +151,10 @@ u8 day_night_get_hour(void) {
     return (DAY_NIGHT_SUNRISE_TIME + ((int)(sDayProgress*24.0f))) % 12;
 }
 
+s32 day_night_get_day_or_night(void) {
+    return (sDayProgress >= .5f);
+}
+
 u32 debughour = 0;
 
 void day_night_logic(void) {
