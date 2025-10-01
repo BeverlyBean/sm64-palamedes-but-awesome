@@ -89,6 +89,9 @@ void day_night_set_light(void) {
     gSPEndDisplayList(dlh++);
 
     geo_append_display_list(dl, LAYER_OPAQUE);
+    geo_append_display_list(dl, LAYER_TRANSPARENT_DECAL);
+    geo_append_display_list(dl, LAYER_TRANSPARENT);
+    geo_append_display_list(dl, LAYER_ALPHA);
 }
 
 Gfx *geo_day_night_light(s32 callContext, UNUSED struct GraphNode *node, UNUSED Mat4 *mtx) {
