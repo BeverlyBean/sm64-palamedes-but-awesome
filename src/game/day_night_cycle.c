@@ -22,34 +22,64 @@ f32 sDayProgress = 0.0f;
 Vec3f sSunDirection = {-127.f, 0.f , .0f};
 Vec3f sDayLightColor = {1.0f,1.0f,1.0f};
 
-f32 sDayGradientList[][7] = {
-    // Time, LIGHT R, G, B,      AMB R G B
+f32 sDayDiffuseGradientList[][4] = {
+    // Time, LIGHT R, G, B,
 
     /* bumper */
-    {-1.00f,   0.0f, 0.0f, 0.0f,   .2f, .2f, .4f},
+    {-1.00f,   0.0f, 0.0f, 0.0},
 
     /* morning, pinkish*/
-    {0.00f,   0.0f, 0.0f, 0.0f,   .2f, .2f, .4f},
-    {0.05f,   1.0f, 0.1f, 0.5f,   .5f, .5f, .5f},
+    {0.00f,   0.0f, 0.0f, 0.0f},
+    {0.05f,   1.0f, 0.1f, 0.5f},
 
     /* day, fullbright */
-    {0.10f,   1.0f, 1.0f, 1.0f,   .5f, .5f, .5f},
-    {0.40f,   1.0f, 1.0f, 1.0f,   .5f, .5f, .5f},
+    {0.10f,   1.0f, 1.0f, 1.0f},
+    {0.40f,   1.0f, 1.0f, 1.0f},
 
     /* evening, orange*/
-    {0.43f,   1.0f, 0.5f, 0.0f,   .5f, .5f, .5f},
-    {0.46f,   1.0f, 0.3f, 0.0f,   .5f, .5f, .5f},
-    {0.50f,   0.0f, 0.0f, 0.0f,   .2f, .2f, .4f},
+    {0.43f,   1.0f, 0.5f, 0.0f},
+    {0.46f,   1.0f, 0.3f, 0.0f},
+    {0.50f,   0.0f, 0.0f, 0.0f},
 
     /* night, subtle moon*/
-    {0.55f,   0.4f, 0.4f, 0.4f,   .2f, .2f, .4f},
-    {0.95f,   0.4f, 0.4f, 0.4f,   .2f, .2f, .4f},
+    {0.55f,   0.4f, 0.4f, 0.4f},
+    {0.95f,   0.4f, 0.4f, 0.4f},
 
     /* warp around to start*/
-    {1.00f,   0.0f, 0.0f, 0.0f,   .2f, .2f, .4f},
+    {1.00f,   0.0f, 0.0f, 0.0f},
 
     /* bumper */
-    {2.00f,   0.0f, 0.0f, 0.0f,   .2f, .2f, .4f},
+    {2.00f,   0.0f, 0.0f, 0.0f},
+};
+
+f32 sDayAmbientGradientList[][4] = {
+    // Time, AMB R G B
+
+    /* bumper */
+    {-1.00f,  .2f, .2f, .4f},
+
+    /* morning, pinkish*/
+    {0.00f,   .2f, .2f, .4f},
+    {0.05f,   .5f, .5f, .5f},
+
+    /* day, fullbright */
+    {0.10f,   .5f, .5f, .5f},
+    {0.40f,   .5f, .5f, .5f},
+
+    /* evening, orange*/
+    {0.43f,   .5f, .5f, .5f},
+    {0.46f,   .5f, .5f, .5f},
+    {0.50f,   .2f, .2f, .4f},
+
+    /* night, subtle moon*/
+    {0.55f,   .2f, .2f, .4f},
+    {0.95f,   .2f, .2f, .4f},
+
+    /* warp around to start*/
+    {1.00f,   .2f, .2f, .4f},
+
+    /* bumper */
+    {2.00f,   .2f, .2f, .4f},
 };
 
 Lights1 sLightInfo = gdSPDefLights1(
@@ -69,21 +99,21 @@ void day_night_set_light(void) {
     curLight->l->l.dir[1] = (s8)(sSunDirection[1]);
     curLight->l->l.dir[2] = (s8)(sSunDirection[2]);
 
-    curLight->l->l.col[0] = (u8)(day_night_get_color_channel(0));
-    curLight->l->l.col[1] = (u8)(day_night_get_color_channel(1));
-    curLight->l->l.col[2] = (u8)(day_night_get_color_channel(2));
+    curLight->l->l.col[0] = (u8)(day_night_get_color_channel(0,sDayDiffuseGradientList));
+    curLight->l->l.col[1] = (u8)(day_night_get_color_channel(1,sDayDiffuseGradientList));
+    curLight->l->l.col[2] = (u8)(day_night_get_color_channel(2,sDayDiffuseGradientList));
 
-    curLight->l->l.colc[0] = (u8)(day_night_get_color_channel(0));
-    curLight->l->l.colc[1] = (u8)(day_night_get_color_channel(1));
-    curLight->l->l.colc[2] = (u8)(day_night_get_color_channel(2));
+    curLight->l->l.colc[0] = (u8)(day_night_get_color_channel(0,sDayDiffuseGradientList));
+    curLight->l->l.colc[1] = (u8)(day_night_get_color_channel(1,sDayDiffuseGradientList));
+    curLight->l->l.colc[2] = (u8)(day_night_get_color_channel(2,sDayDiffuseGradientList));
 
-    curLight->a.l.col[0] = (u8)(day_night_get_color_channel(3));
-    curLight->a.l.col[1] = (u8)(day_night_get_color_channel(4));
-    curLight->a.l.col[2] = (u8)(day_night_get_color_channel(5));
+    curLight->a.l.col[0] = (u8)(day_night_get_color_channel(0,sDayAmbientGradientList));
+    curLight->a.l.col[1] = (u8)(day_night_get_color_channel(1,sDayAmbientGradientList));
+    curLight->a.l.col[2] = (u8)(day_night_get_color_channel(2,sDayAmbientGradientList));
 
-    curLight->a.l.colc[0] = (u8)(day_night_get_color_channel(3));
-    curLight->a.l.colc[1] = (u8)(day_night_get_color_channel(4));
-    curLight->a.l.colc[2] = (u8)(day_night_get_color_channel(5));
+    curLight->a.l.colc[0] = (u8)(day_night_get_color_channel(0,sDayAmbientGradientList));
+    curLight->a.l.colc[1] = (u8)(day_night_get_color_channel(1,sDayAmbientGradientList));
+    curLight->a.l.colc[2] = (u8)(day_night_get_color_channel(2,sDayAmbientGradientList));
 
     gSPSetLights1(dlh++, (*curLight));
     gSPEndDisplayList(dlh++);
@@ -128,20 +158,20 @@ void day_night_restore_object_light(void) {
     geo_append_display_list(dl, LAYER_OPAQUE);
 }
 
-u8 day_night_get_color_channel(int colorIndex) {
+u8 day_night_get_color_channel(int colorIndex,f32 list[][4]) {
     int listItem = 0;
-    while(sDayProgress >= sDayGradientList[listItem][0]) {
+    while(sDayProgress >= list[listItem][0]) {
         listItem++;
     }
-    f32 curGrad = sDayGradientList[listItem-1][0];
-    f32 nextGrad = sDayGradientList[listItem][0];
+    f32 curGrad =  list[listItem-1][0];
+    f32 nextGrad = list[listItem][0];
 
     f32 range = nextGrad - curGrad;
     f32 alpha = (sDayProgress - curGrad) / range;
 
     f32 channel = approach_f32_asymptotic(
-    sDayGradientList[listItem-1][colorIndex+1],
-    sDayGradientList[listItem][colorIndex+1],
+    list[listItem-1][colorIndex+1],
+    list[listItem][colorIndex+1],
     alpha);
 
     return channel * 255.0f;

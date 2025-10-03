@@ -8,7 +8,7 @@ void day_night_restore_object_light(void);
 
 void day_night_logic(void);
 Gfx *geo_day_night_light(s32 callContext, UNUSED struct GraphNode *node, UNUSED Mat4 *mtx);
-u8 day_night_get_color_channel(int colorIndex);
+u8 day_night_get_color_channel(int colorIndex, f32 list[][4]);
 
 s32 day_night_get_day_or_night(void);
 u8 day_night_get_hour(void);
