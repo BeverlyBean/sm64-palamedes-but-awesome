@@ -11,5 +11,6 @@ extern u32 gRegionFlags;
 void region_logic(void);
 void region_init_object(struct Object * obj);
 Gfx *geo_region(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx);
+Gfx *geo_region_lod(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx);
 
 #endif

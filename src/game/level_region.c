@@ -7,7 +7,6 @@
 
 
 u32 gRegionFlags = 0;
-Gfx * sRegionDLlist[32];
 struct Object * sRegionObject = NULL;
 
 void region_flag_volume(CubicVolume * v) {
@@ -37,13 +36,30 @@ Gfx *geo_region(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx) {
     struct GraphNodeDisplayList * dl = (struct GraphNodeDisplayList *)node->next;
 
     if (callContext == GEO_CONTEXT_AREA_LOAD) {
-        sRegionDLlist[self->parameter] = dl->displayList;
+        self->dlCopy = dl->displayList;
     }
     if (callContext == GEO_CONTEXT_RENDER) {
         if (gRegionFlags & (1 << self->parameter)) {
-            dl->displayList = sRegionDLlist[self->parameter];
+            dl->displayList = self->dlCopy;
         } else {
             dl->displayList = NULL;
+        }
+    }
+    return NULL;
+}
+
+Gfx *geo_region_lod(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx) {
+    struct GraphNodeGenerated * self = (struct GraphNodeGenerated *)node;
+    struct GraphNodeDisplayList * dl = (struct GraphNodeDisplayList *)node->next;
+
+    if (callContext == GEO_CONTEXT_AREA_LOAD) {
+        self->dlCopy = dl->displayList;
+    }
+    if (callContext == GEO_CONTEXT_RENDER) {
+        if (gRegionFlags & (1 << self->parameter)) {
+            dl->displayList = NULL;
+        } else {
+            dl->displayList = self->dlCopy;
         }
     }
     return NULL;

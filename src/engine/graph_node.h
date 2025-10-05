@@ -321,6 +321,7 @@ struct GraphNodeGenerated {
     /*0x00*/ struct FnGraphNode fnNode;
     /*0x18*/ u32 parameter; // extra context for the function
              u32 iteratorID;
+             Gfx * dlCopy; // Used for enabling / disabling geometry
 };
 
 /** GraphNode that draws a background image or a rectangle of a color.
