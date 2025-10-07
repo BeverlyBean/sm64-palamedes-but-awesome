@@ -776,3 +776,4 @@ UNUSED s32 debug_sequence_tracker(s16 debugInputSequence[]) {
 #include "behaviors/mips.inc.c"
 #include "behaviors/yoshi.inc.c"
 #include "behaviors/npc.inc.c"
+#include "behaviors/mop.inc.c"

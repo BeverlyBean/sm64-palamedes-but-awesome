@@ -6084,6 +6084,9 @@ const BehaviorScript bhvIntroScene[] = {
     END_LOOP(),
 };
 
+/* [Start] Palamedes V2 More Objects Patch */
+/* [End] Palamedes V2 More Objects Patch */
+
 const BehaviorScript bhvNPC[] = {
     BEGIN(OBJ_LIST_LEVEL),
     OR_INT(oFlags, OBJ_FLAG_UPDATE_GFX_POS_AND_ANGLE),
