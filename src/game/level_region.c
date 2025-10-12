@@ -4,10 +4,14 @@
 #include "src/engine/graph_node.h"
 #include "cubic_volume.h"
 #include "level_update.h"
+#include "engine/math_util.h"
 
+regionObject sRegionObjectList[MAX_REGION_OBJECTS];
+int sRegionObjectCount = 0;
 
 u32 gRegionFlags = 0;
-struct Object * sRegionObject = NULL;
+u32 sPrevRegionFlags = 0;
+regionObject * sRegionObject = NULL;
 
 void region_flag_volume(CubicVolume * v) {
     gRegionFlags |= (1 << v->param);
@@ -17,16 +21,43 @@ void region_flag_object(CubicVolume * v) {
     sRegionObject->regionFlags |= (1 << v->param);
 }
 
-void region_init_object(struct Object * obj) {
-    sRegionObject = obj;
+void region_init_object(Vec3f pos, s16 angle, u32 bparams, u16 modelId, BehaviorScript * behavior, EventData * event) {
+    sRegionObject = &sRegionObjectList[sRegionObjectCount];
 
-    obj->regionFlags = 0;
-    cubic_volume_check_all(&obj->oPosVec,VOLUME_TYPE_REGION,region_flag_object);
+    vec3f_copy(sRegionObject->pos,pos);
+    sRegionObject->angle = angle;
+    sRegionObject->bparams = bparams;
+    sRegionObject->modelId = modelId;
+    sRegionObject->behavior = behavior;
+    sRegionObject->event = event;
+    cubic_volume_check_all(pos,VOLUME_TYPE_REGION,region_flag_object);
+
+    sRegionObjectCount++;
 }
 
+extern BehaviorScript bhvStaticObject[];
 void region_logic(void) {
     gRegionFlags = 0;
     cubic_volume_check_all(gMarioState->pos,VOLUME_TYPE_REGION,region_flag_volume);
+
+    if (sPrevRegionFlags != gRegionFlags) {
+        // Spawn region objects
+        for (int i = 0; i < sRegionObjectCount; i++) {
+            regionObject * ro = &sRegionObjectList[i];
+
+            if ((ro->regionFlags & gRegionFlags)&&(!(ro->regionFlags & sPrevRegionFlags))) {
+                struct Object * spawnedObj = spawn_object(gMarioState->marioObj,ro->modelId,ro->behavior);
+                vec3f_copy(&spawnedObj->oPosVec,ro->pos);
+                spawnedObj->oMoveAngleYaw = ro->angle * 182;
+                spawnedObj->oFaceAngleYaw = ro->angle * 182;
+                spawnedObj->regionFlags = ro->regionFlags;
+                spawnedObj->oBehParams = ro->bparams;
+                spawnedObj->oBehParams2ndByte = GET_BPARAM2(ro->bparams);
+            }
+        }
+
+        sPrevRegionFlags = gRegionFlags;
+    }
 
     debug_u32(&gRegionFlags,"Region flags");
 }

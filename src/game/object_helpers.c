@@ -369,6 +369,7 @@ struct Object *spawn_object_at_origin(struct Object *parent, UNUSED s32 unusedAr
     struct Object *obj = create_object(behaviorAddr);
 
     obj->parentObj = parent;
+    obj->regionFlags = parent->regionFlags;
     obj->header.gfx.areaIndex = parent->header.gfx.areaIndex;
     obj->header.gfx.activeAreaIndex = parent->header.gfx.areaIndex;
 

@@ -503,8 +503,6 @@ void spawn_objects_from_info(UNUSED s32 unused, struct SpawnInfo *spawnInfo) {
             vec3s_to_vec3i(&object->oMoveAngleVec, spawnInfo->startAngle);
 
             object->oFloorHeight = find_floor(object->oPosX, object->oPosY, object->oPosZ, &object->oFloor);
-
-            region_init_object(object);
         }
 
         spawnInfo = spawnInfo->next;
