@@ -641,13 +641,15 @@ void geo_process_camera(struct GraphNodeCamera *node) {
  * For the rest it acts as a normal display list node.
  */
 void geo_process_translation_rotation(struct GraphNodeTranslationRotation *node) {
-    Vec3f translation;
+    if (!gRegionDisableRender) {
+        Vec3f translation;
 
-    vec3s_to_vec3f(translation, node->translation);
-    mtxf_rotate_zxy_and_translate_and_mul(node->rotation, translation, gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex]);
+        vec3s_to_vec3f(translation, node->translation);
+        mtxf_rotate_zxy_and_translate_and_mul(node->rotation, translation, gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex]);
 
-    inc_mat_stack();
-    append_dl_and_return((struct GraphNodeDisplayList *)node);
+        inc_mat_stack();
+        append_dl_and_return((struct GraphNodeDisplayList *)node);
+    }
 }
 
 /**
@@ -656,13 +658,15 @@ void geo_process_translation_rotation(struct GraphNodeTranslationRotation *node)
  * For the rest it acts as a normal display list node.
  */
 void geo_process_translation(struct GraphNodeTranslation *node) {
-    Vec3f translation;
+    if (!gRegionDisableRender) {
+        Vec3f translation;
 
-    vec3s_to_vec3f(translation, node->translation);
-    mtxf_rotate_zxy_and_translate_and_mul(gVec3sZero, translation, gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex]);
+        vec3s_to_vec3f(translation, node->translation);
+        mtxf_rotate_zxy_and_translate_and_mul(gVec3sZero, translation, gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex]);
 
-    inc_mat_stack();
-    append_dl_and_return((struct GraphNodeDisplayList *)node);
+        inc_mat_stack();
+        append_dl_and_return((struct GraphNodeDisplayList *)node);
+    }
 }
 
 /**
