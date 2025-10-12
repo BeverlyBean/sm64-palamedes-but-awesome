@@ -12,6 +12,7 @@ int sRegionObjectCount = 0;
 u32 gRegionFlags = 0;
 u32 sPrevRegionFlags = 0;
 regionObject * sRegionObject = NULL;
+Bool8 gRegionDisableRender = FALSE;
 
 void region_flag_volume(CubicVolume * v) {
     gRegionFlags |= (1 << v->param);
@@ -64,17 +65,19 @@ void region_logic(void) {
 
 Gfx *geo_region(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx) {
     struct GraphNodeGenerated * self = (struct GraphNodeGenerated *)node;
-    struct GraphNodeDisplayList * dl = (struct GraphNodeDisplayList *)node->next;
-
-    if (callContext == GEO_CONTEXT_AREA_LOAD) {
-        self->dlCopy = dl->displayList;
-    }
     if (callContext == GEO_CONTEXT_RENDER) {
         if (gRegionFlags & (1 << self->parameter)) {
-            dl->displayList = self->dlCopy;
+            gRegionDisableRender = FALSE;
         } else {
-            dl->displayList = NULL;
+            gRegionDisableRender = TRUE;
         }
+    }
+    return NULL;
+}
+
+Gfx *geo_region_revert(s32 callContext, UNUSED struct GraphNode *node, UNUSED Mat4 *mtx) {
+    if (callContext == GEO_CONTEXT_RENDER) {
+        gRegionDisableRender = FALSE;
     }
     return NULL;
 }

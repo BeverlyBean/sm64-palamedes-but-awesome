@@ -21,9 +21,12 @@ enum regionIds {
 };
 
 extern u32 gRegionFlags;
+extern Bool8 gRegionDisableRender;
+
 void region_logic(void);
 void region_init_object(Vec3f pos, s16 angle, u32 bparams, u16 modelId, BehaviorScript * behavior, EventData * event);
 Gfx *geo_region(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx);
 Gfx *geo_region_lod(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx);
+Gfx *geo_region_revert(s32 callContext, UNUSED struct GraphNode *node, UNUSED Mat4 *mtx);
 
 #endif

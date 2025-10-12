@@ -730,9 +730,10 @@ void geo_process_billboard(struct GraphNodeBillboard *node) {
  * parent node. It processes its children if it has them.
  */
 void geo_process_display_list(struct GraphNodeDisplayList *node) {
-    append_dl_and_return((struct GraphNodeDisplayList *)node);
-
-    gMatStackIndex++;
+    if (!gRegionDisableRender) {
+        append_dl_and_return((struct GraphNodeDisplayList *)node);
+        gMatStackIndex++;
+    }
 }
 
 /**
@@ -1243,6 +1244,8 @@ void geo_process_object(struct Object *node) {
  * actual children are be processed. (in practice they are null though)
  */
 void geo_process_object_parent(struct GraphNodeObjectParent *node) {
+    gRegionDisableRender = FALSE;
+
     render_worldspace_visual_debug();
     day_night_restore_object_light();
 
