@@ -476,7 +476,7 @@ enum GoddardScene {
     CMD_F(x), \
     CMD_F(y), \
     CMD_F(z), \
-    CMD_W((bp1 << 24) || (bp2 << 16) || (bp3 << 8) || (bp4)), \
+    CMD_W((bp1 << 24) | (bp2 << 16) | (bp3 << 8) | (bp4)), \
     CMD_W(modelid), \
     CMD_PTR(bhv), \
     CMD_PTR(event)
