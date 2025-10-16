@@ -359,18 +359,15 @@ struct Normal {
 };
 
 struct Surface {
-    s16 type:12;
-    u8 material:4;
-    TerrainData force;
+    u16 type:10;
+    u16 material:6;
     s8 flags;
-    RoomData room;
     s16 lowerY;
     s16 upperY;
     Vec3t vertex1;
     Vec3t vertex2;
     Vec3t vertex3;
     struct Normal normal;
-    f32 originOffset;
     struct Object *object;
 };
 

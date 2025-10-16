@@ -1530,10 +1530,14 @@ s32 update_boss_fight_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
     // Find the floor of the arena
     pos[1] = find_floor(c->areaCenX, CELL_HEIGHT_LIMIT, c->areaCenZ, &floor);
     if (floor != NULL) {
-        nx = floor->normal.x;
-        ny = floor->normal.y;
-        nz = floor->normal.z;
-        oo = floor->originOffset;
+
+        f32 normal[4];
+        get_surface_normal_oo(normal, floor);
+        nx = normal[0];
+        ny = normal[1];
+        nz = normal[2];
+        oo = normal[3];
+
         pos[1] = 300.f - (nx * pos[0] + nz * pos[2] + oo) / ny;
 #ifdef ENABLE_VANILLA_LEVEL_SPECIFIC_CHECKS
         switch (gCurrLevelArea) {
@@ -3779,8 +3783,6 @@ s32 update_camera_hud_status(struct Camera *c) {
 s32 collide_with_walls(Vec3f pos, f32 offsetY, f32 radius) {
     struct WallCollisionData collisionData;
     struct Surface *wall = NULL;
-    f32 normX, normY, normZ;
-    f32 originOffset;
     f32 offset;
     f32 offsetAbsolute;
     Vec3f newPos[MAX_REFERENCED_WALLS];
@@ -3797,15 +3799,13 @@ s32 collide_with_walls(Vec3f pos, f32 offsetY, f32 radius) {
         for (i = 0; i < collisionData.numWalls; i++) {
             wall = collisionData.walls[collisionData.numWalls - 1];
             vec3f_copy(newPos[i], pos);
-            normX = wall->normal.x;
-            normY = wall->normal.y;
-            normZ = wall->normal.z;
-            originOffset = wall->originOffset;
-            offset = normX * newPos[i][0] + normY * newPos[i][1] + normZ * newPos[i][2] + originOffset;
+            f32 normal[4];
+            get_surface_normal_oo(normal, wall);
+            offset = normal[0] * newPos[i][0] + normal[1] * newPos[i][1] + normal[2] * newPos[i][2] + normal[3];
             offsetAbsolute = absf(offset);
             if (offsetAbsolute < radius) {
-                newPos[i][0] += normX * (radius - offset);
-                newPos[i][2] += normZ * (radius - offset);
+                newPos[i][0] += normal[0] * (radius - offset);
+                newPos[i][2] += normal[2] * (radius - offset);
                 vec3f_copy(pos, newPos[i]);
             }
         }
