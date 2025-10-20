@@ -51,6 +51,12 @@ void region_logic(void) {
                 vec3f_copy(&spawnedObj->oPosVec,ro->pos);
                 spawnedObj->oMoveAngleYaw = ro->angle * 182;
                 spawnedObj->oFaceAngleYaw = ro->angle * 182;
+
+                spawnedObj->oFaceAnglePitch = 0;
+                spawnedObj->oMoveAnglePitch = 0;
+                spawnedObj->oFaceAngleRoll = 0;
+                spawnedObj->oMoveAngleRoll = 0;
+
                 spawnedObj->regionFlags = ro->regionFlags;
                 spawnedObj->oBehParams = ro->bparams;
                 spawnedObj->oBehParams2ndByte = GET_BPARAM2(ro->bparams);
