@@ -186,11 +186,15 @@ void bhv_hidden_red_coin_star_init(void) {
 }
 
 void bhv_hidden_red_coin_star_loop(void) {
-    gRedCoinsCollected = gRegionRedCoins[o->primaryRegionId];
+    s8 redCoinSlot = o->primaryRegionId;
+    if (o->primaryRegionId == -1) {
+        redCoinSlot = 32;
+    }
+    gRedCoinsCollected = gRegionRedCoins[redCoinSlot];
 
     switch (o->oAction) {
         case HIDDEN_STAR_ACT_INACTIVE:
-            if (o->oHiddenStarTriggerCounter == o->oHiddenStarTriggerTotal) {
+            if (gRedCoinsCollected >= 8) {
                 o->oAction = HIDDEN_STAR_ACT_ACTIVE;
             }
             break;

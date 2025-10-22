@@ -14,7 +14,7 @@ u32 sPrevRegionFlags = 0;
 regionObject * sRegionObject = NULL;
 Bool8 gRegionDisableRender = FALSE;
 
-u8 gRegionRedCoins[32];
+u8 gRegionRedCoins[33];
 
 void region_flag_volume(CubicVolume * v) {
     gRegionFlags |= (1 << v->param);
