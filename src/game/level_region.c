@@ -14,6 +14,8 @@ u32 sPrevRegionFlags = 0;
 regionObject * sRegionObject = NULL;
 Bool8 gRegionDisableRender = FALSE;
 
+u8 gRegionRedCoins[32];
+
 void region_flag_volume(CubicVolume * v) {
     gRegionFlags |= (1 << v->param);
 }
@@ -36,7 +38,6 @@ void region_init_object(Vec3f pos, s16 angle, u32 bparams, u16 modelId, Behavior
     sRegionObjectCount++;
 }
 
-extern BehaviorScript bhvStaticObject[];
 void region_logic(void) {
     gRegionFlags = 0;
     cubic_volume_check_all(gMarioState->pos,VOLUME_TYPE_REGION,region_flag_volume);
@@ -58,10 +59,27 @@ void region_logic(void) {
                 spawnedObj->oMoveAngleRoll = 0;
 
                 spawnedObj->regionFlags = ro->regionFlags;
+
+                for (int i = 0; i < 32; i++) {
+                    if (spawnedObj->regionFlags & (1 << i)) {
+                        spawnedObj->primaryRegionId = i;
+                        break;
+                    }
+                }
+
                 spawnedObj->oBehParams = ro->bparams;
                 spawnedObj->oBehParams2ndByte = GET_BPARAM2(ro->bparams);
             }
         }
+
+        // Set local region red coin counter back to 0
+        for (int i = 0; i < 32; i++) {
+            // If leaving region i
+            if ( (sPrevRegionFlags & (1 << i)) && (!(gRegionFlags & (1 << i))) ) {
+                gRegionRedCoins[i] = 0;
+            }
+        }
+
 
         sPrevRegionFlags = gRegionFlags;
     }

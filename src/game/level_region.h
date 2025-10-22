@@ -22,6 +22,7 @@ enum regionIds {
 
 extern u32 gRegionFlags;
 extern Bool8 gRegionDisableRender;
+extern u8 gRegionRedCoins[32];
 
 void region_logic(void);
 void region_init_object(Vec3f pos, s16 angle, u32 bparams, u16 modelId, BehaviorScript * behavior, EventData * event);

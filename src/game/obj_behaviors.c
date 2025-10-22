@@ -35,6 +35,7 @@
 #include "event_dialog.h"
 #include "coin.h"
 #include "neo_shadow.h"
+#include "level_region.h"
 
 /**
  * @file obj_behaviors.c

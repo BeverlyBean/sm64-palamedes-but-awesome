@@ -186,7 +186,7 @@ void bhv_hidden_red_coin_star_init(void) {
 }
 
 void bhv_hidden_red_coin_star_loop(void) {
-    gRedCoinsCollected = o->oHiddenStarTriggerCounter;
+    gRedCoinsCollected = gRegionRedCoins[o->primaryRegionId];
 
     switch (o->oAction) {
         case HIDDEN_STAR_ACT_INACTIVE:

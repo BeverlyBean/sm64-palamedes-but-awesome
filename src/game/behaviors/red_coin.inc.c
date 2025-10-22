@@ -48,21 +48,21 @@ void bhv_red_coin_loop(void) {
         // ...and there is a red coin star in the level...
         if (o->parentObj != NULL) {
             // ...increment the star's counter.
-            o->parentObj->oHiddenStarTriggerCounter++;
+            gRegionRedCoins[o->primaryRegionId]++;
 
             // Spawn the orange number counter, as long as it isn't the last coin.
-            if (o->parentObj->oHiddenStarTriggerCounter != o->parentObj->oHiddenStarTriggerTotal) {
+            if (gRegionRedCoins[o->primaryRegionId] != 8) {
                 // Cap visible count to 99
-                if (o->parentObj->oHiddenStarTriggerCounter > 99) {
+                if (gRegionRedCoins[o->primaryRegionId] > 99) {
                     spawn_orange_number(9, 28, 0, 0);
                     spawn_orange_number(9, -28, 0, 0);
                 }
-                else if (o->parentObj->oHiddenStarTriggerCounter >= 10) {
-                    spawn_orange_number(o->parentObj->oHiddenStarTriggerCounter % 10, 28, 0, 0);
-                    spawn_orange_number(o->parentObj->oHiddenStarTriggerCounter / 10, -28, 0, 0);
+                else if (gRegionRedCoins[o->primaryRegionId] >= 10) {
+                    spawn_orange_number(gRegionRedCoins[o->primaryRegionId] % 10, 28, 0, 0);
+                    spawn_orange_number(gRegionRedCoins[o->primaryRegionId] / 10, -28, 0, 0);
                 }
                 else {
-                    spawn_orange_number(o->parentObj->oHiddenStarTriggerCounter, 0, 0, 0);
+                    spawn_orange_number(gRegionRedCoins[o->primaryRegionId], 0, 0, 0);
                 }
             }
 
@@ -70,14 +70,14 @@ void bhv_red_coin_loop(void) {
             // For JP version, play an identical sound for all coins.
             create_sound_spawner(SOUND_GENERAL_RED_COIN);
 #else
-            if (o->parentObj->oHiddenStarTriggerTotal - o->parentObj->oHiddenStarTriggerCounter > 7) {
+            if (8 - gRegionRedCoins[o->primaryRegionId] > 7) {
                 // Play the first red coin sound until it gets to the final 8
                 play_sound(SOUND_MENU_COLLECT_RED_COIN, gGlobalSoundSource);
             }
             else {
                 // On all versions but the JP version, each coin collected plays a higher noise.
                 play_sound(SOUND_MENU_COLLECT_RED_COIN
-                        + (((u8) 7 - (o->parentObj->oHiddenStarTriggerTotal - o->parentObj->oHiddenStarTriggerCounter)) << 16),
+                        + (((u8) 7 - (8 - gRegionRedCoins[o->primaryRegionId])) << 16),
                         gGlobalSoundSource);
             }
 #endif
